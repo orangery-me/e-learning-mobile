@@ -1,4 +1,4 @@
-# flutter_template
+# Coursevo - E-learning App Project
 
 A new Flutter project.
 
