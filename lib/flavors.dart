@@ -1,0 +1,39 @@
+import 'package:e_learning_mobile/generated/firebase_options/firebase_options_prod.dart' as firebase_option_dev;
+import 'package:e_learning_mobile/generated/firebase_options/firebase_options_prod.dart' as firebase_options_staging;
+import 'package:e_learning_mobile/generated/firebase_options/firebase_options_prod.dart' as firebase_options_prod;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:e_learning_mobile/common/constants/env_keys.dart';
+
+enum Flavor {
+  DEV,
+  STAGING,
+  PROD,
+}
+
+class AppFlavor {
+  static Flavor? appFlavor;
+
+  static String get apiBaseUrl => const String.fromEnvironment(EnvKeys.baseURL);
+
+  static String get title {
+    switch (appFlavor) {
+      case Flavor.DEV:
+        return 'Flutter Template DEV';
+      case Flavor.STAGING:
+        return 'Flutter Template STAGING';
+      case Flavor.PROD:
+        return 'Flutter Template';
+      default:
+        return 'Flutter Template DEV';
+    }
+  }
+
+  static FirebaseOptions get firebaseOptions {
+    return switch (appFlavor) {
+      Flavor.DEV => firebase_option_dev.DefaultFirebaseOptions.currentPlatform,
+      Flavor.STAGING => firebase_options_staging.DefaultFirebaseOptions.currentPlatform,
+      Flavor.PROD => firebase_options_prod.DefaultFirebaseOptions.currentPlatform,
+      _ => firebase_option_dev.DefaultFirebaseOptions.currentPlatform,
+    };
+  }
+}
