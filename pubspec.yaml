@@ -48,8 +48,8 @@ dependencies:
   equatable: ^2.0.5
   lottie: ^2.7.0
   flutter_screenutil: ^5.9.0
-  firebase_core: ^2.24.2
-  firebase_messaging: ^14.7.9
+  firebase_core: ^4.0.0
+  firebase_messaging: ^16.0.0
   flutter_local_notifications: 18.0.0
   dropdown_button2: ^2.3.9
   video_player: 2.9.0
@@ -171,3 +171,6 @@ flutter_gen:
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+dependency_overrides:
+  package_info_plus: ^8.3.1
+  # wakelock_plus: ^1.3.3
