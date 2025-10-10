@@ -1,4 +1,3 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 // **************************************************************************
@@ -32,7 +31,11 @@ Future<_i174.GetIt> initGetIt(
   String? environment,
   _i526.EnvironmentFilter? environmentFilter,
 }) async {
-  final gh = _i526.GetItHelper(getIt, environment, environmentFilter);
+  final gh = _i526.GetItHelper(
+    getIt,
+    environment,
+    environmentFilter,
+  );
   final localModule = _$LocalModule();
   final networkModule = _$NetworkModule();
   await gh.singletonAsync<_i986.Box<dynamic>>(
@@ -40,29 +43,20 @@ Future<_i174.GetIt> initGetIt(
     instanceName: 'auth_box',
     preResolve: true,
   );
-  gh.lazySingleton<_i958.DioProvider>(
-    () => _i958.DioProvider(gh<_i979.Box<dynamic>>(instanceName: 'auth_box')),
-  );
-  gh.lazySingleton<_i591.UserLocalDataSource>(
-    () => _i591.UserLocalDataSource(
-      authBox: gh<_i979.Box<dynamic>>(instanceName: 'auth_box'),
-    ),
-  );
+  gh.lazySingleton<_i958.DioProvider>(() =>
+      _i958.DioProvider(gh<_i979.Box<dynamic>>(instanceName: 'auth_box')));
+  gh.lazySingleton<_i591.UserLocalDataSource>(() => _i591.UserLocalDataSource(
+      authBox: gh<_i979.Box<dynamic>>(instanceName: 'auth_box')));
   gh.lazySingleton<_i896.DioHelper>(
-    () => networkModule.provideDioHelper(gh<_i958.DioProvider>()),
-  );
+      () => networkModule.provideDioHelper(gh<_i958.DioProvider>()));
   gh.lazySingleton<_i812.UserRemoteDataSource>(
-    () => _i812.UserRemoteDataSource(dioHelper: gh<_i896.DioHelper>()),
-  );
-  gh.lazySingleton<_i1056.UserDataSource>(
-    () => _i1056.UserDataSource(
-      remoteDataSource: gh<_i812.UserRemoteDataSource>(),
-      localDataSource: gh<_i591.UserLocalDataSource>(),
-    ),
-  );
+      () => _i812.UserRemoteDataSource(dioHelper: gh<_i896.DioHelper>()));
+  gh.lazySingleton<_i1056.UserDataSource>(() => _i1056.UserDataSource(
+        remoteDataSource: gh<_i812.UserRemoteDataSource>(),
+        localDataSource: gh<_i591.UserLocalDataSource>(),
+      ));
   gh.lazySingleton<_i979.UserRepository>(
-    () => _i979.UserRepository(dataSource: gh<_i1056.UserDataSource>()),
-  );
+      () => _i979.UserRepository(dataSource: gh<_i1056.UserDataSource>()));
   return getIt;
 }
 

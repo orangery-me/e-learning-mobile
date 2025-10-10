@@ -33,7 +33,7 @@ class Palette extends ThemeExtension<Palette> {
     return const Palette(
       brightness: Brightness.light,
       scaffoldBackground: Color(0xFFFFFFFF),
-      buttonBackground: Color(0xFF002DE3),
+      buttonBackground: Color(0xFF106C54),
       normalText: Color(0xFF0F1828),
       textFieldBackground: Color(0xFFF7F7FC),
       errorButtonLabel: Color(0xFFFF3333),
@@ -46,7 +46,7 @@ class Palette extends ThemeExtension<Palette> {
     return const Palette(
       brightness: Brightness.light,
       scaffoldBackground: Color(0xFF0F1828),
-      buttonBackground: Color(0xFF375FFF),
+      buttonBackground: Color(0xFF106C54),
       normalText: Color(0xFFF7F7FC),
       textFieldBackground: Color(0xFF152033),
       errorButtonLabel: Color(0xFFF0424B),
@@ -81,21 +81,28 @@ class Palette extends ThemeExtension<Palette> {
   }
 
   @override
-  ThemeExtension<Palette> lerp(covariant ThemeExtension<Palette>? other, double t) {
+  ThemeExtension<Palette> lerp(
+      covariant ThemeExtension<Palette>? other, double t) {
     if (other is! Palette || identical(this, other)) {
       return this;
     }
 
     return Palette(
       brightness: brightness,
-      scaffoldBackground: Color.lerp(scaffoldBackground, other.scaffoldBackground, t)!,
-      buttonBackground: Color.lerp(buttonBackground, other.buttonBackground, t)!,
+      scaffoldBackground:
+          Color.lerp(scaffoldBackground, other.scaffoldBackground, t)!,
+      buttonBackground:
+          Color.lerp(buttonBackground, other.buttonBackground, t)!,
       normalText: Color.lerp(normalText, other.normalText, t)!,
-      textFieldBackground: Color.lerp(textFieldBackground, other.textFieldBackground, t)!,
+      textFieldBackground:
+          Color.lerp(textFieldBackground, other.textFieldBackground, t)!,
       hintTextField: Color.lerp(hintTextField, other.hintTextField, t)!,
-      errorButtonLabel: Color.lerp(errorButtonLabel, other.errorButtonLabel, t)!,
-      dialogBackground: Color.lerp(dialogBackground, other.dialogBackground, t)!,
-      focusedBorderColor: Color.lerp(focusedBorderColor, other.focusedBorderColor, t)!,
+      errorButtonLabel:
+          Color.lerp(errorButtonLabel, other.errorButtonLabel, t)!,
+      dialogBackground:
+          Color.lerp(dialogBackground, other.dialogBackground, t)!,
+      focusedBorderColor:
+          Color.lerp(focusedBorderColor, other.focusedBorderColor, t)!,
     );
   }
 }

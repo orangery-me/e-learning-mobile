@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:e_learning_mobile/data/datasources/user/local/user_datasource.dart';
 import 'package:e_learning_mobile/data/datasources/user/remote/user_datasource.dart';
 import 'package:e_learning_mobile/data/dtos/auth/login_by_email_request_dto.dart';
@@ -20,7 +22,11 @@ class UserDataSource {
 
     await _localDataSource.setUserAuth(loginResponse);
 
-    return loginResponse.user;
+    final user = await _remoteDataSource.getUser();
+
+    await _localDataSource.setUserInfo(user);
+
+    return user;
   }
 
   UserModel? getUserInfo() {

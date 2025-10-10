@@ -26,7 +26,7 @@ class _RootView extends StatelessWidget {
         builder: (context, state) {
           return SlideIndexedStack(
             index: state.currentIndex,
-            children: const [HomePage(), NotificationPage(), ProfilePage()],
+            children:  [HomePage(), NotificationPage(), ProfilePage()],
           );
         },
         buildWhen: (previous, current) {

@@ -1,5 +1,4 @@
 import 'package:e_learning_mobile/data/dtos/auth/refresh_token_dto.dart';
-import 'package:e_learning_mobile/data/models/user_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'login_response_dto.g.dart';
@@ -7,7 +6,7 @@ part 'login_response_dto.g.dart';
 @JsonSerializable(createToJson: false)
 class LoginResponseDTO {
   LoginResponseDTO({
-    required this.user,
+    // required this.user,
     required this.accessToken,
     required this.refreshToken,
     required this.expiresIn,
@@ -16,7 +15,7 @@ class LoginResponseDTO {
   factory LoginResponseDTO.fromJson(Map<String, dynamic> json) =>
       _$LoginResponseDTOFromJson(json);
 
-  final UserModel user;
+  // final UserModel user;
   final String accessToken;
   final String refreshToken;
   final int expiresIn;

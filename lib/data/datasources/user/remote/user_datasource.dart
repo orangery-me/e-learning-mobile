@@ -17,10 +17,10 @@ class UserRemoteDataSource {
       data: params.toJson(),
     );
 
+    // final user = await getUser();
+
     return LoginResponseDTO(
-      user: UserModel.fromJson(
-        response.data['data']['user'] as Map<String, dynamic>,
-      ),
+      // user: user,
       refreshToken: response.data['data']['refresh_token'] as String,
       accessToken: response.data['data']['access_token'] as String,
       expiresIn: response.data['data']['expires_in'] as int,

@@ -18,13 +18,13 @@ class AppFlavor {
   static String get title {
     switch (appFlavor) {
       case Flavor.DEV:
-        return 'Flutter Template DEV';
+        return 'Coursevo Elearning App DEV';
       case Flavor.STAGING:
-        return 'Flutter Template STAGING';
+        return 'Coursevo Elearning App STAGING';
       case Flavor.PROD:
-        return 'Flutter Template';
+        return 'Coursevo Elearning App';
       default:
-        return 'Flutter Template DEV';
+        return 'Coursevo Elearning App DEV';
     }
   }
 

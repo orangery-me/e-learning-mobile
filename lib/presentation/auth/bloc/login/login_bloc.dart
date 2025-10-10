@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -36,6 +38,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       _authBloc.add(AuthUserInfoSet(currentUser: user));
     } catch (err) {
+      log(err.toString());
       final isUnauthorizedError =
           err is DioException && err.response?.statusCode == 401;
 

@@ -3,7 +3,10 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:e_learning_mobile/common/constants/hive_keys.dart';
+import 'package:e_learning_mobile/common/helpers/jwt_decoder.helper.dart';
 import 'package:e_learning_mobile/data/dtos/auth/refresh_token_dto.dart';
+import 'package:e_learning_mobile/router/app_router.dart';
+import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
 
@@ -11,11 +14,13 @@ class AppInterceptor extends QueuedInterceptor {
   AppInterceptor({
     @Named(HiveKeys.authBox) required Box<dynamic> authBox,
     required Dio dio,
-  }) : _authBox = authBox,
-       _dio = dio;
+  })  : _authBox = authBox,
+        _dio = dio;
 
   final Box<dynamic> _authBox;
   final Dio _dio;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  NavigatorState get _navigator => _navigatorKey.currentState!;
 
   @override
   Future<void> onRequest(
@@ -59,7 +64,7 @@ class AppInterceptor extends QueuedInterceptor {
     }
 
     log(
-      'ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}',
+      'ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path} => MESSAGE: ${err.message}',
       name: 'Intercepter: onError',
     );
 
@@ -67,13 +72,19 @@ class AppInterceptor extends QueuedInterceptor {
   }
 
   Future<void> _checkTokenExpired() async {
-    final expiredTime = _authBox.get(HiveKeys.expiresIn) as String?;
+    final accessToken = _authBox.get(HiveKeys.accessToken) as String?;
 
-    if (expiredTime != null &&
-        DateTime.parse(
-          expiredTime,
-        ).isBefore(DateTime.now().add(const Duration(seconds: 3)))) {
-      await _refreshToken();
+    if (accessToken != null) {
+      try {
+        final remainingTime = JwtDecoderHelper.getRemainingTime(accessToken);
+
+        if (remainingTime != null && remainingTime.inSeconds <= 3) {
+          await _refreshToken();
+        }
+      } catch (e) {
+        log('Token validation failed: $e');
+        await _refreshToken();
+      }
     }
   }
 
@@ -81,8 +92,8 @@ class AppInterceptor extends QueuedInterceptor {
     final refreshToken = _authBox.get(HiveKeys.refreshToken) as String?;
 
     if (refreshToken == null || refreshToken.isEmpty) {
-      // TODO: navigate to login screen
-
+      // navigate to login screen
+      _navigator.pushNamedAndRemoveUntil( AppRouter.login, (route) => false);
       return;
     }
 

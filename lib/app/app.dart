@@ -90,7 +90,7 @@ class _AppState extends State<App> {
                                 );
                             }
                           },
-                          child: child,
+                          child: SafeArea(child: child!),
                         );
                       },
                     );
