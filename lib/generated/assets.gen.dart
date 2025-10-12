@@ -25,8 +25,12 @@ class $AssetsFontsGen {
   String get mulishSemiBold => 'assets/fonts/Mulish-SemiBold.ttf';
 
   /// List of all assets
-  List<String> get values =>
-      [mulishBold, mulishMedium, mulishRegular, mulishSemiBold];
+  List<String> get values => [
+    mulishBold,
+    mulishMedium,
+    mulishRegular,
+    mulishSemiBold,
+  ];
 }
 
 class $AssetsIconsGen {
@@ -38,6 +42,9 @@ class $AssetsIconsGen {
 
 class $AssetsImagesGen {
   const $AssetsImagesGen();
+
+  /// Directory path: assets/images/banners
+  $AssetsImagesBannersGen get banners => const $AssetsImagesBannersGen();
 
   /// Directory path: assets/images/lottie
   $AssetsImagesLottieGen get lottie => const $AssetsImagesLottieGen();
@@ -67,6 +74,21 @@ class $AssetsIconsLauncherGen {
   List<AssetGenImage> get values => [appIcon];
 }
 
+class $AssetsImagesBannersGen {
+  const $AssetsImagesBannersGen();
+
+  /// File path: assets/images/banners/avatar.png
+  AssetGenImage get avatar =>
+      const AssetGenImage('assets/images/banners/avatar.png');
+
+  /// File path: assets/images/banners/coursevo-banner.jpg
+  AssetGenImage get coursevoBanner =>
+      const AssetGenImage('assets/images/banners/coursevo-banner.jpg');
+
+  /// List of all assets
+  List<AssetGenImage> get values => [avatar, coursevoBanner];
+}
+
 class $AssetsImagesLottieGen {
   const $AssetsImagesLottieGen();
 
@@ -90,11 +112,7 @@ class Assets {
 }
 
 class AssetGenImage {
-  const AssetGenImage(
-    this._assetName, {
-    this.size,
-    this.flavors = const {},
-  });
+  const AssetGenImage(this._assetName, {this.size, this.flavors = const {}});
 
   final String _assetName;
 
@@ -154,15 +172,8 @@ class AssetGenImage {
     );
   }
 
-  ImageProvider provider({
-    AssetBundle? bundle,
-    String? package,
-  }) {
-    return AssetImage(
-      _assetName,
-      bundle: bundle,
-      package: package,
-    );
+  ImageProvider provider({AssetBundle? bundle, String? package}) {
+    return AssetImage(_assetName, bundle: bundle, package: package);
   }
 
   String get path => _assetName;

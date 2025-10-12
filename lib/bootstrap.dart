@@ -34,6 +34,7 @@ Future<void> initializeApp() async {
     Firebase.initializeApp(options: AppFlavor.firebaseOptions),
   ]);
   EasyLocalization.logger.enableBuildModes = [];
+  // setUpDependencies();
 
   await LocalNotificationService.init();
   await FirebaseMessagingService.init();

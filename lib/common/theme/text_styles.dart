@@ -31,6 +31,7 @@ class Fonts {
 class AppTextStyles extends ThemeExtension<AppTextStyles> {
   final TextStyle heading1;
   final TextStyle heading2;
+  final TextStyle heading3;
   final TextStyle subHeading1;
   final TextStyle subHeading2;
   final TextStyle body1;
@@ -52,6 +53,7 @@ class AppTextStyles extends ThemeExtension<AppTextStyles> {
   const AppTextStyles({
     required this.heading1,
     required this.heading2,
+    required this.heading3,
     required this.subHeading1,
     required this.subHeading2,
     required this.body1,
@@ -72,6 +74,7 @@ class AppTextStyles extends ThemeExtension<AppTextStyles> {
     return AppTextStyles(
       heading1: Fonts.s32w7.copyWith(color: palette.normalText),
       heading2: Fonts.s24w7.copyWith(color: palette.normalText),
+      heading3: Fonts.s18w6.copyWith(color: palette.normalText),
       subHeading1: Fonts.s18w6.copyWith(color: palette.normalText),
       subHeading2: Fonts.s16w6.copyWith(color: palette.normalText),
       body1: Fonts.s14w6.copyWith(color: palette.normalText),
@@ -93,6 +96,7 @@ class AppTextStyles extends ThemeExtension<AppTextStyles> {
   ThemeExtension<AppTextStyles> copyWith({
     TextStyle? heading1,
     TextStyle? heading2,
+    TextStyle? heading3,
     TextStyle? subHeading1,
     TextStyle? subHeading2,
     TextStyle? body1,
@@ -111,6 +115,7 @@ class AppTextStyles extends ThemeExtension<AppTextStyles> {
     return AppTextStyles(
       heading1: heading1 ?? this.heading1,
       heading2: heading2 ?? this.heading2,
+      heading3: heading3 ?? this.heading3,
       subHeading1: subHeading1 ?? this.subHeading1,
       subHeading2: subHeading2 ?? this.subHeading2,
       body1: body1 ?? this.body1,
@@ -140,6 +145,7 @@ class AppTextStyles extends ThemeExtension<AppTextStyles> {
     return AppTextStyles(
       heading1: TextStyle.lerp(heading1, other.heading1, t)!,
       heading2: TextStyle.lerp(heading2, other.heading2, t)!,
+      heading3: TextStyle.lerp(heading3, other.heading3, t)!,
       subHeading1: TextStyle.lerp(subHeading1, other.subHeading1, t)!,
       subHeading2: TextStyle.lerp(subHeading2, other.subHeading2, t)!,
       body1: TextStyle.lerp(body1, other.body1, t)!,

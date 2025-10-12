@@ -1,15 +1,16 @@
 import 'package:e_learning_mobile/common/extensions/context_extension.dart';
+import 'package:e_learning_mobile/data/dtos/courses/course_response_dto.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/course_card.dart';
 import 'package:flutter/material.dart';
 
 class CourseViewSection extends StatelessWidget {
   final String sectionTitle;
-  // final List<Widget> courseCards;
+  final List<CourseResponseDto> courses;
 
   const CourseViewSection({
     super.key,
     required this.sectionTitle,
-    // required this.courseCards,
+    required this.courses,
   });
 
   @override
@@ -36,37 +37,22 @@ class CourseViewSection extends StatelessWidget {
 
         // Horizontal Course List
         SizedBox(
-          height: 300,
-          child: ListView(
+          height: 350,
+          child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            children: [
-              CourseCard(
-                title: 'Biology for class XIII',
-                instructor: 'By Smith J.',
-                filesCount: 17,
-                duration: 40,
-                thumbnailColor: const Color(0xFFB8C5FF),
-                imageUrl: 'https://via.placeholder.com/300x200',
-              ),
-              const SizedBox(width: 16),
-              CourseCard(
-                title: 'Math for class XIII',
-                instructor: 'By Smith J.',
-                filesCount: 17,
-                duration: 40,
-                thumbnailColor: const Color(0xFFFFD4B0),
-                imageUrl: 'https://via.placeholder.com/300x200',
-              ),
-              const SizedBox(width: 16),
-              CourseCard(
-                title: 'Physics for class XIII',
-                instructor: 'By Smith J.',
-                filesCount: 17,
-                duration: 40,
-                thumbnailColor: const Color(0xFFB8FFD4),
-                imageUrl: 'https://via.placeholder.com/300x200',
-              ),
-            ],
+            itemCount: courses.length,
+            separatorBuilder: (context, index) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final course = courses[index];
+              return CourseCard(
+                courseId: course.courseId,
+                title: course.title,
+                instructor: course.instructorId,
+                price: course.price,
+                imageUrl: course.image,
+                level: course.level,
+              );
+            },
           ),
         ),
       ],

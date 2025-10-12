@@ -1,23 +1,30 @@
 import 'package:e_learning_mobile/common/extensions/context_extension.dart';
+import 'package:e_learning_mobile/common/theme/palette.dart';
+import 'package:e_learning_mobile/common/utils/format_util.dart';
 import 'package:e_learning_mobile/presentation/learn/view/video_play_view.dart';
 import 'package:flutter/material.dart';
 
 class CourseCard extends StatelessWidget {
+  final String courseId;
   final String title;
   final String instructor;
   final int filesCount;
   final int duration;
-  final Color thumbnailColor;
+  final double price;
+  final String level;
   final String imageUrl;
+  // final String videoUrl;
 
   const CourseCard({
     super.key,
+    required this.courseId,
     required this.title,
     required this.instructor,
-    required this.filesCount,
-    required this.duration,
-    required this.thumbnailColor,
-    required this.imageUrl,
+    required this.price,
+    this.level = 'Beginner',
+    this.filesCount = 3,
+    this.duration = 15,
+    required this.imageUrl
   });
 
   @override
@@ -45,7 +52,6 @@ class CourseCard extends StatelessWidget {
               Container(
                 height: 180,
                 decoration: BoxDecoration(
-                  color: thumbnailColor,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
@@ -54,7 +60,7 @@ class CourseCard extends StatelessWidget {
                     image: NetworkImage(imageUrl),
                     fit: BoxFit.cover,
                     colorFilter: ColorFilter.mode(
-                      thumbnailColor.withOpacity(0.7),
+                      Colors.black.withOpacity(0.15),
                       BlendMode.color,
                     ),
                   ),
@@ -80,9 +86,11 @@ class CourseCard extends StatelessWidget {
                           // go to video play screen
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context) {
-                            return VideoPlayView(
-                                videoUrl:
-                                    'https://dinhlooc-test-2025.s3.us-east-1.amazonaws.com/video-30012ca2-77fb-4635-be60-77f481933d63-1758467257284.mp4');
+                            return VieoPlayPage(
+                              videoUrl:
+                                  'https://dinhlooc-test-2025.s3.us-east-1.amazonaws.com/video-30012ca2-77fb-4635-be60-77f481933d63-1758467257284.mp4',
+                              courseId: courseId,
+                            );
                           }));
                         },
                         icon: const Icon(
@@ -144,38 +152,31 @@ class CourseCard extends StatelessWidget {
                         .copyWith(color: Colors.grey[700])),
                 const SizedBox(height: 8),
 
-                // Files and Duration Info
+                // price
                 Row(
                   children: [
-                    Icon(
-                      Icons.copy_outlined,
-                      size: 18,
-                      color: Colors.grey[600],
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '$filesCount Files',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.w500,
+                    // level tag
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE3F2FD),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        level,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF1976D2),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 20),
-                    Icon(
-                      Icons.access_time_outlined,
-                      size: 18,
-                      color: Colors.grey[600],
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '$duration Mints',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    const Spacer(),
+                    Text(FormatUtil.formatNumberAsCurrency(price, symbol: '₫'),
+                        style: context.textStyles.subHeading1.copyWith(
+                            color: Palette.light().normalText,
+                            fontWeight: FontWeight.bold)),
                   ],
                 ),
               ],

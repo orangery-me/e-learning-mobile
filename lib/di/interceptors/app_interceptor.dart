@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:e_learning_mobile/common/constants/endpoints.dart';
 import 'package:e_learning_mobile/common/constants/hive_keys.dart';
 import 'package:e_learning_mobile/common/helpers/jwt_decoder.helper.dart';
 import 'package:e_learning_mobile/data/dtos/auth/refresh_token_dto.dart';
@@ -92,23 +93,29 @@ class AppInterceptor extends QueuedInterceptor {
     final refreshToken = _authBox.get(HiveKeys.refreshToken) as String?;
 
     if (refreshToken == null || refreshToken.isEmpty) {
-      // navigate to login screen
-      _navigator.pushNamedAndRemoveUntil( AppRouter.login, (route) => false);
+      _navigator.pushNamedAndRemoveUntil(AppRouter.login, (route) => false);
       return;
     }
 
     log('--[REFRESH TOKEN]--: $refreshToken');
 
     try {
-      final response = await _dio.get('');
+      final response = await _dio.post(
+        '${Endpoints.apiUrl}/refresh_tokens',
+        data: {
+          'refresh_token': refreshToken,
+        },
+      );
 
-      final refreshTokenDTO = RefreshTokenDTO.fromJson(
-        response.data as Map<String, dynamic>,
+      final refreshTokenDTO = RefreshTokenDTO.fromJson( 
+        response.data['data'] as Map<String, dynamic>,
       );
 
       await _authBox.putAll(refreshTokenDTO.toLocalJson());
     } catch (err) {
-      // TODO: logout
+      log('Error refreshing token: $err');
+      _navigator.pushNamedAndRemoveUntil(AppRouter.login, (route) => false);
+      return;
     }
   }
 }

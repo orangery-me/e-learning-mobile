@@ -12,7 +12,8 @@ class DioHelper {
 
     for (final item in map.entries) {
       if (item.value is File) {
-        multipartMap[item.key] = await MultipartFile.fromFile((item.value as File).path);
+        multipartMap[item.key] =
+            await MultipartFile.fromFile((item.value as File).path);
       } else if (item.value is List<File>) {
         final files = item.value as List<File>;
         final filesList = <MultipartFile>[];
@@ -27,12 +28,14 @@ class DioHelper {
     final mappedFormData = FormData();
 
     // Add fields
-    mappedFormData.fields.addAll(originalFormData.fields.map((e) => MapEntry(e.key, e.value)));
+    mappedFormData.fields
+        .addAll(originalFormData.fields.map((e) => MapEntry(e.key, e.value)));
 
     // Add files
     for (final element in originalFormData.files) {
       if (element.key.contains('[') || element.key.contains(']')) {
-        final newKey = element.key.replaceAllMapped(RegExp('([+[a-zA-Z]+])'), (m) {
+        final newKey =
+            element.key.replaceAllMapped(RegExp('([+[a-zA-Z]+])'), (m) {
           return '${m[0]}'.replaceAll('[', '.').replaceAll(']', '');
         });
         final newValue = element.value;

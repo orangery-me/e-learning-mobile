@@ -9,4 +9,13 @@ abstract class Endpoints {
 
   // user api
   static String getUser = '$apiUrl/user';
+
+  // course api
+  static String courses = '$apiUrl/courses';
+
+  // section api
+  static String sections = '$apiUrl/sections';
+
+  // lecture api
+  static String lectures = '$apiUrl/lectures';
 }

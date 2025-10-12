@@ -131,3 +131,12 @@ fvm flutter build apk --release --flavor staging -t lib/main_staging.dart
 ### Bundle Android Release
 
 fvm flutter build appbundle --flavor staging -t lib/main_stating.dart
+
+
+### Applying Patches Manually:
+
+While patch_package does not automatically apply patches after each flutter pub get or dart pub get, you can manually trigger the patch application process at any time.
+
+After running flutter pub get or flutter pub upgrade, apply all stored patches by executing:
+
+dart run patch_package apply
