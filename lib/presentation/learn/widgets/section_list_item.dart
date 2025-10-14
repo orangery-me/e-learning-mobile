@@ -1,3 +1,4 @@
+import 'package:e_learning_mobile/common/extensions/context_extension.dart';
 import 'package:e_learning_mobile/data/dtos/sections/section_response_dto.dart';
 import 'package:e_learning_mobile/data/dtos/lectures/lecture_response_dto.dart';
 import 'package:e_learning_mobile/presentation/learn/widgets/lecture_list_item.dart';
@@ -26,15 +27,12 @@ class SectionListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      color: Colors.white,
+      // margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ExpansionTile(
-        title: Text(
-          section.title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
+        title: Text(section.title,
+            style:
+                context.textStyles.body1.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Text(
           'Position: ${section.position}',
           style: TextStyle(

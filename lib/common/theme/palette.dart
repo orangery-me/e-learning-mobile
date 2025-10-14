@@ -10,7 +10,7 @@ class Palette extends ThemeExtension<Palette> {
   final Color normalText;
   final Color textFieldBackground;
   final Color hintTextField;
-
+  final Color primaryColor;
   final Color errorButtonLabel;
   final Color dialogBackground;
 
@@ -22,6 +22,7 @@ class Palette extends ThemeExtension<Palette> {
     required this.buttonBackground,
     required this.normalText,
     required this.textFieldBackground,
+    required this.primaryColor,
     required this.errorButtonLabel,
     required this.dialogBackground,
     required this.focusedBorderColor,
@@ -34,6 +35,7 @@ class Palette extends ThemeExtension<Palette> {
       brightness: Brightness.light,
       scaffoldBackground: Color(0xFFFFFFFF),
       buttonBackground: Color(0xFF106C54),
+      primaryColor: Color(0xFF106C54),
       normalText: Color(0xFF0F1828),
       textFieldBackground: Color(0xFFF7F7FC),
       errorButtonLabel: Color(0xFFFF3333),
@@ -47,6 +49,7 @@ class Palette extends ThemeExtension<Palette> {
       brightness: Brightness.light,
       scaffoldBackground: Color(0xFF0F1828),
       buttonBackground: Color(0xFF106C54),
+      primaryColor: Color(0xFF106C54),
       normalText: Color(0xFFF7F7FC),
       textFieldBackground: Color(0xFF152033),
       errorButtonLabel: Color(0xFFF0424B),
@@ -60,6 +63,7 @@ class Palette extends ThemeExtension<Palette> {
     Brightness? brightness,
     Color? scaffoldBackground,
     Color? buttonBackground,
+    Color? primaryColor,
     Color? text,
     Color? textFieldBackground,
     Color? hintTextField,
@@ -71,6 +75,7 @@ class Palette extends ThemeExtension<Palette> {
       brightness: brightness ?? this.brightness,
       scaffoldBackground: scaffoldBackground ?? this.scaffoldBackground,
       buttonBackground: buttonBackground ?? this.buttonBackground,
+      primaryColor: primaryColor ?? this.primaryColor,
       normalText: text ?? normalText,
       textFieldBackground: textFieldBackground ?? this.textFieldBackground,
       hintTextField: hintTextField ?? this.hintTextField,
@@ -94,6 +99,7 @@ class Palette extends ThemeExtension<Palette> {
       buttonBackground:
           Color.lerp(buttonBackground, other.buttonBackground, t)!,
       normalText: Color.lerp(normalText, other.normalText, t)!,
+      primaryColor: Color.lerp(primaryColor, other.primaryColor, t)!,
       textFieldBackground:
           Color.lerp(textFieldBackground, other.textFieldBackground, t)!,
       hintTextField: Color.lerp(hintTextField, other.hintTextField, t)!,

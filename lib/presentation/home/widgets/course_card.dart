@@ -41,10 +41,10 @@ class CourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 320, // Featured style width
+      width: 260, // Featured style width
       decoration: BoxDecoration(
         color: const Color(0xFFF8F9FF), // Light blue background
-        borderRadius: BorderRadius.circular(28), // Featured style border radius
+        borderRadius: BorderRadius.circular(12), // Featured style border radius
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -78,15 +78,15 @@ class CourseCard extends StatelessWidget {
             children: [
               // Thumbnail Image
               Container(
-                height: 180, // Featured style image height
+                height: 150, // Featured style image height
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(28),
-                    topRight: Radius.circular(28),
+                    topLeft: Radius.circular(12),
+                    topRight: Radius.circular(12),
                   ),
                   image: DecorationImage(
                     image: NetworkImage(imageUrl),
-                    fit: BoxFit.fitWidth,
+                    fit: BoxFit.cover,
                   ),
                 ),
                 child: Center(
@@ -210,9 +210,9 @@ class CourseCard extends StatelessWidget {
                 // Title
                 Text(
                   title,
-                  style: context.textStyles.heading3
+                  style: context.textStyles.heading4
                       .copyWith(fontWeight: FontWeight.w700),
-                  maxLines: 3,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
 
@@ -253,11 +253,8 @@ class CourseCard extends StatelessWidget {
                     const Spacer(),
                     Text(
                       FormatUtil.formatNumberAsCurrency(price, symbol: '₫'),
-                      style: const TextStyle(
-                        fontSize: 22, // Featured style price font size
-                        color: Color(0xFF5B7FFF),
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: context.textStyles.heading4
+                          .copyWith(fontWeight: FontWeight.w800),
                     ),
                   ],
                 ),

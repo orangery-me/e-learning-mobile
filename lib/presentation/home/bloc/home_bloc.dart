@@ -50,11 +50,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     try {
       // Load categories and select random ones
       final categories = await courseDatasource.fetchCategories();
-      final random = Random();
-      final shuffled = List<String>.from(categories)..shuffle(random);
-      final randomCategories = shuffled.take(event.count).toList();
+      dev.log(categories.toString());
+      // final random = Random();
+      // final shuffled = List<String>.from(categories)..shuffle(random);
+      // final randomCategories = shuffled.take(event.count).toList();
+      final randomCategories = [categories[5], categories[1], categories[4]];
 
       emit(state.copyWith(
+        allCategories: categories,
         randomCategories: randomCategories,
         isLoading: false,
       ));

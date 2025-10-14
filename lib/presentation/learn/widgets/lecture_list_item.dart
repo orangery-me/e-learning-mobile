@@ -17,7 +17,7 @@ class LectureListItem extends StatelessWidget {
     final duration = Duration(seconds: seconds);
     final minutes = duration.inMinutes;
     final remainingSeconds = duration.inSeconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+    return 'Video - ${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')} mins';
   }
 
   @override
@@ -38,13 +38,14 @@ class LectureListItem extends StatelessWidget {
           lecture.title,
           style: TextStyle(
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            fontSize: 14,
             color: isSelected ? Colors.blue : null,
           ),
         ),
         subtitle: Text(
           _formatDuration(lecture.duration ?? 0),
           style: TextStyle(
-            color: Colors.grey[600],
+            color: Colors.grey[800],
             fontSize: 12,
           ),
         ),

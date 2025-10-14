@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 
 class CourseViewSection extends StatelessWidget {
   final String sectionTitle;
+  final Color? sectionTitleColor;
+  final Color? backgroundColor;
   final List<CourseResponseDto> courses;
   final bool showSeeAll;
   final VoidCallback? onSeeAllTap;
   final String? subtitle;
+  final Color? subtitleColor;
   final Widget? customHeader;
   final double cardHeight;
   final EdgeInsetsGeometry? padding;
@@ -18,6 +21,9 @@ class CourseViewSection extends StatelessWidget {
     super.key,
     required this.sectionTitle,
     required this.courses,
+    this.sectionTitleColor = Colors.black,
+    this.backgroundColor = Colors.white,
+    this.subtitleColor = Colors.grey,
     this.showSeeAll = true,
     this.onSeeAllTap,
     this.subtitle,
@@ -62,18 +68,14 @@ class CourseViewSection extends StatelessWidget {
                 children: [
                   Text(
                     sectionTitle,
-                    style: context.textStyles.heading2,
+                    style: context.textStyles.heading3
+                        .copyWith(color: sectionTitleColor),
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),
-                    Text(
-                      subtitle!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
+                    Text(subtitle!,
+                        style: context.textStyles.body1
+                            .copyWith(color: subtitleColor, fontSize: 14)),
                   ],
                 ],
               ),

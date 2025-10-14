@@ -1,24 +1,24 @@
 enum Category {
-  programming('Programming'),
-  design('Design'),
-  projectManagement('Project Management'),
-  dataScience('Data Science'),
-  languageLearning('Language Learning'),
-  development('Development'),
-  webDevelopment('Web Development'),
-  mobileDevelopment('Mobile Development'),
-  aiAndMachineLearning('AI And Machine Learning'),
-  cybersecurity('Cybersecurity'),
-  cloudComputing('Cloud Computing'),
-  devops('DevOps'),
-  gameDevelopment('Game Development'),
-  softwareEngineering('Software Engineering'),
-  databases('Databases'),
-  ;
+  programming('Programming', '👨‍💻'),
+  design('Design', '🎨'),
+  projectManagement('Project Management', '💼'),
+  dataScience('Data Science', '📊'),
+  languageLearning('Language Learning', '🌍'),
+  development('Development', '🧱'),
+  webDevelopment('Web Development', '💻'),
+  mobileDevelopment('Mobile Development', '📱'),
+  aiAndMachineLearning('AI And Machine Learning', '🤖'),
+  cybersecurity('Cybersecurity', '🛡️'),
+  cloudComputing('Cloud Computing', '☁️'),
+  devops('DevOps', '⚙️'),
+  gameDevelopment('Game Development', '🎮'),
+  softwareEngineering('Software Engineering', '🧩'),
+  databases('Databases', '💾');
 
   final String displayName;
+  final String emoji;
 
-  const Category(this.displayName);
+  const Category(this.displayName, this.emoji);
 
   String mapNameToDbValue() {
     return displayName.replaceAll(' ', '_').toUpperCase();
@@ -30,6 +30,8 @@ enum Category {
         return category;
       }
     }
-    return null; // or throw an exception if preferred
+    return null;
   }
+
+  String getEmoji() => emoji;
 }
