@@ -24,3 +24,12 @@ class GetSelectedSection extends SectionsEvent {
   @override
   List<Object> get props => [sectionId];
 }
+
+class LoadLecturesBySectionId extends SectionsEvent {
+  final String sectionId;
+
+  const LoadLecturesBySectionId(this.sectionId);
+
+  @override
+  List<Object> get props => [sectionId];
+}

@@ -23,41 +23,87 @@ class SectionsBloc extends Bloc<SectionsEvent, SectionsState> {
     on<LoadSectionsByCourseId>(
         (event, emit) => loadSectionsByCourseId(event, emit));
     on<GetSelectedSection>((event, emit) => getSelectedSection(event, emit));
+    on<LoadLecturesBySectionId>(
+        (event, emit) => loadLecturesBySectionId(event, emit));
   }
 
   Future<void> loadSectionsByCourseId(
       LoadSectionsByCourseId event, Emitter<SectionsState> emit) async {
-    emit(state.copyWith(isLoading: true, errorMessage: null));
+    emit(state.copyWith(errorMessage: null));
 
     try {
-      // Load both sections and lectures in parallel
-      final futures = await Future.wait([
-        datasource.fetchSectionsByCourseId(event.courseId),
-        lectureDatasource.fetchLecturesByCourseId(event.courseId),
-      ]);
-
-      final sections = futures[0] as List<SectionResponseDto>;
-      final lectures = futures[1] as List<LectureResponseDto>;
+      // Load only sections
+      final sections = await datasource.fetchSectionsByCourseId(event.courseId);
 
       emit(state.copyWith(
         sections: sections,
-        lectures: lectures,
-        isLoading: false,
       ));
     } catch (e) {
       log(e.toString());
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+      emit(state.copyWith(errorMessage: e.toString()));
     }
   }
 
   Future<void> getSelectedSection(
       GetSelectedSection event, Emitter<SectionsState> emit) async {
-    emit(state.copyWith(isLoading: true, errorMessage: null));
+    emit(state.copyWith(errorMessage: null));
     try {
       final section = await datasource.fetchSectionById(event.sectionId);
-      emit(state.copyWith(selectedSection: section, isLoading: false));
+      emit(state.copyWith(selectedSection: section));
     } catch (e) {
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+      emit(state.copyWith(errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> loadLecturesBySectionId(
+      LoadLecturesBySectionId event, Emitter<SectionsState> emit) async {
+    // Check if lectures are already cached for this section
+    if (state.lecturesCache.containsKey(event.sectionId)) {
+      return; // Lectures already cached, no need to fetch again
+    }
+
+    // Check if this section is already loading
+    if (state.isSectionLoading(event.sectionId)) {
+      return; // Already loading, avoid duplicate requests
+    }
+
+    // Add section ID to loading set
+    final updatedLoadingIds = Set<String>.from(state.loadingSectionIds)
+      ..add(event.sectionId);
+    emit(state.copyWith(
+      loadingSectionIds: updatedLoadingIds,
+      errorMessage: null,
+    ));
+
+    try {
+      // Fetch lectures for the section
+      final lectures =
+          await lectureDatasource.fetchLecturesBySectionId(event.sectionId);
+
+      // Update cache with new lectures
+      final updatedCache =
+          Map<String, List<LectureResponseDto>>.from(state.lecturesCache);
+      updatedCache[event.sectionId] = lectures;
+
+      // Remove section ID from loading set
+      final finalLoadingIds = Set<String>.from(state.loadingSectionIds)
+        ..remove(event.sectionId);
+
+      emit(state.copyWith(
+        lecturesCache: updatedCache,
+        loadingSectionIds: finalLoadingIds,
+      ));
+    } catch (e) {
+      log(e.toString());
+
+      // Remove section ID from loading set on error
+      final finalLoadingIds = Set<String>.from(state.loadingSectionIds)
+        ..remove(event.sectionId);
+
+      emit(state.copyWith(
+        loadingSectionIds: finalLoadingIds,
+        errorMessage: e.toString(),
+      ));
     }
   }
 }

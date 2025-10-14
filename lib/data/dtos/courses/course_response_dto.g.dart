@@ -15,6 +15,7 @@ CourseResponseDto _$CourseResponseDtoFromJson(Map<String, dynamic> json) =>
       price: (json['price'] as num).toDouble(),
       level: json['level'] as String,
       instructorId: json['instructorId'] as String,
+      instructorName: json['instructorName'] as String,
       category: json['category'] as String,
       image: json['image'] as String,
     );
@@ -28,6 +29,7 @@ Map<String, dynamic> _$CourseResponseDtoToJson(CourseResponseDto instance) =>
       'price': instance.price,
       'level': instance.level,
       'instructorId': instance.instructorId,
+      'instructorName': instance.instructorName,
       'category': instance.category,
       'image': instance.image,
     };

@@ -10,8 +10,8 @@ class LectureResponseDto {
   final String title;
   final String? content;
   final int position;
-  final String videoUrl;
-  final int duration; 
+  final String? videoUrl;
+  final int? duration;
   @DateTimeTimestampConverter()
   final DateTime createdAt;
   @DateTimeTimestampConverter()

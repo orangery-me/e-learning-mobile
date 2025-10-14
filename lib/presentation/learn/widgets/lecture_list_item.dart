@@ -42,7 +42,7 @@ class LectureListItem extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          _formatDuration(lecture.duration),
+          _formatDuration(lecture.duration ?? 0),
           style: TextStyle(
             color: Colors.grey[600],
             fontSize: 12,

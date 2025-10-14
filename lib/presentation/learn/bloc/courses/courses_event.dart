@@ -14,9 +14,16 @@ class LoadCourses extends CoursesEvent {
   final String? sortBy;
   final String? field;
   final String? query;
+  final String? filter;
 
   const LoadCourses(
-      {this.page, this.size, this.order, this.sortBy, this.field, this.query});
+      {this.page,
+      this.size,
+      this.order,
+      this.sortBy,
+      this.field,
+      this.query,
+      this.filter});
 }
 
 class GetSelectedCourse extends CoursesEvent {
@@ -26,4 +33,8 @@ class GetSelectedCourse extends CoursesEvent {
 
   @override
   List<Object> get props => [courseId];
+}
+
+class LoadCategories extends CoursesEvent {
+  const LoadCategories();
 }

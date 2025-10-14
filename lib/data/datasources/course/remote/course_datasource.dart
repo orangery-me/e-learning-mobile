@@ -13,13 +13,15 @@ class CourseRemoteDatasource {
       {String? order = 'asc',
       int? page = 1,
       int? size = 10,
-      String? sortBy = 'created_at'}) async {
+      String? sortBy = 'created_at',
+      String? filter}) async {
     final response =
         await _dioHelper.get('${Endpoints.courses}/page', queryParameters: {
       if (page != null) 'page': page,
       if (size != null) 'paging': size,
       if (order != null) 'order': order,
-      if (sortBy != null) 'sort_by': sortBy,
+      if (sortBy != null) 'sort': sortBy,
+      if (filter != null) 'filter': filter,
     });
 
     // Parse and return the list of courses from response
@@ -33,5 +35,14 @@ class CourseRemoteDatasource {
     final response = await _dioHelper.get('${Endpoints.courses}/$courseId');
 
     return CourseResponseDto.fromJson(response.data['data']);
+  }
+
+  // get categories
+  Future<List<String>> fetchCategories() async {
+    final response = await _dioHelper.get('${Endpoints.courses}/category');
+
+    return (response.data['data'] as List)
+        .map((category) => category.toString())
+        .toList();
   }
 }

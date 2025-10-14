@@ -11,7 +11,7 @@ class CourseResponseDto {
   final double price;
   final String level;
   final String instructorId;
-  // final String instructorName;
+  final String instructorName;
   final String category;
   final String image;
 
@@ -28,7 +28,7 @@ class CourseResponseDto {
     required this.price,
     required this.level,
     required this.instructorId,
-    // required this.instructorName,
+    required this.instructorName,
     required this.category,
     required this.image,
   });

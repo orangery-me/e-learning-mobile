@@ -33,6 +33,8 @@ import 'package:e_learning_mobile/data/repositories/user_repository.dart'
 import 'package:e_learning_mobile/di/modules/local_module.dart' as _i414;
 import 'package:e_learning_mobile/di/modules/network_module.dart' as _i220;
 import 'package:e_learning_mobile/di/providers/dio_provider.dart' as _i958;
+import 'package:e_learning_mobile/presentation/home/bloc/home_bloc.dart'
+    as _i375;
 import 'package:e_learning_mobile/presentation/learn/bloc/courses/courses_bloc.dart'
     as _i148;
 import 'package:e_learning_mobile/presentation/learn/bloc/lectures/lectures_bloc.dart'
@@ -94,6 +96,8 @@ Future<_i174.GetIt> initGetIt(
         datasource: gh<_i439.SectionDatasource>(),
         lectureDatasource: gh<_i895.LectureDatasource>(),
       ));
+  gh.factory<_i375.HomeBloc>(
+      () => _i375.HomeBloc(courseDatasource: gh<_i201.CourseDatasource>()));
   gh.factory<_i770.LecturesBloc>(
       () => _i770.LecturesBloc(datasource: gh<_i895.LectureDatasource>()));
   return getIt;

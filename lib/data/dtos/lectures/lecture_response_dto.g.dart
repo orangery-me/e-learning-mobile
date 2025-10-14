@@ -13,8 +13,8 @@ LectureResponseDto _$LectureResponseDtoFromJson(Map<String, dynamic> json) =>
       title: json['title'] as String,
       content: json['content'] as String?,
       position: (json['position'] as num).toInt(),
-      videoUrl: json['videoUrl'] as String,
-      duration: (json['duration'] as num).toInt(),
+      videoUrl: json['videoUrl'] as String?,
+      duration: (json['duration'] as num?)?.toInt(),
       createdAt: const DateTimeTimestampConverter()
           .fromJson((json['createdAt'] as num).toInt()),
       updatedAt: const DateTimeTimestampConverter()

@@ -9,12 +9,20 @@ class CourseDatasource {
       : _remoteDatasource = remoteDatasource;
 
   Future<List<CourseResponseDto>> fetchCourses(
-      {String? order, int? page, int? size, String? sortBy}) async {
+      {String? order,
+      int? page,
+      int? size,
+      String? sortBy,
+      String? filter}) async {
     return _remoteDatasource.fetchCourses(
-        page: page, size: size, order: order, sortBy: sortBy);
+        page: page, size: size, order: order, sortBy: sortBy, filter: filter);
   }
 
   Future<CourseResponseDto> fetchCourseById(String courseId) async {
     return _remoteDatasource.fetchCourseById(courseId);
+  }
+
+  Future<List<String>> fetchCategories() async {
+    return _remoteDatasource.fetchCategories();
   }
 }
