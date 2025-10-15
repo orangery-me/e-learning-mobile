@@ -6,6 +6,7 @@ final class SectionsState extends Equatable {
   final Map<String, List<LectureResponseDto>> lecturesCache;
   final Set<String> loadingSectionIds;
   final String? errorMessage;
+  final bool isLoading;
 
   const SectionsState({
     this.sections = const [],
@@ -13,6 +14,7 @@ final class SectionsState extends Equatable {
     this.lecturesCache = const {},
     this.loadingSectionIds = const {},
     this.errorMessage,
+    this.isLoading = false,
   });
 
   @override
@@ -21,7 +23,8 @@ final class SectionsState extends Equatable {
         selectedSection,
         lecturesCache,
         loadingSectionIds,
-        errorMessage
+        errorMessage,
+        isLoading,
       ];
 
   SectionsState copyWith({
@@ -30,6 +33,7 @@ final class SectionsState extends Equatable {
     Map<String, List<LectureResponseDto>>? lecturesCache,
     Set<String>? loadingSectionIds,
     String? errorMessage,
+    bool? isLoading,
   }) {
     return SectionsState(
       sections: sections ?? this.sections,
@@ -37,6 +41,7 @@ final class SectionsState extends Equatable {
       lecturesCache: lecturesCache ?? this.lecturesCache,
       loadingSectionIds: loadingSectionIds ?? this.loadingSectionIds,
       errorMessage: errorMessage,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 

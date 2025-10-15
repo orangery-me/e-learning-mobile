@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:e_learning_mobile/common/extensions/context_extension.dart';
+import 'package:e_learning_mobile/data/models/category.dart';
 import 'package:flutter/material.dart';
 
 import 'package:e_learning_mobile/common/utils/format_util.dart';
@@ -110,8 +111,7 @@ class CourseCard extends StatelessWidget {
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
                           return VieoPlayPage(
-                            videoUrl:
-                                'https://dinhlooc-test-2025.s3.us-east-1.amazonaws.com/video-30012ca2-77fb-4635-be60-77f481933d63-1758467257284.mp4',
+                            videoUrl: '',
                             courseId: courseId,
                           );
                         }));
@@ -165,44 +165,47 @@ class CourseCard extends StatelessWidget {
               children: [
                 // Category and Level
                 if (showCategory)
-                  Row(
-                    children: [
-                      if (showCategory) ...[
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        if (showCategory) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8F5E8),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              Category.fromDbValue(category)!.displayName,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Color(0xFF4CAF50),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE8F5E8),
+                            color: const Color(0xFFE3F2FD),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            category,
+                            level,
                             style: const TextStyle(
                               fontSize: 10,
-                              color: Color(0xFF4CAF50),
+                              color: Color(0xFF1976D2),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
                       ],
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE3F2FD),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          level,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Color(0xFF1976D2),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
 
                 if (showCategory) const SizedBox(height: 8),

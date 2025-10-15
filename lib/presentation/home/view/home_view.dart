@@ -140,7 +140,7 @@ class _HomeViewState extends State<HomeView> {
               sectionTitleColor: Colors.white,
               subtitleColor: Colors.white70,
               courses: state.courses,
-              cardHeight: 360,
+              cardHeight: 400,
               showCategory: true,
             ),
           );
@@ -199,7 +199,7 @@ class _HomeViewState extends State<HomeView> {
                           sectionTitle: randomTitle,
                           subtitle: "Top-rated courses in $category",
                           courses: categoryCourses,
-                          cardHeight: 360,
+                          cardHeight: 400,
                           showCategory: true,
                         );
                       }
@@ -230,7 +230,7 @@ class _HomeViewState extends State<HomeView> {
             sectionTitle: "Quick Learning Path",
             subtitle: "Start your journey with these popular courses",
             courses: verticalCourses,
-            cardHeight: 360,
+            cardHeight: 400,
             showCategory: true,
           );
         }

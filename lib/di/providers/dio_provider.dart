@@ -28,7 +28,9 @@ class DioProvider {
       ..options.headers = {
         HttpHeaders.contentTypeHeader: ContentType.json.value,
       }
-      ..options.connectTimeout = const Duration(seconds: 30)
+      ..options.connectTimeout = const Duration(seconds: 15)
+      ..options.receiveTimeout = const Duration(seconds: 15)
+      ..options.sendTimeout = const Duration(seconds: 15)
       ..interceptors.addAll(interceptors);
   }
 }

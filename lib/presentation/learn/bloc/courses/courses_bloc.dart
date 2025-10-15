@@ -38,7 +38,7 @@ class CoursesBloc extends Bloc<CoursesEvent, CoursesState> {
         // Extract category from filter for caching key
         final categoryKey =
             _extractCategoryFromFilter(event.filter!) ?? 'DEVELOPMENT';
-            
+
         updatedCategoryCourses[categoryKey] = courses;
 
         emit(state.copyWith(

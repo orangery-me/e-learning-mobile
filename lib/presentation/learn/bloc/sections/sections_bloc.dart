@@ -29,29 +29,30 @@ class SectionsBloc extends Bloc<SectionsEvent, SectionsState> {
 
   Future<void> loadSectionsByCourseId(
       LoadSectionsByCourseId event, Emitter<SectionsState> emit) async {
-    emit(state.copyWith(errorMessage: null));
+    emit(state.copyWith(isLoading: true));
 
     try {
       // Load only sections
       final sections = await datasource.fetchSectionsByCourseId(event.courseId);
 
       emit(state.copyWith(
+        isLoading: false,
         sections: sections,
       ));
     } catch (e) {
       log(e.toString());
-      emit(state.copyWith(errorMessage: e.toString()));
+      emit(state.copyWith(errorMessage: e.toString(), isLoading: false));
     }
   }
 
   Future<void> getSelectedSection(
       GetSelectedSection event, Emitter<SectionsState> emit) async {
-    emit(state.copyWith(errorMessage: null));
+    emit(state.copyWith(isLoading: true));
     try {
       final section = await datasource.fetchSectionById(event.sectionId);
-      emit(state.copyWith(selectedSection: section));
+      emit(state.copyWith(selectedSection: section, isLoading: false));
     } catch (e) {
-      emit(state.copyWith(errorMessage: e.toString()));
+      emit(state.copyWith(errorMessage: e.toString(), isLoading: false));
     }
   }
 
@@ -76,6 +77,7 @@ class SectionsBloc extends Bloc<SectionsEvent, SectionsState> {
     ));
 
     try {
+      emit(state.copyWith(isLoading: true));
       // Fetch lectures for the section
       final lectures =
           await lectureDatasource.fetchLecturesBySectionId(event.sectionId);
@@ -90,6 +92,7 @@ class SectionsBloc extends Bloc<SectionsEvent, SectionsState> {
         ..remove(event.sectionId);
 
       emit(state.copyWith(
+        isLoading: false,
         lecturesCache: updatedCache,
         loadingSectionIds: finalLoadingIds,
       ));
@@ -101,6 +104,7 @@ class SectionsBloc extends Bloc<SectionsEvent, SectionsState> {
         ..remove(event.sectionId);
 
       emit(state.copyWith(
+        isLoading: false,
         loadingSectionIds: finalLoadingIds,
         errorMessage: e.toString(),
       ));

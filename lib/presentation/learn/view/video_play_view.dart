@@ -2,10 +2,10 @@ import 'dart:developer';
 
 import 'package:chewie/chewie.dart';
 import 'package:e_learning_mobile/common/theme/palette.dart';
-import 'package:e_learning_mobile/data/dtos/lectures/lecture_response_dto.dart';
 import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart';
-import 'package:e_learning_mobile/presentation/learn/widgets/section_list_item.dart';
+import 'package:e_learning_mobile/presentation/learn/view/other_feature_view.dart';
+import 'package:e_learning_mobile/presentation/learn/view/section_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
@@ -53,9 +53,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
 
   VideoType _currentVideoType = VideoType.hosted;
   bool isLoading = true;
-  final Map<String, bool> _expandedSections = {};
-  int _currentTabIndex = 0;
-  String? _selectedLectureId;
+  bool _isDisposed = false;
 
   @override
   void initState() {
@@ -70,6 +68,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _youtubeController?.dispose();
     _videoController?.dispose();
     _chewieController?.dispose();
@@ -83,20 +82,26 @@ class _VideoPlayViewState extends State<VideoPlayView> {
   }
 
   void _initializeVideo(String? videoUrl) {
+    if (_isDisposed) return;
+
     setState(() {
       isLoading = true;
     });
 
     // Dispose previous controllers
+    _chewieController?.dispose();
     _youtubeController?.dispose();
     _videoController?.dispose();
+    _chewieController = null;
     _youtubeController = null;
     _videoController = null;
 
     if (videoUrl == null || videoUrl.isEmpty) {
-      setState(() {
-        isLoading = false;
-      });
+      if (!_isDisposed) {
+        setState(() {
+          isLoading = false;
+        });
+      }
       return;
     }
 
@@ -113,28 +118,34 @@ class _VideoPlayViewState extends State<VideoPlayView> {
             mute: false,
           ),
         );
-        setState(() {
-          isLoading = false;
-        });
+        if (!_isDisposed) {
+          setState(() {
+            isLoading = false;
+          });
+        }
       }
     } else {
       // Initialize regular video player
       _currentVideoType = VideoType.hosted;
       _videoController = VideoPlayerController.networkUrl(Uri.parse(videoUrl))
         ..initialize().then((_) {
-          _chewieController = ChewieController(
-            videoPlayerController: _videoController!,
-            autoPlay: false,
-            looping: false,
-          );
-          setState(() {
-            isLoading = false;
-          });
+          if (!_isDisposed) {
+            _chewieController = ChewieController(
+              videoPlayerController: _videoController!,
+              autoPlay: false,
+              looping: false,
+            );
+            setState(() {
+              isLoading = false;
+            });
+          }
         }).catchError((error) {
           log('Error initializing video: $error');
-          setState(() {
-            isLoading = false;
-          });
+          if (!_isDisposed) {
+            setState(() {
+              isLoading = false;
+            });
+          }
         });
     }
   }
@@ -150,34 +161,38 @@ class _VideoPlayViewState extends State<VideoPlayView> {
     }
 
     if (_currentVideoType == VideoType.youtube && _youtubeController != null) {
-      return YoutubePlayer(
-        controller: _youtubeController!,
-        showVideoProgressIndicator: true,
-        progressIndicatorColor: Colors.red,
-        progressColors: const ProgressBarColors(
-          playedColor: Colors.red,
-          handleColor: Colors.redAccent,
+      return SizedBox(
+        height: 250,
+        width: double.infinity,
+        child: YoutubePlayerBuilder(
+          player: YoutubePlayer(
+            controller: _youtubeController!,
+            showVideoProgressIndicator: true,
+            progressIndicatorColor: Colors.red,
+            progressColors: const ProgressBarColors(
+              playedColor: Colors.red,
+              handleColor: Colors.redAccent,
+            ),
+            onReady: () {
+              log('YouTube Player is ready');
+            },
+          ),
+          builder: (BuildContext context, Widget player) {
+            return player;
+          },
         ),
-        onReady: () {
-          log('YouTube Player is ready');
-        },
       );
     } else if (_currentVideoType == VideoType.hosted &&
-        _videoController != null) {
-      return Column(
-        children: [
-          Container(
-            height: 250,
-            width: double.infinity,
-            color: Colors.black,
-            child: _videoController!.value.isInitialized
-                ? AspectRatio(
-                    aspectRatio: _videoController!.value.aspectRatio,
-                    child: VideoPlayer(_videoController!),
-                  )
-                : const Center(child: CircularProgressIndicator()),
-          ),
-        ],
+        _videoController != null &&
+        _videoController!.value.isInitialized) {
+      return Container(
+        height: 250,
+        width: double.infinity,
+        color: Colors.black,
+        child: AspectRatio(
+          aspectRatio: _videoController!.value.aspectRatio,
+          child: VideoPlayer(_videoController!),
+        ),
       );
     }
 
@@ -212,114 +227,41 @@ class _VideoPlayViewState extends State<VideoPlayView> {
           // Universal Video Player
           _buildVideoPlayer(),
 
-          // Sections and Lectures List
+          // Tabs for Lectures and More
           Expanded(
-            child: BlocBuilder<SectionsBloc, SectionsState>(
-              builder: (context, state) {
-                if (state.errorMessage != null) {
-                  return Center(
-                    child: Text('Error: ${state.errorMessage}'),
-                  );
-                }
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // 2 tabs
-                    SizedBox(
-                      height: 50,
-                      child: DefaultTabController(
-                          length: 2,
-                          child: TabBar(tabs: [
-                            Tab(text: 'Lectures'),
-                            Tab(text: 'More'),
-                          ])),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: state.sections.length,
-                        itemBuilder: (context, index) {
-                          final section = state.sections[index];
-                          final isExpanded =
-                              _expandedSections[section.sectionId] ?? false;
-
-                          // Get lectures for this section from cache
-                          final sectionLectures =
-                              state.getLecturesForSection(section.sectionId);
-                          final isLoadingSection =
-                              state.isSectionLoading(section.sectionId);
-
-                          return SectionListItem(
-                            section: section,
-                            isExpanded: isExpanded,
-                            lectures: sectionLectures,
-                            selectedLectureId: _selectedLectureId,
-                            onTap: () {
-                              // Load lectures for this section when tapped
-                              if (sectionLectures.isEmpty &&
-                                  !isLoadingSection) {
-                                context.read<SectionsBloc>().add(
-                                      LoadLecturesBySectionId(
-                                          section.sectionId),
-                                    );
-                              }
-                            },
-                            onToggleExpanded: () {
-                              setState(() {
-                                _expandedSections[section.sectionId] =
-                                    !isExpanded;
-                              });
-
-                              // Load lectures when expanding if not already loaded
-                              if (!isExpanded &&
-                                  sectionLectures.isEmpty &&
-                                  !isLoadingSection) {
-                                context.read<SectionsBloc>().add(
-                                      LoadLecturesBySectionId(
-                                          section.sectionId),
-                                    );
-                              }
-                            },
-                            onLectureTap: (lectureId) {
-                              setState(() {
-                                _selectedLectureId = lectureId;
-                              });
-
-                              log('Selected lecture ID: $lectureId');
-
-                              // Find the selected lecture from cached lectures and play its video
-                              LectureResponseDto? selectedLecture;
-                              for (final lectures
-                                  in state.lecturesCache.values) {
-                                try {
-                                  selectedLecture = lectures.firstWhere(
-                                      (lecture) =>
-                                          lecture.lectureId == lectureId);
-                                  break;
-                                } catch (e) {
-                                  // Continue searching in other sections
-                                }
-                              }
-
-                              if (selectedLecture != null) {
-                                log('Playing lecture: ${selectedLecture.title}, URL: ${selectedLecture.videoUrl}');
-                              } else {
-                                log('Lecture not found: $lectureId');
-                                return;
-                              }
-
-                              // Initialize new video (YouTube or hosted)
-                              _initializeVideo(selectedLecture.videoUrl);
-                            },
-                          );
+            child: DefaultTabController(
+              length: 2,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 50,
+                    child: TabBar(tabs: [
+                      Tab(text: 'Lectures'),
+                      Tab(text: 'More'),
+                    ]),
+                  ),
+                  Expanded(
+                    child: TabBarView(children: [
+                      // tab 1: Lectures
+                      SectionListView(
+                        onLectureSelected: (selectedLecture) {
+                          log('video url: ${selectedLecture.videoUrl}');
+                          // Only initialize if the video URL is different
+                          if (selectedLecture.videoUrl != widget.videoUrl) {
+                            _initializeVideo(selectedLecture.videoUrl);
+                          }
                         },
                       ),
-                    ),
-                  ],
-                );
-              },
+                      // tab 2: More features
+                      OtherFeatureView(courseId: widget.courseId)
+                    ]),
+                  )
+                ],
+              ),
             ),
           ),
+
+          // Sections and Lectures List
         ],
       ),
     );

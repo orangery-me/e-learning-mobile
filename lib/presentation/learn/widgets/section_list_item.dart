@@ -2,11 +2,13 @@ import 'package:e_learning_mobile/common/extensions/context_extension.dart';
 import 'package:e_learning_mobile/data/dtos/sections/section_response_dto.dart';
 import 'package:e_learning_mobile/data/dtos/lectures/lecture_response_dto.dart';
 import 'package:e_learning_mobile/presentation/learn/widgets/lecture_list_item.dart';
+import 'package:simple_circular_progress_bar/simple_circular_progress_bar.dart';
 import 'package:flutter/material.dart';
 
 class SectionListItem extends StatelessWidget {
   final SectionResponseDto section;
   final bool isExpanded;
+  final bool isLoading;
   final VoidCallback onTap;
   final VoidCallback onToggleExpanded;
   final List<LectureResponseDto> lectures;
@@ -17,6 +19,7 @@ class SectionListItem extends StatelessWidget {
     super.key,
     required this.section,
     required this.isExpanded,
+    required this.isLoading,
     required this.onTap,
     required this.onToggleExpanded,
     required this.lectures,
@@ -40,9 +43,15 @@ class SectionListItem extends StatelessWidget {
             fontSize: 12,
           ),
         ),
-        trailing: Icon(
-          isExpanded ? Icons.expand_less : Icons.expand_more,
-        ),
+        trailing: isLoading
+            ? SimpleCircularProgressBar(
+                size: 21,
+                progressStrokeWidth: 3,
+                backStrokeWidth: 3,
+                progressColors: const [Colors.cyan, Colors.purple],
+                backColor: Colors.black.withOpacity(0.4),
+              )
+            : Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
         onExpansionChanged: (expanded) => onToggleExpanded(),
         children: lectures
             .map((lecture) => LectureListItem(
