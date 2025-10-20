@@ -47,3 +47,5 @@ app.*.map.json
 # ios
 /ios/Runner.xcworkspace/
 /ios/Podfile.lock
+
+config.json
