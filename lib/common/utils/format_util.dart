@@ -7,4 +7,13 @@ abstract class FormatUtil {
     formatted = '$symbol$formatted';
     return formatted;
   }
+
+  static String convertTimestampToDuration(int timestamp) {
+    Duration duration = Duration(seconds: timestamp);
+    // nếu < 60 mins thì chỉ hiển thị mm:ss
+    if (duration.inHours == 0) {
+      return duration.toString().split('.').first.substring(2);
+    }
+    return duration.toString().split('.').first;
+  }
 }
