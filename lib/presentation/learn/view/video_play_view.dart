@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:chewie/chewie.dart';
 import 'package:e_learning_mobile/common/theme/palette.dart';
+import 'package:e_learning_mobile/data/dtos/lectures/lecture_response_dto.dart';
 import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/view/other_feature_view.dart';
@@ -54,6 +55,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
   VideoType _currentVideoType = VideoType.hosted;
   bool isLoading = true;
   bool _isDisposed = false;
+  LectureResponseDto? _selectedLecture;
 
   @override
   void initState() {
@@ -64,15 +66,6 @@ class _VideoPlayViewState extends State<VideoPlayView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SectionsBloc>().add(LoadSectionsByCourseId(widget.courseId));
     });
-  }
-
-  @override
-  void dispose() {
-    _isDisposed = true;
-    _youtubeController?.dispose();
-    _videoController?.dispose();
-    _chewieController?.dispose();
-    super.dispose();
   }
 
   bool _isYoutubeUrl(String url) {
@@ -209,14 +202,56 @@ class _VideoPlayViewState extends State<VideoPlayView> {
     );
   }
 
+  Widget _buildContent() {
+    return Expanded(
+      child: DefaultTabController(
+        length: 2,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 50,
+              child: TabBar(tabs: [
+                Tab(text: 'Lectures'),
+                Tab(text: 'More'),
+              ]),
+            ),
+            // Sections and Lectures List
+            Expanded(
+              child: TabBarView(children: [
+                // tab 1: Lectures
+                SectionListView(
+                  onLectureSelected: (selectedLecture) {
+                    log('video url: ${selectedLecture.videoUrl}');
+                    // Only initialize if the video URL is different
+                    if (selectedLecture.videoUrl != widget.videoUrl) {
+                      _selectedLecture = selectedLecture;
+                      _initializeVideo(selectedLecture.videoUrl);
+                    }
+                  },
+                ),
+                // tab 2: More features
+                OtherFeaturePage(
+                    courseId: widget.courseId,
+                    selectedLecture: _selectedLecture,
+                    videoController: _videoController,
+                    youtubeController: _youtubeController)
+              ]),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Course Learning'),
+        title: const Text('Course Learning',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
         backgroundColor: Palette.light().buttonBackground,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -228,40 +263,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
           _buildVideoPlayer(),
 
           // Tabs for Lectures and More
-          Expanded(
-            child: DefaultTabController(
-              length: 2,
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 50,
-                    child: TabBar(tabs: [
-                      Tab(text: 'Lectures'),
-                      Tab(text: 'More'),
-                    ]),
-                  ),
-                  Expanded(
-                    child: TabBarView(children: [
-                      // tab 1: Lectures
-                      SectionListView(
-                        onLectureSelected: (selectedLecture) {
-                          log('video url: ${selectedLecture.videoUrl}');
-                          // Only initialize if the video URL is different
-                          if (selectedLecture.videoUrl != widget.videoUrl) {
-                            _initializeVideo(selectedLecture.videoUrl);
-                          }
-                        },
-                      ),
-                      // tab 2: More features
-                      OtherFeatureView(courseId: widget.courseId)
-                    ]),
-                  )
-                ],
-              ),
-            ),
-          ),
-
-          // Sections and Lectures List
+          _buildContent()
         ],
       ),
     );
