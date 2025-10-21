@@ -19,7 +19,8 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _navigatorKey =
+      getIt<GlobalKey<NavigatorState>>();
   NavigatorState get _navigator => _navigatorKey.currentState!;
 
   @override

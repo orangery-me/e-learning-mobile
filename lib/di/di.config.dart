@@ -53,6 +53,8 @@ import 'package:e_learning_mobile/presentation/learn/bloc/notes/notes_bloc.dart'
     as _i171;
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart'
     as _i399;
+import 'package:flutter/cupertino.dart' as _i719;
+import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:hive/hive.dart' as _i979;
 import 'package:hive_flutter/hive_flutter.dart' as _i986;
@@ -71,15 +73,19 @@ Future<_i174.GetIt> initGetIt(
   );
   final localModule = _$LocalModule();
   final networkModule = _$NetworkModule();
+  gh.lazySingleton<_i719.GlobalKey<_i719.NavigatorState>>(
+      () => localModule.navigatorKey);
   await gh.singletonAsync<_i986.Box<dynamic>>(
     () => localModule.authBox,
     instanceName: 'auth_box',
     preResolve: true,
   );
-  gh.lazySingleton<_i958.DioProvider>(() =>
-      _i958.DioProvider(gh<_i979.Box<dynamic>>(instanceName: 'auth_box')));
   gh.lazySingleton<_i591.UserLocalDataSource>(() => _i591.UserLocalDataSource(
       authBox: gh<_i979.Box<dynamic>>(instanceName: 'auth_box')));
+  gh.lazySingleton<_i958.DioProvider>(() => _i958.DioProvider(
+        gh<_i979.Box<dynamic>>(instanceName: 'auth_box'),
+        gh<_i409.GlobalKey<_i409.NavigatorState>>(),
+      ));
   gh.lazySingleton<_i896.DioHelper>(
       () => networkModule.provideDioHelper(gh<_i958.DioProvider>()));
   gh.lazySingleton<_i789.LectureRemoteDatasource>(

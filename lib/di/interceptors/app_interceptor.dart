@@ -15,12 +15,14 @@ class AppInterceptor extends QueuedInterceptor {
   AppInterceptor({
     @Named(HiveKeys.authBox) required Box<dynamic> authBox,
     required Dio dio,
+    required GlobalKey<NavigatorState> navigatorKey,
   })  : _authBox = authBox,
-        _dio = dio;
+        _dio = dio,
+        _navigatorKey = navigatorKey;
 
   final Box<dynamic> _authBox;
   final Dio _dio;
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _navigatorKey;
   NavigatorState get _navigator => _navigatorKey.currentState!;
 
   @override
@@ -29,6 +31,11 @@ class AppInterceptor extends QueuedInterceptor {
     RequestInterceptorHandler handler,
   ) async {
     log('REQUEST[${options.method}] => PATH: ${options.path}');
+
+    // Skip token check for refresh token endpoint
+    if (options.path.contains('/refresh_tokens') || options.path.contains('/oauth/token')) {
+      return super.onRequest(options, handler);
+    }
 
     await _checkTokenExpired();
 
@@ -75,7 +82,7 @@ class AppInterceptor extends QueuedInterceptor {
   Future<void> _checkTokenExpired() async {
     final accessToken = _authBox.get(HiveKeys.accessToken) as String?;
 
-    if (accessToken != null) {
+    if (accessToken != null && accessToken.isNotEmpty) {
       try {
         final remainingTime = JwtDecoderHelper.getRemainingTime(accessToken);
 
@@ -107,7 +114,7 @@ class AppInterceptor extends QueuedInterceptor {
         },
       );
 
-      final refreshTokenDTO = RefreshTokenDTO.fromJson( 
+      final refreshTokenDTO = RefreshTokenDTO.fromJson(
         response.data['data'] as Map<String, dynamic>,
       );
 

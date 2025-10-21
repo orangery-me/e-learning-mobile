@@ -3,13 +3,15 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:e_learning_mobile/common/constants/hive_keys.dart';
 import 'package:e_learning_mobile/di/interceptors/app_interceptor.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class DioProvider {
-  DioProvider(@Named(HiveKeys.authBox) this._authBox);
+  DioProvider(@Named(HiveKeys.authBox) this._authBox, this._nagivatorKey);
   final Box<dynamic> _authBox;
+  final GlobalKey<NavigatorState> _nagivatorKey;
 
   Dio? _dio;
   Dio getDio() => _dio ?? _createDio();
@@ -21,6 +23,7 @@ class DioProvider {
     final appInterceptor = AppInterceptor(
       authBox: _authBox,
       dio: refreshTokenDio,
+      navigatorKey: _nagivatorKey
     );
     final interceptors = <Interceptor>[appInterceptor];
 
