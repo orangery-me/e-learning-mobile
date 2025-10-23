@@ -53,8 +53,8 @@
 //   Map<String, dynamic> toJson() => _$CodeExerciseResponseDtoToJson(this);
 // }
 
-import 'package:e_learning_mobile/data/dtos/code/feedback_response_dto.dart';
-import 'package:e_learning_mobile/data/dtos/code/judge_result_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/code/judge_response/feedback_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/code/judge_response/judge_result_response_dto.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'code_exercise_response_dto.g.dart';
