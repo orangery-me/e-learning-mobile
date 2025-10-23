@@ -2,6 +2,7 @@ part of 'code_exercise_bloc.dart';
 
 final class CodeExerciseState extends Equatable {
   final CodeExerciseResponseDto? result;
+  // final CodeProblemStatement? problemStatement;
   final bool isLoading;
   final String? errorMessage;
 

@@ -185,9 +185,9 @@ class _HomeViewState extends State<HomeView> {
                         context.read<CoursesBloc>().add(
                               LoadCourses(
                                 page: 1,
-                                size: 5,
+                                size: 10,
                                 sortBy: 'price',
-                                order: 'desc',
+                                order: 'asc',
                                 filter: "category in ('$category')",
                               ),
                             );

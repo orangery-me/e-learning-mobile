@@ -1,7 +1,9 @@
 import 'dart:developer';
 
-import 'package:e_learning_mobile/data/dtos/code/judge_result_response_dto.dart';
-import 'package:e_learning_mobile/data/dtos/code/feedback_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/code/judge_response/judge_result_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/code/judge_response/feedback_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/code/problem_statement/code_problem_statement.dart';
+import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/code_exercise/code_exercise_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,8 +20,22 @@ const List<Map<String, dynamic>> languages = [
 
 enum RunMode { runOnly, aiJudge }
 
+class CodeExercisePage extends StatelessWidget {
+  final CodeProblemStatement? problemStatement;
+  const CodeExercisePage({super.key, this.problemStatement});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<CodeExerciseBloc>(),
+      child: CodeExerciseModal(problemStatement: problemStatement),
+    );
+  }
+}
+
 class CodeExerciseModal extends StatefulWidget {
-  const CodeExerciseModal({super.key});
+  final CodeProblemStatement? problemStatement;
+  const CodeExerciseModal({super.key, this.problemStatement});
 
   @override
   State<CodeExerciseModal> createState() => _CodeExerciseModalState();
@@ -30,7 +46,7 @@ class _CodeExerciseModalState extends State<CodeExerciseModal> {
   final TextEditingController _stdinController = TextEditingController();
   final TextEditingController _expectedController = TextEditingController();
   final TextEditingController _problemController = TextEditingController();
-  RunMode _selectedMode = RunMode.runOnly;
+  // RunMode _selectedMode = RunMode.runOnly;
 
   String _selectedLanguage = '71';
 
@@ -419,7 +435,7 @@ class _CodeExerciseModalState extends State<CodeExerciseModal> {
                       return;
                     }
 
-                    log('problemDescription: ${_selectedMode == RunMode.aiJudge ? _problemController.text.trim() : 'N/A'}');
+                    // log('problemDescription: ${_selectedMode == RunMode.aiJudge ? _problemController.text.trim() : 'N/A'}');
 
                     context.read<CodeExerciseBloc>().add(ExecuteCodeEvent(
                           sourceCode: _codeController.text.trim(),
@@ -501,51 +517,54 @@ class _CodeExerciseModalState extends State<CodeExerciseModal> {
             const SizedBox(height: 8),
 
             // Mode selector
-            Row(
-              children: [
-                const Text('Mode:',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                const SizedBox(width: 12),
-                DropdownButton<RunMode>(
-                  value: _selectedMode,
-                  items: const [
-                    DropdownMenuItem(
-                      value: RunMode.runOnly,
-                      child: Text('Run code only'),
-                    ),
-                    DropdownMenuItem(
-                      value: RunMode.aiJudge,
-                      child: Text('AI Judge (with Gemini)'),
-                    ),
-                  ],
-                  onChanged: (v) =>
-                      setState(() => _selectedMode = v ?? RunMode.runOnly),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
+            // Row(
+            //   children: [
+            //     const Text('Mode:',
+            //         style: TextStyle(fontWeight: FontWeight.w600)),
+            //     const SizedBox(width: 12),
+            //     DropdownButton<RunMode>(
+            //       value: _selectedMode,
+            //       items: const [
+            //         DropdownMenuItem(
+            //           value: RunMode.runOnly,
+            //           child: Text('Run code only'),
+            //         ),
+            //         DropdownMenuItem(
+            //           value: RunMode.aiJudge,
+            //           child: Text('AI Judge (with Gemini)'),
+            //         ),
+            //       ],
+            //       onChanged: (v) =>
+            //           setState(() => _selectedMode = v ?? RunMode.runOnly),
+            //     ),
+            //   ],
+            // ),
+            // const SizedBox(height: 8),
 
             // Problem description (if AI Judge)
-            if (_selectedMode == RunMode.aiJudge) ...[
-              const SizedBox(height: 12),
-              const Text('Problem description',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 6),
-              _OutlinedArea(
-                child: TextField(
-                  controller: _problemController,
-                  minLines: 3,
-                  maxLines: 6,
-                  keyboardType: TextInputType.multiline,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter problem statement...',
-                    border: InputBorder.none,
-                    isCollapsed: true,
-                    contentPadding: EdgeInsets.all(12),
-                  ),
-                ),
-              ),
-            ],
+            // if (_selectedMode == RunMode.aiJudge) ...[
+            const SizedBox(height: 12),
+            const Text('Problem description',
+                style: TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 6),
+            Text(widget.problemStatement?.problemStatement ??
+                widget.problemStatement?.title ??
+                'No problem description provided.'),
+            // _OutlinedArea(
+            //   child: TextField(
+            //     controller: _problemController,
+            //     minLines: 3,
+            //     maxLines: 6,
+            //     keyboardType: TextInputType.multiline,
+            //     decoration: const InputDecoration(
+            //       hintText: 'Enter problem statement...',
+            //       border: InputBorder.none,
+            //       isCollapsed: true,
+            //       contentPadding: EdgeInsets.all(12),
+            //     ),
+            //   ),
+            // ),
+            // ],
             const SizedBox(height: 12),
 
             // Code editor

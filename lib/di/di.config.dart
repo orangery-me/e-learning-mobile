@@ -36,6 +36,10 @@ import 'package:e_learning_mobile/data/datasources/user/remote/user_datasource.d
     as _i812;
 import 'package:e_learning_mobile/data/datasources/user/user_datasource.dart'
     as _i1056;
+import 'package:e_learning_mobile/data/datasources/video_events/remote/video_events_remote_datasource.dart'
+    as _i184;
+import 'package:e_learning_mobile/data/datasources/video_events/video_events_datasource.dart'
+    as _i734;
 import 'package:e_learning_mobile/data/repositories/user_repository.dart'
     as _i979;
 import 'package:e_learning_mobile/di/modules/local_module.dart' as _i414;
@@ -53,6 +57,8 @@ import 'package:e_learning_mobile/presentation/learn/bloc/notes/notes_bloc.dart'
     as _i171;
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart'
     as _i399;
+import 'package:e_learning_mobile/presentation/learn/bloc/video_play/video_play_bloc.dart'
+    as _i902;
 import 'package:flutter/cupertino.dart' as _i719;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
@@ -88,6 +94,8 @@ Future<_i174.GetIt> initGetIt(
       ));
   gh.lazySingleton<_i896.DioHelper>(
       () => networkModule.provideDioHelper(gh<_i958.DioProvider>()));
+  gh.singleton<_i184.VideoEventsRemoteDatasource>(() =>
+      _i184.VideoEventsRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i789.LectureRemoteDatasource>(
       () => _i789.LectureRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i277.NoteRemoteDatasource>(
@@ -106,6 +114,8 @@ Future<_i174.GetIt> initGetIt(
         remoteDataSource: gh<_i812.UserRemoteDataSource>(),
         localDataSource: gh<_i591.UserLocalDataSource>(),
       ));
+  gh.singleton<_i734.VideoEventsDatasource>(() => _i734.VideoEventsDatasource(
+      remoteDatasource: gh<_i184.VideoEventsRemoteDatasource>()));
   gh.lazySingleton<_i201.CourseDatasource>(() => _i201.CourseDatasource(
       remoteDatasource: gh<_i759.CourseRemoteDatasource>()));
   gh.factory<_i148.CoursesBloc>(
@@ -131,6 +141,10 @@ Future<_i174.GetIt> initGetIt(
       () => _i375.HomeBloc(courseDatasource: gh<_i201.CourseDatasource>()));
   gh.factory<_i770.LecturesBloc>(
       () => _i770.LecturesBloc(datasource: gh<_i895.LectureDatasource>()));
+  gh.factory<_i902.VideoPlayBloc>(() => _i902.VideoPlayBloc(
+        gh<_i734.VideoEventsDatasource>(),
+        gh<_i1004.CodeExerciseDatasource>(),
+      ));
   return getIt;
 }
 

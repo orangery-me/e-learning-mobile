@@ -5,12 +5,14 @@ import 'package:e_learning_mobile/common/theme/palette.dart';
 import 'package:e_learning_mobile/data/dtos/lectures/lecture_response_dto.dart';
 import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart';
+import 'package:e_learning_mobile/presentation/learn/view/code_exercises/code_exercise_modal.dart';
 import 'package:e_learning_mobile/presentation/learn/view/other_feature_view.dart';
 import 'package:e_learning_mobile/presentation/learn/view/section_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:e_learning_mobile/presentation/learn/bloc/video_play/video_play_bloc.dart';
 
 class VieoPlayPage extends StatelessWidget {
   final String videoUrl;
@@ -24,8 +26,15 @@ class VieoPlayPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<SectionsBloc>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => getIt<SectionsBloc>(),
+        ),
+        BlocProvider(
+          create: (context) => getIt<VideoPlayBloc>(),
+        ),
+      ],
       child: VideoPlayView(videoUrl: videoUrl, courseId: courseId),
     );
   }
@@ -45,7 +54,7 @@ class VideoPlayView extends StatefulWidget {
   State<VideoPlayView> createState() => _VideoPlayViewState();
 }
 
-enum VideoType { youtube, hosted }
+// Use VideoType from VideoPlayBloc to avoid duplicate enum definitions
 
 class _VideoPlayViewState extends State<VideoPlayView> {
   YoutubePlayerController? _youtubeController;
@@ -54,8 +63,9 @@ class _VideoPlayViewState extends State<VideoPlayView> {
 
   VideoType _currentVideoType = VideoType.hosted;
   bool isLoading = true;
-  bool _isDisposed = false;
+  final bool _isDisposed = false;
   LectureResponseDto? _selectedLecture;
+  int lastLoggedTime = 0;
 
   @override
   void initState() {
@@ -74,6 +84,72 @@ class _VideoPlayViewState extends State<VideoPlayView> {
         url.contains('youtube-nocookie.com');
   }
 
+  void _disposeControllers() {
+    _chewieController?.dispose();
+    _youtubeController?.dispose();
+    _videoController?.dispose();
+    _chewieController = null;
+    _youtubeController = null;
+    _videoController = null;
+  }
+
+  void _finishLoading() {
+    if (!_isDisposed) {
+      setState(() => isLoading = false);
+    }
+  }
+
+  void _initializeYoutubeVideo(String url) {
+    // set current video type
+    _currentVideoType = VideoType.youtube;
+    context
+        .read<VideoPlayBloc>()
+        .add(const SetVideoType(videoType: VideoType.youtube));
+
+    final videoId = YoutubePlayer.convertUrlToId(url);
+
+    if (videoId == null) {
+      _finishLoading();
+      return;
+    }
+
+    _youtubeController = YoutubePlayerController(
+      initialVideoId: videoId,
+      flags: const YoutubePlayerFlags(
+        autoPlay: false,
+        mute: false,
+      ),
+    )..addListener(_registerVideoEventListener);
+
+    _finishLoading();
+  }
+
+  void _initializeHostedVideo(String url) {
+    // set current video type
+    _currentVideoType = VideoType.hosted;
+    context
+        .read<VideoPlayBloc>()
+        .add(const SetVideoType(videoType: VideoType.hosted));
+
+    _videoController = VideoPlayerController.networkUrl(Uri.parse(url))
+      ..initialize().then((_) {
+        if (_isDisposed) return;
+
+        _chewieController = ChewieController(
+          videoPlayerController: _videoController!,
+          autoPlay: false,
+          looping: false,
+        );
+
+        _videoController!.addListener(_registerVideoEventListener);
+
+        _finishLoading();
+      }).catchError((error) {
+        log('Error initializing video: $error');
+        _finishLoading();
+      });
+  }
+
   void _initializeVideo(String? videoUrl) {
     if (_isDisposed) return;
 
@@ -82,65 +158,25 @@ class _VideoPlayViewState extends State<VideoPlayView> {
     });
 
     // Dispose previous controllers
-    _chewieController?.dispose();
-    _youtubeController?.dispose();
-    _videoController?.dispose();
-    _chewieController = null;
-    _youtubeController = null;
-    _videoController = null;
+    _disposeControllers();
 
     if (videoUrl == null || videoUrl.isEmpty) {
-      if (!_isDisposed) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+      _finishLoading();
       return;
     }
 
     if (_isYoutubeUrl(videoUrl)) {
-      // Initialize YouTube player
-      _currentVideoType = VideoType.youtube;
-      final videoId = YoutubePlayer.convertUrlToId(videoUrl);
-
-      if (videoId != null) {
-        _youtubeController = YoutubePlayerController(
-          initialVideoId: videoId,
-          flags: const YoutubePlayerFlags(
-            autoPlay: false,
-            mute: false,
-          ),
-        );
-        if (!_isDisposed) {
-          setState(() {
-            isLoading = false;
-          });
-        }
-      }
+      _initializeYoutubeVideo(videoUrl);
     } else {
-      // Initialize regular video player
-      _currentVideoType = VideoType.hosted;
-      _videoController = VideoPlayerController.networkUrl(Uri.parse(videoUrl))
-        ..initialize().then((_) {
-          if (!_isDisposed) {
-            _chewieController = ChewieController(
-              videoPlayerController: _videoController!,
-              autoPlay: false,
-              looping: false,
-            );
-            setState(() {
-              isLoading = false;
-            });
-          }
-        }).catchError((error) {
-          log('Error initializing video: $error');
-          if (!_isDisposed) {
-            setState(() {
-              isLoading = false;
-            });
-          }
-        });
+      _initializeHostedVideo(videoUrl);
     }
+  }
+
+  void _getLectureEvents(String lectureId) {
+    // load video events
+    context
+        .read<VideoPlayBloc>()
+        .add(GetEventsByLectureId(lectureId: lectureId));
   }
 
   Widget _buildVideoPlayer() {
@@ -176,16 +212,14 @@ class _VideoPlayViewState extends State<VideoPlayView> {
         ),
       );
     } else if (_currentVideoType == VideoType.hosted &&
+        _chewieController != null &&
         _videoController != null &&
         _videoController!.value.isInitialized) {
       return Container(
         height: 250,
         width: double.infinity,
         color: Colors.black,
-        child: AspectRatio(
-          aspectRatio: _videoController!.value.aspectRatio,
-          child: VideoPlayer(_videoController!),
-        ),
+        child: Chewie(controller: _chewieController!),
       );
     }
 
@@ -200,6 +234,22 @@ class _VideoPlayViewState extends State<VideoPlayView> {
         ),
       ),
     );
+  }
+
+  void _registerVideoEventListener() {
+    final currentPos = _currentVideoType == VideoType.youtube
+        ? _youtubeController?.value.position.inSeconds
+        : _videoController?.value.position.inSeconds;
+
+    if (currentPos != null && currentPos != lastLoggedTime) {
+      // only update every 1 second to reduce event spam
+      lastLoggedTime = currentPos;
+      // Dispatch event
+      context
+          .read<VideoPlayBloc>()
+          .add(UpdatePosition(positionSeconds: currentPos));
+      // log('Current video position: $currentPos seconds');
+    }
   }
 
   Widget _buildContent() {
@@ -225,6 +275,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
                     // Only initialize if the video URL is different
                     if (selectedLecture.videoUrl != widget.videoUrl) {
                       _selectedLecture = selectedLecture;
+                      _getLectureEvents(selectedLecture.lectureId);
                       _initializeVideo(selectedLecture.videoUrl);
                     }
                   },
@@ -244,27 +295,100 @@ class _VideoPlayViewState extends State<VideoPlayView> {
   }
 
   @override
+  void dispose() {
+    _disposeControllers();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Course Learning',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-        backgroundColor: Palette.light().buttonBackground,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<VideoPlayBloc, VideoPlayState>(
+          // listenWhen: (previous, current) =>
+          // previous.currentEvents != current.currentEvents,
+          listener: (context, state) {
+            showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (_) =>
+                    CodeExercisePage(problemStatement: state.problemStatement));
           },
         ),
-      ),
-      body: Column(
-        children: [
-          // Universal Video Player
-          _buildVideoPlayer(),
+        BlocListener<VideoPlayBloc, VideoPlayState>(
+          listenWhen: (previous, current) =>
+              previous.acceptToDoExercise != current.acceptToDoExercise,
+          listener: (context, state) {
+            // show dialog to ask user to do the exercise
+            if (state.acceptToDoExercise) {
+              showDialog(
+                  context: context,
+                  builder: (newContext) {
+                    return AlertDialog(
+                      title: const Text('Code Exercise'),
+                      content: const Text(
+                          'Do you want to attempt the code exercise now?'),
+                      actions: [
+                        TextButton(
+                            child: const Text('No'),
+                            onPressed: () {
+                              Navigator.of(newContext).pop();
+                            }),
+                        TextButton(
+                          child: const Text('Yes'),
+                          onPressed: () {
+                            Navigator.of(newContext).pop();
+                            // add event to get code exercise
+                            context.read<VideoPlayBloc>().add(
+                                  const AskToDoExercise(
+                                      acceptToDoExercise: true),
+                                );
+                            // show code exercise modal
+                            showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(20)),
+                                ),
+                                builder: (_) => CodeExercisePage(
+                                    problemStatement: state.problemStatement));
+                          },
+                        ),
+                      ],
+                    );
+                  });
+            }
+          },
+        ),
+      ],
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Course Learning',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+          backgroundColor: Palette.light().buttonBackground,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
+        body: Column(
+          children: [
+            // Universal Video Player
+            _buildVideoPlayer(),
 
-          // Tabs for Lectures and More
-          _buildContent()
-        ],
+            // Tabs for Lectures and More
+            _buildContent()
+          ],
+        ),
       ),
     );
   }

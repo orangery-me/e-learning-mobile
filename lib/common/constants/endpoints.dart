@@ -21,4 +21,10 @@ abstract class Endpoints {
 
   // note api
   static String notes = '$apiUrl/notes';
+
+  // events apit
+  static String videoEvents = '$apiUrl/events';
+
+  // code exercise api
+  static String codeExercises = '$apiUrl/code-exercises';
 }

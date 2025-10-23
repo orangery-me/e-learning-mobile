@@ -93,30 +93,30 @@ class _OtherFeatureViewState extends State<OtherFeatureView> {
                 });
           },
         ),
-        ListTile(
-          title: Text('Coding Practice'),
-          leading: Icon(Icons.note),
-          onTap: () {
-            final parentBloc = context.read<CodeExerciseBloc>();
+        // ListTile(
+        //   title: Text('Coding Practice'),
+        //   leading: Icon(Icons.note),
+        //   onTap: () {
+        //     final parentBloc = context.read<CodeExerciseBloc>();
 
-            showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                useSafeArea: true,
-                backgroundColor: Colors.white,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                ),
-                builder: (_) {
-                  return BlocProvider.value(
-                    value: parentBloc,
-                    child: Builder(builder: (newContext) {
-                      return CodeExerciseModal();
-                    }),
-                  );
-                });
-          },
-        ),
+        //     showModalBottomSheet(
+        //         context: context,
+        //         isScrollControlled: true,
+        //         useSafeArea: true,
+        //         backgroundColor: Colors.white,
+        //         shape: const RoundedRectangleBorder(
+        //           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        //         ),
+        //         builder: (_) {
+        //           return BlocProvider.value(
+        //             value: parentBloc,
+        //             child: Builder(builder: (newContext) {
+        //               return CodeExerciseModal();
+        //             }),
+        //           );
+        //         });
+        //   },
+        // ),
       ],
     );
   }

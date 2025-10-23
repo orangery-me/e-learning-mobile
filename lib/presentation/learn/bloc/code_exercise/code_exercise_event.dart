@@ -24,3 +24,5 @@ class ExecuteCodeEvent extends CodeExerciseEvent {
 }
 
 class ClearResult extends CodeExerciseEvent {}
+
+// class GetCodeExercise
