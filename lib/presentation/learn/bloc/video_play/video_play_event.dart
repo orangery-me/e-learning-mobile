@@ -29,17 +29,37 @@ class SetVideoType extends VideoPlayEvent {
 }
 
 class UpdatePosition extends VideoPlayEvent {
-  final int positionSeconds;
-  const UpdatePosition({required this.positionSeconds});
+  final int currentPosition;
+  const UpdatePosition({required this.currentPosition});
 }
 
 class TriggerEvents extends VideoPlayEvent {
-  final List<VideoEvent> eventsToTrigger;
-  const TriggerEvents({required this.eventsToTrigger});
+  // final List<VideoEvent> eventsToTrigger;
+  // const TriggerEvents({required this.eventsToTrigger});
 }
 
 // asking user to do the exercise
 class AskToDoExercise extends VideoPlayEvent {
   final bool acceptToDoExercise;
   const AskToDoExercise({required this.acceptToDoExercise});
+}
+
+// Video initialization events
+class InitializeVideo extends VideoPlayEvent {
+  final String videoUrl;
+  const InitializeVideo({required this.videoUrl});
+}
+
+class SelectLecture extends VideoPlayEvent {
+  final String lectureId;
+  final String videoUrl;
+  const SelectLecture({required this.lectureId, required this.videoUrl});
+}
+
+class DisposeVideo extends VideoPlayEvent {
+  const DisposeVideo();
+}
+
+class ResetVideoState extends VideoPlayEvent {
+  const ResetVideoState();
 }

@@ -11,6 +11,14 @@ class VideoPlayState extends Equatable {
       problemStatement; // problem statement for code event
   // quiz event state can be added here
 
+  // Video player states
+  final bool isLoading;
+  final bool isDisposed;
+  final String? currentVideoUrl;
+  final String? selectedLectureId;
+  final int lastLoggedTime;
+  final bool isVideoInitialized;
+
   const VideoPlayState({
     this.events = const [],
     this.triggeredIds = const {},
@@ -18,6 +26,12 @@ class VideoPlayState extends Equatable {
     this.acceptToDoExercise = false,
     this.videoType,
     this.problemStatement,
+    this.isLoading = true,
+    this.isDisposed = false,
+    this.currentVideoUrl,
+    this.selectedLectureId,
+    this.lastLoggedTime = 0,
+    this.isVideoInitialized = false,
   });
 
   VideoPlayState copyWith({
@@ -27,6 +41,12 @@ class VideoPlayState extends Equatable {
     VideoType? videoType,
     bool? acceptToDoExercise,
     CodeProblemStatement? problemStatement,
+    bool? isLoading,
+    bool? isDisposed,
+    String? currentVideoUrl,
+    String? selectedLectureId,
+    int? lastLoggedTime,
+    bool? isVideoInitialized,
   }) {
     return VideoPlayState(
       events: events ?? this.events,
@@ -35,6 +55,12 @@ class VideoPlayState extends Equatable {
       acceptToDoExercise: acceptToDoExercise ?? this.acceptToDoExercise,
       videoType: videoType ?? this.videoType,
       problemStatement: problemStatement ?? this.problemStatement,
+      isLoading: isLoading ?? this.isLoading,
+      isDisposed: isDisposed ?? this.isDisposed,
+      currentVideoUrl: currentVideoUrl ?? this.currentVideoUrl,
+      selectedLectureId: selectedLectureId ?? this.selectedLectureId,
+      lastLoggedTime: lastLoggedTime ?? this.lastLoggedTime,
+      isVideoInitialized: isVideoInitialized ?? this.isVideoInitialized,
     );
   }
 
@@ -45,6 +71,12 @@ class VideoPlayState extends Equatable {
         currentEvents,
         acceptToDoExercise,
         videoType,
-        problemStatement
+        problemStatement,
+        isLoading,
+        isDisposed,
+        currentVideoUrl,
+        selectedLectureId,
+        lastLoggedTime,
+        isVideoInitialized,
       ];
 }
