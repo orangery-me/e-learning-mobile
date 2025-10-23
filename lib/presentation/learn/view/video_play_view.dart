@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:chewie/chewie.dart';
 import 'package:e_learning_mobile/common/theme/palette.dart';
+import 'package:e_learning_mobile/common/utils/dialog_util.dart';
 import 'package:e_learning_mobile/data/dtos/lectures/lecture_response_dto.dart';
 import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart';
@@ -252,6 +253,15 @@ class _VideoPlayViewState extends State<VideoPlayView> {
     }
   }
 
+  void _acceptToDoExercise(BuildContext context) {
+    // close dialog
+    Navigator.of(context).pop();
+    // add event to accept exercise
+    context
+        .read<VideoPlayBloc>()
+        .add(const AskToDoExercise(acceptToDoExercise: true));
+  }
+
   Widget _buildContent() {
     return Expanded(
       child: DefaultTabController(
@@ -305,65 +315,39 @@ class _VideoPlayViewState extends State<VideoPlayView> {
     return MultiBlocListener(
       listeners: [
         BlocListener<VideoPlayBloc, VideoPlayState>(
-          // listenWhen: (previous, current) =>
-          // previous.currentEvents != current.currentEvents,
+          listenWhen: (previous, current) =>
+              previous.acceptToDoExercise != current.acceptToDoExercise,
           listener: (context, state) {
-            showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                builder: (_) =>
-                    CodeExercisePage(problemStatement: state.problemStatement));
+            // show code exercise modal
+            if (state.acceptToDoExercise) {
+              showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  builder: (_) => CodeExercisePage(
+                      problemStatement: state.problemStatement));
+            }
           },
         ),
         BlocListener<VideoPlayBloc, VideoPlayState>(
           listenWhen: (previous, current) =>
-              previous.acceptToDoExercise != current.acceptToDoExercise,
+              previous.currentEvents != current.currentEvents,
           listener: (context, state) {
             // show dialog to ask user to do the exercise
-            if (state.acceptToDoExercise) {
-              showDialog(
-                  context: context,
-                  builder: (newContext) {
-                    return AlertDialog(
-                      title: const Text('Code Exercise'),
-                      content: const Text(
-                          'Do you want to attempt the code exercise now?'),
-                      actions: [
-                        TextButton(
-                            child: const Text('No'),
-                            onPressed: () {
-                              Navigator.of(newContext).pop();
-                            }),
-                        TextButton(
-                          child: const Text('Yes'),
-                          onPressed: () {
-                            Navigator.of(newContext).pop();
-                            // add event to get code exercise
-                            context.read<VideoPlayBloc>().add(
-                                  const AskToDoExercise(
-                                      acceptToDoExercise: true),
-                                );
-                            // show code exercise modal
-                            showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(20)),
-                                ),
-                                builder: (_) => CodeExercisePage(
-                                    problemStatement: state.problemStatement));
-                          },
-                        ),
-                      ],
-                    );
-                  });
-            }
+            DialogUtil.showCustomDialog(context,
+                title: "Code Exercise",
+                content: "Do you want to attempt the code exercise now?",
+                isConfirmDialog: true,
+                confirmButtonText: "Yes",
+                cancelButtonText: "No",
+                confirmAction: () => _acceptToDoExercise(context),
+                cancelAction: () {
+                  Navigator.of(context).pop();
+                });
           },
         ),
       ],
@@ -393,3 +377,44 @@ class _VideoPlayViewState extends State<VideoPlayView> {
     );
   }
 }
+
+
+// showDialog(
+            //     context: context,
+            //     builder: (newContext) {
+            //       return AlertDialog(
+            //         title: const Text('Code Exercise'),
+            //         content: const Text(
+            //             'Do you want to attempt the code exercise now?'),
+            //         actions: [
+            //           TextButton(
+            //               child: const Text('No'),
+            //               onPressed: () {
+            //                 Navigator.of(newContext).pop();
+            //               }),
+            //           TextButton(
+            //             child: const Text('Yes'),
+            //             onPressed: () {
+            //               Navigator.of(newContext).pop();
+            //               // add event to get code exercise
+            //               context.read<VideoPlayBloc>().add(
+            //                     const AskToDoExercise(
+            //                         acceptToDoExercise: true),
+            //                   );
+            //               // show code exercise modal
+            //               showModalBottomSheet(
+            //                   context: context,
+            //                   isScrollControlled: true,
+            //                   backgroundColor: Colors.white,
+            //                   shape: RoundedRectangleBorder(
+            //                     borderRadius: BorderRadius.vertical(
+            //                         top: Radius.circular(20)),
+            //                   ),
+            //                   builder: (_) => CodeExercisePage(
+            //                       problemStatement: state.problemStatement));
+            //             },
+            //           ),
+            //         ],
+            //       );
+            //     });
+            // }
