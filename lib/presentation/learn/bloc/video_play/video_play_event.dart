@@ -60,6 +60,10 @@ class DisposeVideo extends VideoPlayEvent {
   const DisposeVideo();
 }
 
+class PauseVideo extends VideoPlayEvent {
+  const PauseVideo();
+}
+
 class ResetVideoState extends VideoPlayEvent {
   const ResetVideoState();
 }

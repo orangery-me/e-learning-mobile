@@ -139,15 +139,6 @@ class _VideoPlayViewState extends State<VideoPlayView> {
     );
   }
 
-  void _acceptToDoExercise(BuildContext context) {
-    // close dialog
-    Navigator.of(context).pop();
-    // add event to accept exercise
-    context
-        .read<VideoPlayBloc>()
-        .add(const AskToDoExercise(acceptToDoExercise: true));
-  }
-
   Widget _buildContent() {
     return Expanded(
       child: DefaultTabController(
@@ -167,7 +158,6 @@ class _VideoPlayViewState extends State<VideoPlayView> {
                 // tab 1: Lectures
                 SectionListView(
                   onLectureSelected: (selectedLecture) {
-                    log('video url: ${selectedLecture.videoUrl}');
                     _selectedLecture = selectedLecture;
                     // Use bloc to handle lecture selection
                     context.read<VideoPlayBloc>().add(
@@ -179,13 +169,15 @@ class _VideoPlayViewState extends State<VideoPlayView> {
                   },
                 ),
                 // tab 2: More features
-                OtherFeaturePage(
-                    courseId: widget.courseId,
-                    selectedLecture: _selectedLecture,
-                    videoController:
-                        context.read<VideoPlayBloc>().videoController,
-                    youtubeController:
-                        context.read<VideoPlayBloc>().youtubeController)
+                BlocProvider.value(
+                    value: context.read<VideoPlayBloc>(),
+                    child: OtherFeaturePage(
+                        courseId: widget.courseId,
+                        selectedLecture: _selectedLecture,
+                        videoController:
+                            context.read<VideoPlayBloc>().videoController,
+                        youtubeController:
+                            context.read<VideoPlayBloc>().youtubeController)),
               ]),
             )
           ],
@@ -227,7 +219,9 @@ class _VideoPlayViewState extends State<VideoPlayView> {
         BlocListener<VideoPlayBloc, VideoPlayState>(
           listenWhen: (previous, current) =>
               previous.currentEvents != current.currentEvents,
-          listener: (context, state) {
+          listener: (_, state) {
+            // stop the video
+            context.read<VideoPlayBloc>().add(const PauseVideo());
             // show dialog to ask user to do the exercise
             DialogUtil.showCustomDialog(context,
                 title: "Code Exercise",
@@ -235,10 +229,17 @@ class _VideoPlayViewState extends State<VideoPlayView> {
                 isConfirmDialog: true,
                 confirmButtonText: "Yes",
                 cancelButtonText: "No",
-                confirmAction: () => _acceptToDoExercise(context),
-                cancelAction: () {
-                  Navigator.of(context).pop();
-                });
+                confirmAction: () {
+                  // add event to accept exercise
+                  context
+                      .read<VideoPlayBloc>()
+                      .add(const AskToDoExercise(acceptToDoExercise: true));
+                  log('User accepted to do the exercise ${state.acceptToDoExercise}');
+                },
+                cancelAction: () => // Reset the acceptToDoExercise state
+                    context
+                        .read<VideoPlayBloc>()
+                        .add(const AskToDoExercise(acceptToDoExercise: false)));
           },
         ),
       ],

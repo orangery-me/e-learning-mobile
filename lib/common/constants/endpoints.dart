@@ -27,4 +27,10 @@ abstract class Endpoints {
 
   // code exercise api
   static String codeExercises = '$apiUrl/code-exercises';
+
+  // review api
+  static String reviews = '$apiUrl/reviews';
+
+  // cart api
+  static String cart = '$apiUrl/cart';
 }

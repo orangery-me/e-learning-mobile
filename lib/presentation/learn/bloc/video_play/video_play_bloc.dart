@@ -35,6 +35,7 @@ class VideoPlayBloc extends Bloc<VideoPlayEvent, VideoPlayState> {
     on<InitializeVideo>(_onInitializeVideo);
     on<SelectLecture>(_onSelectLecture);
     on<DisposeVideo>(_onDisposeVideo);
+    on<PauseVideo>(_onPauseVideo);
     on<ResetVideoState>(_onResetVideoState);
   }
 
@@ -59,6 +60,7 @@ class VideoPlayBloc extends Bloc<VideoPlayEvent, VideoPlayState> {
   Future<void> _triggerEvent(
       TriggerEvents event, Emitter<VideoPlayState> emit) async {
     final triggered = <VideoEvent>{};
+    log('Checking for events to trigger at ${state.lastLoggedTime}s');
 
     for (final e in state.events) {
       // Check if this event should be triggered at the current position and not already triggered
@@ -87,6 +89,7 @@ class VideoPlayBloc extends Bloc<VideoPlayEvent, VideoPlayState> {
         } else if (event.eventType == VideoEventType.QUIZ) {
           // Handle quiz event if needed
         }
+        add(AskToDoExercise(acceptToDoExercise: false));
       }
     }
   }
@@ -94,6 +97,7 @@ class VideoPlayBloc extends Bloc<VideoPlayEvent, VideoPlayState> {
   void _onSelectLecture(SelectLecture event, Emitter<VideoPlayState> emit) {
     // Only initialize if the video URL is different
     if (event.videoUrl != state.currentVideoUrl) {
+      log('Selecting lecture ${event.lectureId}');
       emit(state.copyWith(selectedLectureId: event.lectureId));
       add(GetEventsByLectureId(lectureId: event.lectureId));
       add(InitializeVideo(videoUrl: event.videoUrl));
@@ -139,7 +143,7 @@ class VideoPlayBloc extends Bloc<VideoPlayEvent, VideoPlayState> {
         autoPlay: true,
         mute: false,
       ),
-    )..addListener(() => _registerVideoEventListener);
+    )..addListener(_registerVideoEventListener);
 
     emit(state.copyWith(isLoading: false, isVideoInitialized: true));
   }
@@ -157,7 +161,7 @@ class VideoPlayBloc extends Bloc<VideoPlayEvent, VideoPlayState> {
 
       _chewieController = ChewieController(
         videoPlayerController: _videoController!,
-        autoPlay: false,
+        autoPlay: true,
         looping: false,
       );
 
@@ -177,6 +181,7 @@ class VideoPlayBloc extends Bloc<VideoPlayEvent, VideoPlayState> {
 
     if (currentPos != null && currentPos != state.lastLoggedTime) {
       add(UpdatePosition(currentPosition: currentPos));
+      log('Video position updated: $currentPos seconds');
     }
   }
 
@@ -196,6 +201,14 @@ class VideoPlayBloc extends Bloc<VideoPlayEvent, VideoPlayState> {
   void _onDisposeVideo(DisposeVideo event, Emitter<VideoPlayState> emit) {
     _disposeControllers();
     emit(state.copyWith(isDisposed: true));
+  }
+
+  void _onPauseVideo(PauseVideo event, Emitter<VideoPlayState> emit) {
+    if (state.videoType == VideoType.youtube) {
+      _youtubeController?.pause();
+    } else if (state.videoType == VideoType.hosted) {
+      _videoController?.pause();
+    }
   }
 
   void _onResetVideoState(ResetVideoState event, Emitter<VideoPlayState> emit) {

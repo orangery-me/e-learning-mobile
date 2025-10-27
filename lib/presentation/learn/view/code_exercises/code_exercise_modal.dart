@@ -41,18 +41,44 @@ class CodeExerciseModal extends StatefulWidget {
   State<CodeExerciseModal> createState() => _CodeExerciseModalState();
 }
 
-class _CodeExerciseModalState extends State<CodeExerciseModal> {
+class _CodeExerciseModalState extends State<CodeExerciseModal>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _codeController = TextEditingController();
   final TextEditingController _stdinController = TextEditingController();
   final TextEditingController _expectedController = TextEditingController();
   final TextEditingController _problemController = TextEditingController();
-  // RunMode _selectedMode = RunMode.runOnly;
 
   String _selectedLanguage = '71';
+  late TabController _tabController;
+  int _selectedTestCaseIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Only create tab controller if we have a problem statement
+    final tabCount = widget.problemStatement != null ? 3 : 1;
+    _tabController = TabController(length: tabCount, vsync: this);
+
+    // Initialize test case data if available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final problem = widget.problemStatement;
+      if (problem?.testCases != null && problem!.testCases!.isNotEmpty) {
+        final nonHiddenTestCases =
+            problem.testCases!.where((tc) => !tc.isHidden).toList();
+        if (nonHiddenTestCases.isNotEmpty && mounted) {
+          setState(() {
+            _stdinController.text = nonHiddenTestCases[0].inputData;
+            _expectedController.text = nonHiddenTestCases[0].expectedOutput;
+          });
+        }
+      }
+    });
+  }
 
   @override
   void dispose() {
     _codeController.dispose();
+    _tabController.dispose();
     _stdinController.dispose();
     _expectedController.dispose();
     super.dispose();
@@ -467,114 +493,142 @@ class _CodeExerciseModalState extends State<CodeExerciseModal> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildProblemTab() {
+    final problem = widget.problemStatement;
+    if (problem == null) return const SizedBox.shrink();
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                const Expanded(
-                  child: Center(
-                    child: Text(
-                      'Code Exercises',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                    ),
-                  ),
+            // Title
+            if (problem.title != null) ...[
+              Text(
+                problem.title!,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
-                IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      context.read<CodeExerciseBloc>().add(ClearResult());
-                      Navigator.pop(context);
-                    }),
-              ],
-            ),
-            const SizedBox(height: 8),
+              ),
+              const SizedBox(height: 12),
+            ],
 
+            // Problem Statement
+            if (problem.problemStatement != null) ...[
+              const Text(
+                'Problem Statement',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                problem.problemStatement!,
+                style: const TextStyle(fontSize: 14, height: 1.5),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Time Limit
+            if (problem.timeLimitSeconds != null)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.timer, size: 18, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Time limit: ${problem.timeLimitSeconds}s',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            const SizedBox(height: 16),
+
+            // Test Cases Info
+            if (problem.testCases != null && problem.testCases!.isNotEmpty) ...[
+              const Text(
+                'Test Cases',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Total: ${problem.testCases!.length} test cases',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCodeTab() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             // Language selector
             Row(
               children: [
-                const Text('Language:',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
+                const Icon(Icons.code, size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'Language:',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(width: 12),
-                DropdownButton<String>(
-                  value: _selectedLanguage,
-                  items: languages
-                      .map((language) => DropdownMenuItem(
-                          value: language['id'].toString(),
-                          child: Text(language['name'] as String)))
-                      .toList(),
-                  onChanged: (v) =>
-                      setState(() => _selectedLanguage = v ?? '71'),
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: _selectedLanguage,
+                    isExpanded: true,
+                    items: languages
+                        .map((language) => DropdownMenuItem(
+                              value: language['id'].toString(),
+                              child: Text(language['name'] as String),
+                            ))
+                        .toList(),
+                    onChanged: (v) =>
+                        setState(() => _selectedLanguage = v ?? '71'),
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-
-            // Mode selector
-            // Row(
-            //   children: [
-            //     const Text('Mode:',
-            //         style: TextStyle(fontWeight: FontWeight.w600)),
-            //     const SizedBox(width: 12),
-            //     DropdownButton<RunMode>(
-            //       value: _selectedMode,
-            //       items: const [
-            //         DropdownMenuItem(
-            //           value: RunMode.runOnly,
-            //           child: Text('Run code only'),
-            //         ),
-            //         DropdownMenuItem(
-            //           value: RunMode.aiJudge,
-            //           child: Text('AI Judge (with Gemini)'),
-            //         ),
-            //       ],
-            //       onChanged: (v) =>
-            //           setState(() => _selectedMode = v ?? RunMode.runOnly),
-            //     ),
-            //   ],
-            // ),
-            // const SizedBox(height: 8),
-
-            // Problem description (if AI Judge)
-            // if (_selectedMode == RunMode.aiJudge) ...[
-            const SizedBox(height: 12),
-            const Text('Problem description',
-                style: TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 6),
-            Text(widget.problemStatement?.problemStatement ??
-                widget.problemStatement?.title ??
-                'No problem description provided.'),
-            // _OutlinedArea(
-            //   child: TextField(
-            //     controller: _problemController,
-            //     minLines: 3,
-            //     maxLines: 6,
-            //     keyboardType: TextInputType.multiline,
-            //     decoration: const InputDecoration(
-            //       hintText: 'Enter problem statement...',
-            //       border: InputBorder.none,
-            //       isCollapsed: true,
-            //       contentPadding: EdgeInsets.all(12),
-            //     ),
-            //   ),
-            // ),
-            // ],
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
             // Code editor
-            const Text('Code', style: TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 6),
+            const Text(
+              'Code',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
             _OutlinedArea(
               child: TextField(
                 controller: _codeController,
-                minLines: 8,
-                maxLines: 18,
+                minLines: 10,
+                maxLines: 20,
                 keyboardType: TextInputType.multiline,
                 decoration: const InputDecoration(
                   hintText: 'Write your code here...',
@@ -584,18 +638,335 @@ class _CodeExerciseModalState extends State<CodeExerciseModal> {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
 
+            // Run button
+            _runButton(),
+            const SizedBox(height: 16),
+
+            // Result box
+            _buildResultArea(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTestCasesTab() {
+    final problem = widget.problemStatement;
+    if (problem?.testCases == null || problem!.testCases!.isEmpty) {
+      return const Center(
+        child: Text('No test cases available'),
+      );
+    }
+
+    final testCases = problem.testCases!;
+    final nonHiddenTestCases = testCases.where((tc) => !tc.isHidden).toList();
+
+    if (nonHiddenTestCases.isEmpty) {
+      return const Center(
+        child: Text('All test cases are hidden'),
+      );
+    }
+
+    // Update selected index if needed
+    if (_selectedTestCaseIndex >= nonHiddenTestCases.length) {
+      _selectedTestCaseIndex = 0;
+    }
+
+    final selectedTestCase = nonHiddenTestCases[_selectedTestCaseIndex];
+
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Test case selector
+            Row(
+              children: [
+                const Icon(Icons.view_list, size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'Select Test Case:',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
+            SizedBox(
+              height: 40,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: nonHiddenTestCases.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text('Case ${index + 1}'),
+                      selected: _selectedTestCaseIndex == index,
+                      onSelected: (selected) {
+                        if (selected) {
+                          setState(() {
+                            _selectedTestCaseIndex = index;
+                            // Update stdin and expected output
+                            _stdinController.text =
+                                nonHiddenTestCases[index].inputData;
+                            _expectedController.text =
+                                nonHiddenTestCases[index].expectedOutput;
+                          });
+                        }
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
 
-            // Standard input
-            const Text('Standard input (optional)',
-                style: TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 6),
+            // Input Data
+            Row(
+              children: [
+                const Icon(Icons.input, size: 20, color: Colors.blue),
+                const SizedBox(width: 8),
+                const Text(
+                  'Input',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
             _OutlinedArea(
               child: TextField(
                 controller: _stdinController,
+                minLines: 4,
+                maxLines: 8,
+                keyboardType: TextInputType.multiline,
+                decoration: const InputDecoration(
+                  hintText: 'Test case input will appear here...',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.all(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Expected Output
+            Row(
+              children: [
+                const Icon(Icons.check_circle, size: 20, color: Colors.green),
+                const SizedBox(width: 8),
+                const Text(
+                  'Expected Output',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            _OutlinedArea(
+              child: TextField(
+                controller: _expectedController,
                 minLines: 2,
-                maxLines: 5,
+                maxLines: 6,
+                enabled: false,
+                keyboardType: TextInputType.multiline,
+                decoration: const InputDecoration(
+                  hintText: 'Expected output for this test case...',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.all(12),
+                  fillColor: Color(0xFFF5F5F5),
+                  filled: true,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Points info
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.stars, color: Colors.orange, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Points: ${selectedTestCase.points}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.orange,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResultArea() {
+    return BlocBuilder<CodeExerciseBloc, CodeExerciseState>(
+      builder: (context, state) {
+        if (state.isLoading) {
+          return _OutlinedArea(
+            child: const Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Executing code...'),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        if (state.errorMessage != null) {
+          return _OutlinedArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error, color: Colors.red, size: 48),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Error: ${state.errorMessage}',
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        if (state.result != null) {
+          return Column(
+            children: [
+              _buildJudgeResultArea(state.result!.judgeResult),
+              if (state.result!.feedbackResult != null) ...[
+                const SizedBox(height: 16),
+                _buildFeedbackArea(state.result!.feedbackResult!),
+              ],
+            ],
+          );
+        }
+
+        return _OutlinedArea(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.code, size: 48, color: Colors.grey.shade400),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Run your code to see results here',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCustomTestLayout() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Language selector
+            Row(
+              children: [
+                const Icon(Icons.code, size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'Language:',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: _selectedLanguage,
+                    isExpanded: true,
+                    items: languages
+                        .map((language) => DropdownMenuItem(
+                              value: language['id'].toString(),
+                              child: Text(language['name'] as String),
+                            ))
+                        .toList(),
+                    onChanged: (v) =>
+                        setState(() => _selectedLanguage = v ?? '71'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Code editor
+            const Text(
+              'Code',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            _OutlinedArea(
+              child: TextField(
+                controller: _codeController,
+                minLines: 10,
+                maxLines: 20,
+                keyboardType: TextInputType.multiline,
+                decoration: const InputDecoration(
+                  hintText: 'Write your code here...',
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                  contentPadding: EdgeInsets.all(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Standard input
+            const Text(
+              'Standard Input',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            _OutlinedArea(
+              child: TextField(
+                controller: _stdinController,
+                minLines: 3,
+                maxLines: 6,
                 keyboardType: TextInputType.multiline,
                 decoration: const InputDecoration(
                   hintText: 'Enter stdin...',
@@ -605,13 +976,14 @@ class _CodeExerciseModalState extends State<CodeExerciseModal> {
                 ),
               ),
             ),
-
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
             // Expected output
-            const Text('Expected output (optional)',
-                style: TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 6),
+            const Text(
+              'Expected Output',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
             _OutlinedArea(
               child: TextField(
                 controller: _expectedController,
@@ -626,80 +998,69 @@ class _CodeExerciseModalState extends State<CodeExerciseModal> {
                 ),
               ),
             ),
-
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
             // Run button
             _runButton(),
-
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
 
             // Result box
-            BlocBuilder<CodeExerciseBloc, CodeExerciseState>(
-              builder: (context, state) {
-                if (state.isLoading) {
-                  return const _OutlinedArea(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(),
-                          SizedBox(height: 8),
-                          Text('Executing code...'),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-
-                if (state.errorMessage != null) {
-                  return _OutlinedArea(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.error, color: Colors.red, size: 48),
-                          const SizedBox(height: 8),
-                          Text('Error: ${state.errorMessage}'),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-
-                if (state.result != null) {
-                  return Column(
-                    children: [
-                      _buildJudgeResultArea(state.result!.judgeResult),
-                      if (state.result!.feedbackResult != null) ...[
-                        const SizedBox(height: 16),
-                        _buildFeedbackArea(state.result!.feedbackResult!),
-                      ],
-                    ],
-                  );
-                }
-
-                return Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  height: 200,
-                  child: Center(
-                    child: Text(
-                      '// Result will appear here\n',
-                      style: TextStyle(
-                        fontFamily: 'monospace',
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            )
+            _buildResultArea(),
           ],
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        title: Row(
+          children: [
+            const Icon(Icons.code, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                widget.problemStatement?.title ?? 'Custom Test',
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              context.read<CodeExerciseBloc>().add(ClearResult());
+              Navigator.pop(context);
+            },
+          ),
+        ],
+        bottom: widget.problemStatement != null
+            ? TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(icon: Icon(Icons.description), text: 'Problem'),
+                  Tab(icon: Icon(Icons.code), text: 'Code'),
+                  Tab(icon: Icon(Icons.check_circle), text: 'Tests'),
+                ],
+              )
+            : null,
+      ),
+      body: widget.problemStatement != null
+          ? TabBarView(
+              controller: _tabController,
+              children: [
+                _buildProblemTab(),
+                _buildCodeTab(),
+                _buildTestCasesTab(),
+              ],
+            )
+          : _buildCustomTestLayout(),
     );
   }
 }

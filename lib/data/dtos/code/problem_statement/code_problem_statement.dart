@@ -1,3 +1,4 @@
+import 'package:e_learning_mobile/common/utils/datetime_converter.dart';
 import 'package:e_learning_mobile/data/dtos/code/problem_statement/test_case.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'code_problem_statement.g.dart';
@@ -6,11 +7,12 @@ part 'code_problem_statement.g.dart';
 class CodeProblemStatement {
   final String id;
   final String lectureId;
-  final String title;
-  final String problemStatement;
-  final int timeLimitSeconds;
-  final DateTime createdAt;
-  final List<TestCase> testCases;
+  final String? title;
+  final String? problemStatement;
+  final int? timeLimitSeconds;
+  @DateTimeTimestampConverter()
+  final DateTime? createdAt;
+  final List<TestCase>? testCases;
   CodeProblemStatement({
     required this.id,
     required this.lectureId,

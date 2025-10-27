@@ -10,6 +10,10 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:e_learning_mobile/common/helpers/dio_helper.dart' as _i896;
+import 'package:e_learning_mobile/data/datasources/cart/cart_datasource.dart'
+    as _i24;
+import 'package:e_learning_mobile/data/datasources/cart/remote/cart_remote_datasource.dart'
+    as _i927;
 import 'package:e_learning_mobile/data/datasources/code_exercise/code_exercise_datasource.dart'
     as _i1004;
 import 'package:e_learning_mobile/data/datasources/code_exercise/remote/code_exercise_remote_datasource.dart'
@@ -26,6 +30,10 @@ import 'package:e_learning_mobile/data/datasources/note/note_datasource.dart'
     as _i84;
 import 'package:e_learning_mobile/data/datasources/note/remote/note_remote_datasource.dart'
     as _i277;
+import 'package:e_learning_mobile/data/datasources/review/remote/review_remote_datasource.dart'
+    as _i827;
+import 'package:e_learning_mobile/data/datasources/review/review_datasource.dart'
+    as _i560;
 import 'package:e_learning_mobile/data/datasources/section/remote/section_datasource.dart'
     as _i629;
 import 'package:e_learning_mobile/data/datasources/section/section_datasource.dart'
@@ -55,10 +63,14 @@ import 'package:e_learning_mobile/presentation/learn/bloc/lectures/lectures_bloc
     as _i770;
 import 'package:e_learning_mobile/presentation/learn/bloc/notes/notes_bloc.dart'
     as _i171;
+import 'package:e_learning_mobile/presentation/learn/bloc/reviews/reviews_bloc.dart'
+    as _i275;
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart'
     as _i399;
 import 'package:e_learning_mobile/presentation/learn/bloc/video_play/video_play_bloc.dart'
     as _i902;
+import 'package:e_learning_mobile/presentation/payment/cart/cart_bloc.dart'
+    as _i258;
 import 'package:flutter/cupertino.dart' as _i719;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
@@ -108,6 +120,10 @@ Future<_i174.GetIt> initGetIt(
       () => _i812.UserRemoteDataSource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i899.CodeExerciseRemoteDatasource>(() =>
       _i899.CodeExerciseRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
+  gh.lazySingleton<_i827.ReviewRemoteDatasource>(
+      () => _i827.ReviewRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
+  gh.lazySingleton<_i927.CartRemoteDatasource>(
+      () => _i927.CartRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i84.NoteDatasource>(
       () => _i84.NoteDatasource(remote: gh<_i277.NoteRemoteDatasource>()));
   gh.lazySingleton<_i1056.UserDataSource>(() => _i1056.UserDataSource(
@@ -116,10 +132,16 @@ Future<_i174.GetIt> initGetIt(
       ));
   gh.singleton<_i734.VideoEventsDatasource>(() => _i734.VideoEventsDatasource(
       remoteDatasource: gh<_i184.VideoEventsRemoteDatasource>()));
+  gh.lazySingleton<_i24.CartDatasource>(
+      () => _i24.CartDatasource(remote: gh<_i927.CartRemoteDatasource>()));
   gh.lazySingleton<_i201.CourseDatasource>(() => _i201.CourseDatasource(
       remoteDatasource: gh<_i759.CourseRemoteDatasource>()));
+  gh.lazySingleton<_i560.ReviewDatasource>(
+      () => _i560.ReviewDatasource(remote: gh<_i827.ReviewRemoteDatasource>()));
   gh.factory<_i148.CoursesBloc>(
       () => _i148.CoursesBloc(datasource: gh<_i201.CourseDatasource>()));
+  gh.factory<_i275.ReviewsBloc>(
+      () => _i275.ReviewsBloc(datasource: gh<_i560.ReviewDatasource>()));
   gh.lazySingleton<_i439.SectionDatasource>(() => _i439.SectionDatasource(
       remoteDatasource: gh<_i629.SectionRemoteDatasource>()));
   gh.lazySingleton<_i1004.CodeExerciseDatasource>(() =>
@@ -137,6 +159,8 @@ Future<_i174.GetIt> initGetIt(
         datasource: gh<_i439.SectionDatasource>(),
         lectureDatasource: gh<_i895.LectureDatasource>(),
       ));
+  gh.factory<_i258.CartBloc>(
+      () => _i258.CartBloc(cartDatasource: gh<_i24.CartDatasource>()));
   gh.factory<_i375.HomeBloc>(
       () => _i375.HomeBloc(courseDatasource: gh<_i201.CourseDatasource>()));
   gh.factory<_i770.LecturesBloc>(

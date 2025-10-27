@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:e_learning_mobile/data/dtos/lectures/lecture_response_dto.dart';
+import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/notes/notes_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/widgets/comment_input_with_mention.dart';
 import 'package:e_learning_mobile/presentation/learn/widgets/note_item.dart';
@@ -8,6 +9,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+
+class NoteModalView extends StatelessWidget {
+  final LectureResponseDto? selectedLecture;
+  final VideoPlayerController? videoController;
+  final YoutubePlayerController? youtubeController;
+  const NoteModalView(
+      {super.key,
+      this.selectedLecture,
+      required this.videoController,
+      required this.youtubeController});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<NotesBloc>(),
+      child: NoteModal(
+        selectedLecture: selectedLecture,
+        videoController: videoController,
+        youtubeController: youtubeController,
+      ),
+    );
+  }
+}
 
 class NoteModal extends StatefulWidget {
   final LectureResponseDto? selectedLecture;

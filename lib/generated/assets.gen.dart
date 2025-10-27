@@ -36,8 +36,24 @@ class $AssetsFontsGen {
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/events.png
+  AssetGenImage get events => const AssetGenImage('assets/icons/events.png');
+
   /// Directory path: assets/icons/launcher
   $AssetsIconsLauncherGen get launcher => const $AssetsIconsLauncherGen();
+
+  /// File path: assets/icons/post-it.png
+  AssetGenImage get postIt => const AssetGenImage('assets/icons/post-it.png');
+
+  /// File path: assets/icons/star.png
+  AssetGenImage get star => const AssetGenImage('assets/icons/star.png');
+
+  /// File path: assets/icons/terminal.png
+  AssetGenImage get terminal =>
+      const AssetGenImage('assets/icons/terminal.png');
+
+  /// List of all assets
+  List<AssetGenImage> get values => [events, postIt, star, terminal];
 }
 
 class $AssetsImagesGen {
