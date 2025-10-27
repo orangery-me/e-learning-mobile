@@ -1,8 +1,7 @@
 import 'package:e_learning_mobile/data/dtos/lectures/lecture_response_dto.dart';
-import 'package:e_learning_mobile/di/di.dart';
-import 'package:e_learning_mobile/presentation/learn/bloc/code_exercise/code_exercise_bloc.dart';
-import 'package:e_learning_mobile/presentation/learn/bloc/notes/notes_bloc.dart';
-import 'package:e_learning_mobile/presentation/learn/view/code_exercises/code_exercise_modal.dart';
+import 'package:e_learning_mobile/presentation/learn/bloc/video_play/video_play_bloc.dart';
+import 'package:e_learning_mobile/presentation/learn/view/events/events_list_modal.dart';
+import 'package:e_learning_mobile/presentation/learn/view/reviews/review_modal.dart';
 import 'package:e_learning_mobile/presentation/learn/view/take_notes/note_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,21 +22,11 @@ class OtherFeaturePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => getIt<NotesBloc>(),
-        ),
-        BlocProvider(
-          create: (context) => getIt<CodeExerciseBloc>(),
-        ),
-      ],
-      child: OtherFeatureView(
-        courseId: courseId,
-        selectedLecture: selectedLecture,
-        videoController: videoController,
-        youtubeController: youtubeController,
-      ),
+    return OtherFeatureView(
+      courseId: courseId,
+      selectedLecture: selectedLecture,
+      videoController: videoController,
+      youtubeController: youtubeController,
     );
   }
 }
@@ -70,53 +59,98 @@ class _OtherFeatureViewState extends State<OtherFeatureView> {
       children: [
         ListTile(
           title: Text('Notes'),
-          leading: Icon(Icons.note),
+          // image icon
+          leading: Image.asset(
+            'assets/icons/post-it.png',
+            width: 24,
+            height: 24,
+          ),
           onTap: () {
-            final parentBloc = context.read<NotesBloc>();
-
             showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
                 useSafeArea: true,
                 elevation: 10,
                 builder: (_) {
-                  return BlocProvider.value(
-                    value: parentBloc,
-                    child: Builder(builder: (newContext) {
-                      return NoteModal(
-                        videoController: widget.videoController,
-                        youtubeController: widget.youtubeController,
-                        selectedLecture: widget.selectedLecture,
-                      );
-                    }),
+                  return NoteModalView(
+                    videoController: widget.videoController,
+                    youtubeController: widget.youtubeController,
+                    selectedLecture: widget.selectedLecture,
                   );
                 });
           },
         ),
-        // ListTile(
-        //   title: Text('Coding Practice'),
-        //   leading: Icon(Icons.note),
-        //   onTap: () {
-        //     final parentBloc = context.read<CodeExerciseBloc>();
-
-        //     showModalBottomSheet(
-        //         context: context,
-        //         isScrollControlled: true,
-        //         useSafeArea: true,
-        //         backgroundColor: Colors.white,
-        //         shape: const RoundedRectangleBorder(
-        //           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        //         ),
-        //         builder: (_) {
-        //           return BlocProvider.value(
-        //             value: parentBloc,
-        //             child: Builder(builder: (newContext) {
-        //               return CodeExerciseModal();
-        //             }),
-        //           );
-        //         });
-        //   },
-        // ),
+        ListTile(
+          title: Text('Events'),
+          leading: Image.asset(
+            'assets/icons/events.png',
+            width: 24,
+            height: 24,
+          ),
+          onTap: () {
+            showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                useSafeArea: true,
+                backgroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                builder: (_) {
+                  return BlocProvider.value(
+                      value: context.read<VideoPlayBloc>(),
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.9,
+                        child: EventsListModal(),
+                      ));
+                });
+          },
+        ),
+        ListTile(
+          title: Text('Exercises'),
+          leading: Image.asset(
+            'assets/icons/terminal.png',
+            width: 24,
+            height: 24,
+          ),
+          onTap: () {
+            showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                useSafeArea: true,
+                backgroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                builder: (_) {
+                  return SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.9,
+                    child: const EventsListModal(),
+                  );
+                });
+          },
+        ),
+        ListTile(
+          title: Text('Comments & Ratings'),
+          leading: Image.asset(
+            'assets/icons/star.png',
+            width: 24,
+            height: 24,
+          ),
+          onTap: () {
+            showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                useSafeArea: true,
+                backgroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                builder: (_) {
+                  return ReviewModalPage(courseId: widget.courseId);
+                });
+          },
+        )
       ],
     );
   }
