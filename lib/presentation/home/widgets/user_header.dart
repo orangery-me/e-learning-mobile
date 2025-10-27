@@ -37,6 +37,7 @@
 // }
 
 import 'package:e_learning_mobile/common/theme/palette.dart';
+import 'package:e_learning_mobile/presentation/payment/views/cart_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -102,23 +103,34 @@ class UserHeader extends StatelessWidget {
         Row(
           children: [
             // Shopping cart icon
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CartPage(),
                   ),
-                ],
-              ),
-              child: const Icon(
-                Icons.shopping_cart_outlined,
-                color: Colors.black87,
-                size: 24,
+                );
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.shopping_cart_outlined,
+                  color: Colors.black87,
+                  size: 24,
+                ),
               ),
             ),
             const SizedBox(width: 12),

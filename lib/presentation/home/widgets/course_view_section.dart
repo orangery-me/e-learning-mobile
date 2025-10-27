@@ -151,20 +151,8 @@ class CourseViewSection extends StatelessWidget {
 
   Widget _buildCourseCard(CourseResponseDto course) {
     return CourseCard(
-      courseId: course.courseId,
-      title: course.title,
-      instructor: course.instructorName,
-      filesCount: 10 + (course.courseId.hashCode % 20), // Mock files count
-      duration:
-          120 + (course.courseId.hashCode % 480), // Mock duration in minutes
-      price: course.price,
-      level: course.level,
-      imageUrl: course.image,
-      category: course.category,
+      course: course,
       showCategory: showCategory,
-      rating: 4.2 + (course.courseId.hashCode % 100) / 100, // Mock rating
-      reviewCount: 50 + (course.courseId.hashCode % 200), // Mock reviews
-      studentCount: 100 + (course.courseId.hashCode % 5000), // Mock students
     );
   }
 }

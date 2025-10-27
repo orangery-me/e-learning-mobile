@@ -1,43 +1,29 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:e_learning_mobile/common/extensions/context_extension.dart';
 import 'package:e_learning_mobile/data/models/category.dart';
+import 'package:e_learning_mobile/presentation/learn/view/video_play_view.dart';
 import 'package:flutter/material.dart';
 
 import 'package:e_learning_mobile/common/utils/format_util.dart';
+import 'package:e_learning_mobile/data/dtos/courses/course_response_dto.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/rating_widget.dart';
-import 'package:e_learning_mobile/presentation/learn/view/video_play_view.dart';
+import 'package:e_learning_mobile/presentation/learn/view/course_detail_view.dart';
 
 class CourseCard extends StatelessWidget {
-  final String courseId;
-  final String title;
-  final String instructor;
-  final int filesCount;
-  final int duration;
-  final double price;
-  final String level;
-  final String imageUrl;
-  final double rating;
-  final int reviewCount;
-  final int studentCount;
-  final String category;
+  final CourseResponseDto course;
   final bool showCategory;
 
   const CourseCard({
     super.key,
-    required this.courseId,
-    required this.title,
-    required this.instructor,
-    required this.filesCount,
-    required this.duration,
-    required this.price,
-    required this.level,
-    required this.imageUrl,
-    required this.rating,
-    required this.reviewCount,
-    required this.studentCount,
-    required this.category,
-    required this.showCategory,
+    required this.course,
+    this.showCategory = true,
   });
+
+  // Generate mock data based on courseId hash
+  int get _mockDuration => 120 + (course.courseId.hashCode % 480);
+  double get _mockRating => 4.2 + (course.courseId.hashCode % 100) / 100;
+  int get _mockReviewCount => 50 + (course.courseId.hashCode % 200);
+  int get _mockStudentCount => 100 + (course.courseId.hashCode % 5000);
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +72,7 @@ class CourseCard extends StatelessWidget {
                     topRight: Radius.circular(12),
                   ),
                   image: DecorationImage(
-                    image: NetworkImage(imageUrl),
+                    image: NetworkImage(course.image),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -108,13 +94,23 @@ class CourseCard extends StatelessWidget {
                     child: IconButton(
                       onPressed: () {
                         // go to video play screen
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return VieoPlayPage(
-                            videoUrl: '',
-                            courseId: courseId,
-                          );
-                        }));
+                        // Navigator.push(context,
+                        //     MaterialPageRoute(builder: (context) {
+                        //   return VieoPlayPage(
+                        //     videoUrl: '',
+                        //     courseId: course.courseId,
+                        //   );
+                        // }));
+
+                        // Navigate to course detail page
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CourseDetailPage(
+                              course: course,
+                            ),
+                          ),
+                        );
                       },
                       icon: const Icon(
                         Icons.play_arrow_rounded,
@@ -178,7 +174,8 @@ class CourseCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              Category.fromDbValue(category)!.displayName,
+                              Category.fromDbValue(course.category)!
+                                  .displayName,
                               style: const TextStyle(
                                 fontSize: 10,
                                 color: Color(0xFF4CAF50),
@@ -196,7 +193,7 @@ class CourseCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            level,
+                            course.level,
                             style: const TextStyle(
                               fontSize: 10,
                               color: Color(0xFF1976D2),
@@ -212,7 +209,7 @@ class CourseCard extends StatelessWidget {
 
                 // Title
                 Text(
-                  title,
+                  course.title,
                   style: context.textStyles.heading4
                       .copyWith(fontWeight: FontWeight.w700),
                   maxLines: 2,
@@ -222,7 +219,8 @@ class CourseCard extends StatelessWidget {
                 const SizedBox(height: 6),
 
                 // Instructor
-                Text('By $instructor', style: context.textStyles.body1),
+                Text('By ${course.instructorName}',
+                    style: context.textStyles.body1),
 
                 const SizedBox(height: 8),
 
@@ -230,15 +228,15 @@ class CourseCard extends StatelessWidget {
                 Row(
                   children: [
                     RatingWidget(
-                      rating: rating,
-                      reviewCount: reviewCount,
+                      rating: _mockRating,
+                      reviewCount: _mockReviewCount,
                       size: 12,
                       showReviewCount:
                           true, // Featured style shows review count
                     ),
                     const SizedBox(width: 12),
                     StudentCountWidget(
-                      studentCount: studentCount,
+                      studentCount: _mockStudentCount,
                       size: 12,
                     ),
                   ],
@@ -250,12 +248,13 @@ class CourseCard extends StatelessWidget {
                 Row(
                   children: [
                     DurationWidget(
-                      durationInMinutes: duration,
+                      durationInMinutes: _mockDuration,
                       size: 12,
                     ),
                     const Spacer(),
                     Text(
-                      FormatUtil.formatNumberAsCurrency(price, symbol: '₫'),
+                      FormatUtil.formatNumberAsCurrency(course.price,
+                          symbol: '₫'),
                       style: context.textStyles.heading4
                           .copyWith(fontWeight: FontWeight.w800),
                     ),
