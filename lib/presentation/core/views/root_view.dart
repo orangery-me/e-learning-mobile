@@ -1,3 +1,4 @@
+import 'package:e_learning_mobile/presentation/payment/views/order_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:e_learning_mobile/presentation/core/bloc/root_bloc.dart';
@@ -26,7 +27,12 @@ class _RootView extends StatelessWidget {
         builder: (context, state) {
           return SlideIndexedStack(
             index: state.currentIndex,
-            children:  [HomePage(), NotificationPage(), ProfilePage()],
+            children: [
+              HomePage(),
+              OrderPage(),
+              NotificationPage(),
+              ProfilePage()
+            ],
           );
         },
         buildWhen: (previous, current) {

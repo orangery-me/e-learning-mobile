@@ -11,11 +11,13 @@ PaymentSummaryResponse _$PaymentSummaryResponseFromJson(
     PaymentSummaryResponse(
       id: json['id'] as String,
       orderCode: json['orderCode'] as String,
-      paymentMethod: json['paymentMethod'] as String,
-      status: json['status'] as String,
+      paymentMethod: json['paymentMethod'] as String?,
+      status: json['status'] as String?,
       checkoutUrl: json['checkoutUrl'] as String,
-      paidAt: DateTime.parse(json['paidAt'] as String),
-      expiresAt: DateTime.parse(json['expiresAt'] as String),
+      paidAt: _$JsonConverterFromJson<int, DateTime>(
+          json['paidAt'], const DateTimeTimestampConverter().fromJson),
+      expiresAt: _$JsonConverterFromJson<int, DateTime>(
+          json['expiresAt'], const DateTimeTimestampConverter().fromJson),
     );
 
 Map<String, dynamic> _$PaymentSummaryResponseToJson(
@@ -26,6 +28,20 @@ Map<String, dynamic> _$PaymentSummaryResponseToJson(
       'paymentMethod': instance.paymentMethod,
       'status': instance.status,
       'checkoutUrl': instance.checkoutUrl,
-      'paidAt': instance.paidAt.toIso8601String(),
-      'expiresAt': instance.expiresAt.toIso8601String(),
+      'paidAt': _$JsonConverterToJson<int, DateTime>(
+          instance.paidAt, const DateTimeTimestampConverter().toJson),
+      'expiresAt': _$JsonConverterToJson<int, DateTime>(
+          instance.expiresAt, const DateTimeTimestampConverter().toJson),
     };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);
+
+Json? _$JsonConverterToJson<Json, Value>(
+  Value? value,
+  Json? Function(Value value) toJson,
+) =>
+    value == null ? null : toJson(value);

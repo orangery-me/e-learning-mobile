@@ -3,7 +3,8 @@ import 'package:e_learning_mobile/common/utils/dialog_util.dart';
 import 'package:e_learning_mobile/common/utils/format_util.dart';
 import 'package:e_learning_mobile/data/dtos/cart/cart_item_dto.dart';
 import 'package:e_learning_mobile/di/di.dart';
-import 'package:e_learning_mobile/presentation/payment/views/order_view.dart';
+// import 'package:e_learning_mobile/presentation/payment/views/order_view.dart';
+import 'package:e_learning_mobile/presentation/payment/views/order_detail_view.dart';
 import 'package:e_learning_mobile/presentation/payment/bloc/order/order_bloc.dart';
 import 'package:e_learning_mobile/presentation/payment/bloc/cart/cart_bloc.dart';
 import 'package:flutter/material.dart';
@@ -296,7 +297,7 @@ class CartView extends StatelessWidget {
                               onPressed: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (_) => const OrderPage(
+                                    builder: (_) => OrderDetailPage(
                                       initialEvent: CreateOrderFromCart(),
                                     ),
                                   ),

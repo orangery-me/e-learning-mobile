@@ -8,16 +8,26 @@ sealed class OrderEvent extends Equatable {
 }
 
 class LoadOrders extends OrderEvent {
-  const LoadOrders();
+  final int page;
+  final int size;
+  final bool append;
+
+  const LoadOrders({this.page = 0, this.size = 10, this.append = false});
+
+  @override
+  List<Object> get props => [page, size, append];
 }
 
 class LoadOrdersByStatus extends OrderEvent {
   final String status; // use lowercase string consistent with API
+  final int page;
+  final int size;
+  final bool append;
 
-  const LoadOrdersByStatus(this.status);
+  const LoadOrdersByStatus(this.status, {this.page = 0, this.size = 10, this.append = false});
 
   @override
-  List<Object> get props => [status];
+  List<Object> get props => [status, page, size, append];
 }
 
 class LoadOrderDetail extends OrderEvent {
@@ -39,7 +49,10 @@ class CreateOrder extends OrderEvent {
 }
 
 class CreateOrderFromCart extends OrderEvent {
-  const CreateOrderFromCart();
+  final OrderFromCartRequest request;
+
+  CreateOrderFromCart({OrderFromCartRequest? request})
+      : request = request ?? OrderFromCartRequest(clearCartAfterOrder: true);
 }
 
 class CancelOrder extends OrderEvent {

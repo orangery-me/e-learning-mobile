@@ -1,3 +1,4 @@
+import 'package:e_learning_mobile/common/utils/datetime_converter.dart';
 import 'package:e_learning_mobile/data/dtos/order/order_item_response.dart';
 import 'package:e_learning_mobile/data/dtos/order/order_status.dart';
 import 'package:e_learning_mobile/data/dtos/order/payment_summary_response.dart';
@@ -14,14 +15,17 @@ class OrderResponse {
   final double discountAmount;
   final double finalAmount;
   final OrderStatus status;
-  final String notes;
+  final String? notes;
 
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime deliveredAt;
+  @DateTimeTimestampConverter()
+  final DateTime? createdAt;
+  @DateTimeTimestampConverter()
+  final DateTime? updatedAt;
+  @DateTimeTimestampConverter()
+  final DateTime? deliveredAt;
 
   final List<OrderItemResponse> items;
-  final PaymentSummaryResponse payment;
+  final PaymentSummaryResponse? payment;
 
   OrderResponse({
     required this.id,
@@ -39,5 +43,6 @@ class OrderResponse {
     required this.payment,
   });
 
-  factory OrderResponse.fromJson(Map<String, dynamic> json) => _$OrderResponseFromJson(json);
+  factory OrderResponse.fromJson(Map<String, dynamic> json) =>
+      _$OrderResponseFromJson(json);
 }

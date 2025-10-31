@@ -10,7 +10,7 @@ OrderItemResponse _$OrderItemResponseFromJson(Map<String, dynamic> json) =>
     OrderItemResponse(
       id: json['id'] as String,
       courseId: json['courseId'] as String,
-      unitPrice: (json['unitPrice'] as num).toDouble(),
+      unitPrice: (json['unitPrice'] as num?)?.toDouble(),
       discountAmount: (json['discountAmount'] as num).toDouble(),
     );
 

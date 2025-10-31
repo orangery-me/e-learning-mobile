@@ -3,8 +3,8 @@ import 'package:e_learning_mobile/common/utils/format_util.dart';
 import 'package:e_learning_mobile/data/dtos/order/order_response_dto.dart';
 import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/payment/bloc/order/order_bloc.dart';
+import 'package:e_learning_mobile/presentation/payment/views/order_detail_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class OrderPage extends StatelessWidget {
@@ -25,19 +25,113 @@ class OrderPage extends StatelessWidget {
   }
 }
 
-class OrderView extends StatelessWidget {
+class OrderView extends StatefulWidget {
   const OrderView({super.key});
+
+  @override
+  State<OrderView> createState() => _OrderViewState();
+}
+
+class _OrderViewState extends State<OrderView>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  final ScrollController _scrollController = ScrollController();
+
+  // Tab 0 is "All"; others map to API/enum names (lowercase)
+  static const List<String> _statusKeys = <String>[
+    'all',
+    'pending',
+    'paid',
+    'failed',
+    'cancelled',
+    'refunded',
+    'delivered',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: _statusKeys.length, vsync: this);
+
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) return;
+      _dispatchForIndex(_tabController.index);
+    });
+
+    _scrollController.addListener(_onScroll);
+
+    // Ensure we show something when navigating directly (not from cart)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final bloc = context.read<OrderBloc>();
+      if (bloc.state is OrderInitial) {
+        bloc.add(const LoadOrders(page: 0, size: 10));
+      }
+    });
+  }
+
+  void _dispatchForIndex(int index) {
+    final bloc = context.read<OrderBloc>();
+    if (index == 0) {
+      bloc.add(const LoadOrders(page: 0, size: 10));
+    } else {
+      final status = _statusKeys[index];
+      bloc.add(LoadOrdersByStatus(status, page: 0, size: 10));
+    }
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    if (currentScroll >= maxScroll - 200) {
+      final s = context.read<OrderBloc>().state;
+      if (s is OrdersLoaded && s.hasMore && !s.isAppending) {
+        final nextPage = s.page + 1;
+        if (s.statusFilter == null) {
+          context
+              .read<OrderBloc>()
+              .add(LoadOrders(page: nextPage, size: 10, append: true));
+        } else {
+          context.read<OrderBloc>().add(LoadOrdersByStatus(s.statusFilter!,
+              page: nextPage, size: 10, append: true));
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Checkout'),
+        title: const Text('Orders'),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
+        bottom: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          labelColor: context.palette.buttonBackground,
+          unselectedLabelColor: Colors.grey[600],
+          indicatorColor: context.palette.buttonBackground,
+          tabs: const [
+            Tab(text: 'All'),
+            Tab(text: 'Pending'),
+            Tab(text: 'Paid'),
+            Tab(text: 'Failed'),
+            Tab(text: 'Cancelled'),
+            Tab(text: 'Refunded'),
+            Tab(text: 'Delivered'),
+          ],
+        ),
       ),
       body: BlocConsumer<OrderBloc, OrderState>(
         listener: (context, state) {
@@ -58,26 +152,42 @@ class OrderView extends StatelessWidget {
           if (state is OrderError) {
             return _ErrorPane(
               message: state.message,
-              onRetry: () =>
-                  context.read<OrderBloc>().add(const CreateOrderFromCart()),
+              onRetry: () => _dispatchForIndex(_tabController.index),
             );
           }
 
-          if (state is OrderActionSuccess || state is OrderDetailLoaded) {
-            final order = state is OrderActionSuccess
-                ? state.order
-                : (state as OrderDetailLoaded).order;
-
-            return _OrderSummary(order: order);
-          }
-
           if (state is OrdersLoaded) {
-            // Not expected in checkout flow; show first order if needed
             final orders = state.orders;
             if (orders.isEmpty) {
               return const Center(child: Text('No orders'));
             }
-            return _OrderSummary(order: orders.first);
+            return Stack(
+              children: [
+                _OrdersList(
+                  orders: orders,
+                  controller: _scrollController,
+                ),
+                if (state.isAppending)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: context.palette.buttonBackground,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
           }
 
           return const SizedBox();
@@ -130,245 +240,66 @@ class _ErrorPane extends StatelessWidget {
   }
 }
 
-class _OrderSummary extends StatelessWidget {
-  final OrderResponse order;
+class _OrdersList extends StatelessWidget {
+  final List<OrderResponse> orders;
+  final ScrollController? controller;
 
-  const _OrderSummary({required this.order});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.blue[50],
-            border: Border(
-              bottom: BorderSide(color: Colors.grey[200]!),
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.receipt_long,
-                  color: context.palette.buttonBackground, size: 28),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Order #${order.orderNumber}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      'Total: ${FormatUtil.formatNumberAsCurrency(order.finalAmount, symbol: '₫')}',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _SummaryRow(
-                label: 'Subtotal',
-                value: FormatUtil.formatNumberAsCurrency(order.totalAmount,
-                    symbol: '₫'),
-              ),
-              if (order.discountAmount > 0) ...[
-                const SizedBox(height: 8),
-                _SummaryRow(
-                  label: 'Discount',
-                  value:
-                      '-${FormatUtil.formatNumberAsCurrency(order.discountAmount, symbol: '₫')}',
-                  valueStyle: TextStyle(
-                    color: Colors.green[700],
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-              const SizedBox(height: 8),
-              const Divider(),
-              const SizedBox(height: 8),
-              _SummaryRow(
-                label: 'Total',
-                value: FormatUtil.formatNumberAsCurrency(order.finalAmount,
-                    symbol: '₫'),
-                labelStyle: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                valueStyle: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: context.palette.buttonBackground,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _PaymentCard(order: order),
-            ],
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(
-              top: BorderSide(color: Colors.grey[200]!),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await Clipboard.setData(
-                      ClipboardData(text: order.payment.checkoutUrl),
-                    );
-                    // ignore: use_build_context_synchronously
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Checkout URL copied to clipboard'),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: context.palette.buttonBackground,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Copy Checkout URL',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SummaryRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final TextStyle? labelStyle;
-  final TextStyle? valueStyle;
-
-  const _SummaryRow({
-    required this.label,
-    required this.value,
-    this.labelStyle,
-    this.valueStyle,
-  });
+  const _OrdersList({required this.orders, this.controller});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: labelStyle ?? TextStyle(color: Colors.grey[600])),
-        Text(
-          value,
-          style: valueStyle ?? const TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ],
-    );
-  }
-}
-
-class _PaymentCard extends StatelessWidget {
-  final OrderResponse order;
-
-  const _PaymentCard({required this.order});
-
-  @override
-  Widget build(BuildContext context) {
-    final payment = order.payment;
-    return Container(
+    return ListView.separated(
+      controller: controller,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Payment',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+      itemBuilder: (context, index) {
+        final order = orders[index];
+        return ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          leading: CircleAvatar(
+            backgroundColor: Colors.blue[50],
+            foregroundColor: context.palette.buttonBackground,
+            child: const Icon(Icons.receipt_long),
           ),
-          const SizedBox(height: 12),
-          _KVRow('Method',
-              payment.paymentMethod.isEmpty ? 'N/A' : payment.paymentMethod),
-          const SizedBox(height: 6),
-          _KVRow('Status', payment.status.isEmpty ? 'N/A' : payment.status),
-          const SizedBox(height: 6),
-          _KVRow('Order Code',
-              payment.orderCode.isEmpty ? 'N/A' : payment.orderCode),
-          const SizedBox(height: 6),
-          _KVRow('Checkout URL',
-              payment.checkoutUrl.isEmpty ? 'N/A' : payment.checkoutUrl,
-              isMonospace: true),
-        ],
-      ),
-    );
-  }
-}
-
-class _KVRow extends StatelessWidget {
-  final String k;
-  final String v;
-  final bool isMonospace;
-
-  const _KVRow(this.k, this.v, {this.isMonospace = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 110,
-          child: Text(
-            k,
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          title: Text(
+            '#${order.orderNumber}',
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            v,
-            style: TextStyle(
-              fontSize: 14,
-              fontFamily: isMonospace ? 'monospace' : null,
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 2),
+              Text(
+                'Total: ${FormatUtil.formatNumberAsCurrency(order.finalAmount, symbol: '₫')}',
+                style: TextStyle(color: Colors.grey[700]),
+              ),
+              if (order.createdAt != null)
+                Text(
+                  'Created: ${order.createdAt}',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+            ],
+          ),
+          trailing: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: Colors.grey[300]!),
             ),
+            child: Text(order.status.name),
           ),
-        ),
-      ],
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => OrderDetailPage(orderId: order.id),
+              ),
+            );
+          },
+        );
+      },
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemCount: orders.length,
     );
   }
 }

@@ -15,15 +15,20 @@ OrderResponse _$OrderResponseFromJson(Map<String, dynamic> json) =>
       discountAmount: (json['discountAmount'] as num).toDouble(),
       finalAmount: (json['finalAmount'] as num).toDouble(),
       status: OrderStatus.fromJson(json['status'] as String?),
-      notes: json['notes'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-      deliveredAt: DateTime.parse(json['deliveredAt'] as String),
+      notes: json['notes'] as String?,
+      createdAt: _$JsonConverterFromJson<int, DateTime>(
+          json['createdAt'], const DateTimeTimestampConverter().fromJson),
+      updatedAt: _$JsonConverterFromJson<int, DateTime>(
+          json['updatedAt'], const DateTimeTimestampConverter().fromJson),
+      deliveredAt: _$JsonConverterFromJson<int, DateTime>(
+          json['deliveredAt'], const DateTimeTimestampConverter().fromJson),
       items: (json['items'] as List<dynamic>)
           .map((e) => OrderItemResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
-      payment: PaymentSummaryResponse.fromJson(
-          json['payment'] as Map<String, dynamic>),
+      payment: json['payment'] == null
+          ? null
+          : PaymentSummaryResponse.fromJson(
+              json['payment'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$OrderResponseToJson(OrderResponse instance) =>
@@ -36,12 +41,21 @@ Map<String, dynamic> _$OrderResponseToJson(OrderResponse instance) =>
       'finalAmount': instance.finalAmount,
       'status': _$OrderStatusEnumMap[instance.status]!,
       'notes': instance.notes,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
-      'deliveredAt': instance.deliveredAt.toIso8601String(),
+      'createdAt': _$JsonConverterToJson<int, DateTime>(
+          instance.createdAt, const DateTimeTimestampConverter().toJson),
+      'updatedAt': _$JsonConverterToJson<int, DateTime>(
+          instance.updatedAt, const DateTimeTimestampConverter().toJson),
+      'deliveredAt': _$JsonConverterToJson<int, DateTime>(
+          instance.deliveredAt, const DateTimeTimestampConverter().toJson),
       'items': instance.items,
       'payment': instance.payment,
     };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);
 
 const _$OrderStatusEnumMap = {
   OrderStatus.pending: 'pending',
@@ -51,3 +65,9 @@ const _$OrderStatusEnumMap = {
   OrderStatus.refunded: 'refunded',
   OrderStatus.delivered: 'delivered',
 };
+
+Json? _$JsonConverterToJson<Json, Value>(
+  Value? value,
+  Json? Function(Value value) toJson,
+) =>
+    value == null ? null : toJson(value);

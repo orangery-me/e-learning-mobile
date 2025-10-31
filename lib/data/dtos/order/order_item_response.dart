@@ -6,7 +6,7 @@ part 'order_item_response.g.dart';
 class OrderItemResponse {
   final String id;
   final String courseId;
-  final double unitPrice;
+  final double? unitPrice;
   final double discountAmount;
 
   OrderItemResponse({

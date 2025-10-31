@@ -1,55 +1,16 @@
-// import 'package:e_learning_mobile/common/theme/text_styles.dart';
-// import 'package:flutter/material.dart';
-
-// class UserHeader extends StatelessWidget {
-//   final String name;
-//   final String imagePath;
-
-//   const UserHeader({
-//     super.key,
-//     required this.name,
-//     required this.imagePath,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Row(
-//       children: [
-//         CircleAvatar(
-//           radius: 30,
-//           backgroundImage: AssetImage(imagePath),
-//         ),
-//         const SizedBox(width: 20),
-//         Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text("Welcome",
-//                 style: Fonts.s16w6.copyWith(color: Colors.grey[600])),
-//             Text(
-//               name,
-//               style: Fonts.s24w7,
-//             ),
-//           ],
-//         ),
-//       ],
-//     );
-//   }
-// }
-
 import 'package:e_learning_mobile/common/theme/palette.dart';
 import 'package:e_learning_mobile/presentation/payment/views/cart_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class UserHeader extends StatelessWidget {
   final String name;
   final String avatarUrl;
 
   const UserHeader({
-    Key? key,
+    super.key,
     required this.name,
     required this.avatarUrl,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,4 @@
+import 'package:e_learning_mobile/common/utils/datetime_converter.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'payment_summary_response.g.dart';
@@ -6,11 +7,13 @@ part 'payment_summary_response.g.dart';
 class PaymentSummaryResponse {
   final String id;
   final String orderCode;
-  final String paymentMethod;
-  final String status;
+  final String? paymentMethod;
+  final String? status;
   final String checkoutUrl;
-  final DateTime paidAt;
-  final DateTime expiresAt;
+  @DateTimeTimestampConverter()
+  final DateTime? paidAt;
+  @DateTimeTimestampConverter()
+  final DateTime? expiresAt;
 
   PaymentSummaryResponse({
     required this.id,

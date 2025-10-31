@@ -1,9 +1,11 @@
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
+import 'package:e_learning_mobile/data/dtos/order/order_from_cart_request.dart';
 import 'package:equatable/equatable.dart';
 import 'package:e_learning_mobile/data/datasources/order/order_datasource.dart';
 import 'package:e_learning_mobile/data/dtos/order/order_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/order/paginated_orders.dart';
 import 'package:injectable/injectable.dart';
 
 part 'order_event.dart';
@@ -25,10 +27,27 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
   }
 
   Future<void> _onLoadOrders(LoadOrders event, Emitter<OrderState> emit) async {
-    emit(OrderLoading());
     try {
-      final orders = await _orderDatasource.getOrders();
-      emit(OrdersLoaded(orders));
+      final current = state;
+      if (event.append && current is OrdersLoaded) {
+        emit(current.copyWith(isAppending: true));
+      } else {
+        emit(OrderLoading());
+      }
+
+      final PaginatedOrders pageData =
+          await _orderDatasource.getOrders(page: event.page, size: event.size);
+      final merged = event.append && current is OrdersLoaded
+          ? [...current.orders, ...pageData.content]
+          : pageData.content;
+      emit(OrdersLoaded(
+        orders: merged,
+        page: pageData.pageNumber,
+        totalPages: pageData.totalPages,
+        hasMore: pageData.pageNumber + 1 < pageData.totalPages,
+        isAppending: false,
+        statusFilter: null,
+      ));
     } catch (e) {
       log('Error loading orders: $e');
       emit(OrderError(e.toString()));
@@ -37,10 +56,27 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
 
   Future<void> _onLoadOrdersByStatus(
       LoadOrdersByStatus event, Emitter<OrderState> emit) async {
-    emit(OrderLoading());
     try {
-      final orders = await _orderDatasource.getOrderByStatus(event.status);
-      emit(OrdersLoaded(orders));
+      final current = state;
+      if (event.append && current is OrdersLoaded) {
+        emit(current.copyWith(isAppending: true));
+      } else {
+        emit(OrderLoading());
+      }
+
+      final PaginatedOrders pageData = await _orderDatasource
+          .getOrderByStatus(event.status, page: event.page, size: event.size);
+      final merged = event.append && current is OrdersLoaded
+          ? [...current.orders, ...pageData.content]
+          : pageData.content;
+      emit(OrdersLoaded(
+        orders: merged,
+        page: pageData.pageNumber,
+        totalPages: pageData.totalPages,
+        hasMore: pageData.pageNumber + 1 < pageData.totalPages,
+        isAppending: false,
+        statusFilter: event.status,
+      ));
     } catch (e) {
       log('Error loading orders by status: $e');
       emit(OrderError(e.toString()));
@@ -75,7 +111,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       CreateOrderFromCart event, Emitter<OrderState> emit) async {
     emit(OrderLoading());
     try {
-      final order = await _orderDatasource.createOrderFromCart();
+      final order = await _orderDatasource.createOrderFromCart(event.request);
       emit(OrderActionSuccess(order));
     } catch (e) {
       log('Error creating order from cart: $e');

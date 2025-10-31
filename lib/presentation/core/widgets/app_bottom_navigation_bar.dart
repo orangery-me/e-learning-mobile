@@ -18,8 +18,8 @@ class AppBottomNavigationBar extends StatelessWidget {
             type: BottomNavigationBarType.fixed,
             onTap: (int newIndex) {
               context.read<RootBloc>().add(
-                RootBottomTabChange(newIndex: newIndex),
-              );
+                    RootBottomTabChange(newIndex: newIndex),
+                  );
             },
             showSelectedLabels: true,
             showUnselectedLabels: false,
@@ -28,10 +28,10 @@ class AppBottomNavigationBar extends StatelessWidget {
                 icon: const Icon(Icons.home_outlined),
                 label: LocaleKeys.root_home.tr(),
               ),
-              // BottomNavigationBarItem(
-              //   icon: const Icon(Icons.manage_accounts_outlined),
-              //   label: LocaleKeys.root_management.tr(),
-              // ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.manage_accounts_outlined),
+                label: LocaleKeys.root_management.tr(),
+              ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.notifications_outlined),
                 label: LocaleKeys.texts_notification.tr(),
