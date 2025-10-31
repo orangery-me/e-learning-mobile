@@ -5,12 +5,16 @@ part 'cart_item_dto.g.dart';
 class CartItemDto {
   final String id;
   final String courseId;
+  final String courseTitle;
+  final String courseImage;
   final int totalPrice;
   final int discountAmount;
   final int addedAt;
   CartItemDto({
     required this.id,
     required this.courseId,
+    required this.courseTitle,
+    required this.courseImage,
     required this.totalPrice,
     required this.discountAmount,
     required this.addedAt,

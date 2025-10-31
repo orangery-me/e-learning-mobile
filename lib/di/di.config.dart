@@ -30,6 +30,10 @@ import 'package:e_learning_mobile/data/datasources/note/note_datasource.dart'
     as _i84;
 import 'package:e_learning_mobile/data/datasources/note/remote/note_remote_datasource.dart'
     as _i277;
+import 'package:e_learning_mobile/data/datasources/order/order_datasource.dart'
+    as _i637;
+import 'package:e_learning_mobile/data/datasources/order/remote/order_remote_datasource.dart'
+    as _i221;
 import 'package:e_learning_mobile/data/datasources/review/remote/review_remote_datasource.dart'
     as _i827;
 import 'package:e_learning_mobile/data/datasources/review/review_datasource.dart'
@@ -69,8 +73,10 @@ import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc
     as _i399;
 import 'package:e_learning_mobile/presentation/learn/bloc/video_play/video_play_bloc.dart'
     as _i902;
-import 'package:e_learning_mobile/presentation/payment/cart/cart_bloc.dart'
-    as _i258;
+import 'package:e_learning_mobile/presentation/payment/bloc/cart/cart_bloc.dart'
+    as _i78;
+import 'package:e_learning_mobile/presentation/payment/bloc/order/order_bloc.dart'
+    as _i470;
 import 'package:flutter/cupertino.dart' as _i719;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
@@ -124,6 +130,8 @@ Future<_i174.GetIt> initGetIt(
       () => _i827.ReviewRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i927.CartRemoteDatasource>(
       () => _i927.CartRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
+  gh.lazySingleton<_i221.OrderRemoteDatasource>(
+      () => _i221.OrderRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i84.NoteDatasource>(
       () => _i84.NoteDatasource(remote: gh<_i277.NoteRemoteDatasource>()));
   gh.lazySingleton<_i1056.UserDataSource>(() => _i1056.UserDataSource(
@@ -142,6 +150,8 @@ Future<_i174.GetIt> initGetIt(
       () => _i148.CoursesBloc(datasource: gh<_i201.CourseDatasource>()));
   gh.factory<_i275.ReviewsBloc>(
       () => _i275.ReviewsBloc(datasource: gh<_i560.ReviewDatasource>()));
+  gh.lazySingleton<_i637.OrderDatasource>(
+      () => _i637.OrderDatasource(remote: gh<_i221.OrderRemoteDatasource>()));
   gh.lazySingleton<_i439.SectionDatasource>(() => _i439.SectionDatasource(
       remoteDatasource: gh<_i629.SectionRemoteDatasource>()));
   gh.lazySingleton<_i1004.CodeExerciseDatasource>(() =>
@@ -159,12 +169,14 @@ Future<_i174.GetIt> initGetIt(
         datasource: gh<_i439.SectionDatasource>(),
         lectureDatasource: gh<_i895.LectureDatasource>(),
       ));
-  gh.factory<_i258.CartBloc>(
-      () => _i258.CartBloc(cartDatasource: gh<_i24.CartDatasource>()));
+  gh.factory<_i78.CartBloc>(
+      () => _i78.CartBloc(cartDatasource: gh<_i24.CartDatasource>()));
   gh.factory<_i375.HomeBloc>(
       () => _i375.HomeBloc(courseDatasource: gh<_i201.CourseDatasource>()));
   gh.factory<_i770.LecturesBloc>(
       () => _i770.LecturesBloc(datasource: gh<_i895.LectureDatasource>()));
+  gh.factory<_i470.OrderBloc>(
+      () => _i470.OrderBloc(orderDatasource: gh<_i637.OrderDatasource>()));
   gh.factory<_i902.VideoPlayBloc>(() => _i902.VideoPlayBloc(
         gh<_i734.VideoEventsDatasource>(),
         gh<_i1004.CodeExerciseDatasource>(),

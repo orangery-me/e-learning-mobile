@@ -1,8 +1,11 @@
 import 'package:e_learning_mobile/common/extensions/context_extension.dart';
+import 'package:e_learning_mobile/common/utils/dialog_util.dart';
 import 'package:e_learning_mobile/common/utils/format_util.dart';
 import 'package:e_learning_mobile/data/dtos/cart/cart_item_dto.dart';
 import 'package:e_learning_mobile/di/di.dart';
-import 'package:e_learning_mobile/presentation/payment/cart/cart_bloc.dart';
+import 'package:e_learning_mobile/presentation/payment/views/order_view.dart';
+import 'package:e_learning_mobile/presentation/payment/bloc/order/order_bloc.dart';
+import 'package:e_learning_mobile/presentation/payment/bloc/cart/cart_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -157,36 +160,6 @@ class CartView extends StatelessWidget {
                           ],
                         ),
                       ),
-                      if (cart.hasCoupon)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.green[100],
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.local_offer,
-                                size: 14,
-                                color: Colors.green[800],
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Coupon Applied',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.green[800],
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                     ],
                   ),
                 ),
@@ -321,7 +294,13 @@ class CartView extends StatelessWidget {
                             flex: 2,
                             child: ElevatedButton(
                               onPressed: () {
-                                // TODO: Navigate to checkout
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const OrderPage(
+                                      initialEvent: CreateOrderFromCart(),
+                                    ),
+                                  ),
+                                );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
@@ -335,9 +314,9 @@ class CartView extends StatelessWidget {
                               child: const Text(
                                 'Checkout',
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
                               ),
                             ),
                           ),
@@ -357,36 +336,23 @@ class CartView extends StatelessWidget {
   }
 
   void _showClearCartConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Clear Cart?'),
-        content: const Text(
-          'Are you sure you want to remove all items from your cart?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+    DialogUtil.showCustomDialog(
+      context,
+      title: 'Clear Cart?',
+      content: 'Are you sure you want to remove all items from your cart?',
+      isConfirmDialog: true,
+      cancelButtonText: 'Cancel',
+      confirmButtonText: 'Clear',
+      confirmAction: () {
+        context.read<CartBloc>().add(const ClearCart());
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cart cleared'),
+            backgroundColor: Colors.orange,
           ),
-          ElevatedButton(
-            onPressed: () {
-              context.read<CartBloc>().add(const ClearCart());
-              Navigator.pop(dialogContext);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Cart cleared'),
-                  backgroundColor: Colors.orange,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            child: const Text('Clear'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -408,18 +374,10 @@ class _CartItemCard extends StatelessWidget {
       child: Row(
         children: [
           // Image placeholder
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              Icons.school,
-              color: Colors.grey[500],
-            ),
-          ),
+          SizedBox(
+              width: 60,
+              height: 60,
+              child: Image.network(item.courseImage, fit: BoxFit.cover)),
           const SizedBox(width: 12),
 
           // Course info
@@ -428,7 +386,7 @@ class _CartItemCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Course ID: ${item.courseId}',
+                  'Course: ${item.courseTitle}',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -505,34 +463,23 @@ class _CartItemCard extends StatelessWidget {
   }
 
   void _showDeleteConfirmation(BuildContext context, String courseId) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Remove Item?'),
-        content: const Text('Remove this item from your cart?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+    DialogUtil.showCustomDialog(
+      context,
+      title: 'Remove Item?',
+      content: 'Remove this item from your cart?',
+      isConfirmDialog: true,
+      cancelButtonText: 'Cancel',
+      confirmButtonText: 'Remove',
+      confirmAction: () {
+        context.read<CartBloc>().add(RemoveItemFromCart(courseId));
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Item removed from cart'),
+            backgroundColor: Colors.orange,
           ),
-          ElevatedButton(
-            onPressed: () {
-              context.read<CartBloc>().add(RemoveItemFromCart(courseId));
-              Navigator.pop(dialogContext);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Item removed from cart'),
-                  backgroundColor: Colors.orange,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            child: const Text('Remove'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

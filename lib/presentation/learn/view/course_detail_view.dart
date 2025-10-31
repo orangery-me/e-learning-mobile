@@ -30,7 +30,7 @@ import 'package:e_learning_mobile/presentation/home/widgets/rating_widget.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/courses/courses_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/reviews/reviews_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart';
-import 'package:e_learning_mobile/presentation/payment/cart/cart_bloc.dart';
+import 'package:e_learning_mobile/presentation/payment/bloc/cart/cart_bloc.dart';
 import 'package:e_learning_mobile/presentation/payment/views/cart_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
