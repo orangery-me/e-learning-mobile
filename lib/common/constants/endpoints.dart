@@ -33,4 +33,7 @@ abstract class Endpoints {
 
   // cart api
   static String cart = '$apiUrl/cart';
+
+  // orders api
+  static String orders = '$apiUrl/orders';
 }
