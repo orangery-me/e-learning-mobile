@@ -5,6 +5,7 @@ import 'package:e_learning_mobile/presentation/core/bloc/root_bloc.dart';
 import 'package:e_learning_mobile/presentation/core/widgets/app_bottom_navigation_bar.dart';
 import 'package:e_learning_mobile/presentation/core/widgets/slide_lazy_indexed_stack.dart';
 import 'package:e_learning_mobile/presentation/home/home.dart';
+import 'package:e_learning_mobile/presentation/progress/my_learning.dart';
 import 'package:e_learning_mobile/presentation/notification/notification.dart';
 import 'package:e_learning_mobile/presentation/profile/profile.dart';
 
@@ -31,7 +32,8 @@ class _RootView extends StatelessWidget {
               HomePage(),
               OrderPage(),
               NotificationPage(),
-              ProfilePage()
+              MyLearningPage(),
+              ProfilePage(),
             ],
           );
         },

@@ -195,7 +195,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
           height: 220,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: NetworkImage(widget.course.image),
+              image: NetworkImage(widget.course.image ?? ''),
               fit: BoxFit.cover,
             ),
           ),
@@ -243,7 +243,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
               const SizedBox(height: 8),
               // Subtitle/Description
               Text(
-                widget.course.description,
+                widget.course.description ?? 'No description available.',
                 style: context.textStyles.body1.copyWith(
                   color: Colors.grey[600],
                 ),
@@ -355,9 +355,10 @@ class _CourseDetailViewState extends State<CourseDetailView> {
               ],
             ),
             const SizedBox(height: 12),
-            _buildInfoRow('Instructor', widget.course.instructorName),
+            _buildInfoRow(
+                'Instructor', widget.course.instructorName ?? 'Unknown'),
             const Divider(height: 20),
-            _buildInfoRow('Level', widget.course.level),
+            _buildInfoRow('Level', widget.course.level ?? 'All Levels'),
             const Divider(height: 20),
             _buildInfoRow('Category', widget.course.category),
           ],
