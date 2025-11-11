@@ -1,7 +1,7 @@
 import 'package:e_learning_mobile/flavors.dart';
 
 abstract class Endpoints {
-  static String apiUrl = '${AppFlavor.apiBaseUrl}/api/v1';
+  static String apiUrl = '${AppFlavor.apiBaseUrl}/v1';
 
   // auth api
   static String login = '$apiUrl/oauth/token';
@@ -36,4 +36,10 @@ abstract class Endpoints {
 
   // orders api
   static String orders = '$apiUrl/orders';
+
+  // payments api
+  static String payments = '$apiUrl/payments';
+
+  // enrollments api
+  static String enrollments = '$apiUrl/enrollments';
 }
