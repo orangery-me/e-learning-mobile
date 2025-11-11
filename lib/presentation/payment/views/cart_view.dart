@@ -378,7 +378,7 @@ class _CartItemCard extends StatelessWidget {
           SizedBox(
               width: 60,
               height: 60,
-              child: Image.network(item.courseImage, fit: BoxFit.cover)),
+              child: Image.network(item.courseImage ?? '', fit: BoxFit.cover)),
           const SizedBox(width: 12),
 
           // Course info

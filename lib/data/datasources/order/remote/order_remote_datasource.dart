@@ -4,7 +4,7 @@ import 'package:e_learning_mobile/common/constants/endpoints.dart';
 import 'package:e_learning_mobile/common/helpers/dio_helper.dart';
 import 'package:e_learning_mobile/data/dtos/order/order_from_cart_request.dart';
 import 'package:e_learning_mobile/data/dtos/order/order_response_dto.dart';
-import 'package:e_learning_mobile/data/dtos/order/paginated_orders.dart';
+import 'package:e_learning_mobile/data/dtos/paginated_orders.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
@@ -54,6 +54,7 @@ class OrderRemoteDatasource {
 
   Future<OrderResponse> getOrderDetail(String orderId) async {
     final response = await _dioHelper.get('${Endpoints.orders}/$orderId');
+    log('Fetched order detail response: ${response.data}');
     return OrderResponse.fromJson(response.data['data']);
   }
 

@@ -1,7 +1,7 @@
 import 'package:e_learning_mobile/data/datasources/order/remote/order_remote_datasource.dart';
 import 'package:e_learning_mobile/data/dtos/order/order_from_cart_request.dart';
 import 'package:e_learning_mobile/data/dtos/order/order_response_dto.dart';
-import 'package:e_learning_mobile/data/dtos/order/paginated_orders.dart';
+import 'package:e_learning_mobile/data/dtos/paginated_orders.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton

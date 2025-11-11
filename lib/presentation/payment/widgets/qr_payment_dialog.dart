@@ -1,14 +1,23 @@
 import 'dart:async';
-
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class QrPaymentDialog extends StatefulWidget {
   final String qrCode;
+  final String checkoutUrl;
   final DateTime expiresAt;
+  final VoidCallback? onExpired;
+  final VoidCallback? onCancel;
 
-  const QrPaymentDialog(
-      {super.key, required this.qrCode, required this.expiresAt});
+  const QrPaymentDialog({
+    super.key,
+    required this.qrCode,
+    required this.checkoutUrl,
+    required this.expiresAt,
+    this.onExpired,
+    this.onCancel,
+  });
 
   @override
   State<QrPaymentDialog> createState() => _QrPaymentDialogState();
@@ -28,11 +37,14 @@ class _QrPaymentDialogState extends State<QrPaymentDialog> {
   void _onTick() {
     final left = widget.expiresAt.difference(DateTime.now());
     if (!mounted) return;
+    final wasExpired = _remaining == Duration.zero;
     setState(() {
       _remaining = left.isNegative ? Duration.zero : left;
     });
-    if (left.isNegative) {
+    if (left.isNegative && !wasExpired) {
       _timer?.cancel();
+      // Call onExpired callback if provided
+      widget.onExpired?.call();
     }
   }
 
@@ -59,19 +71,9 @@ class _QrPaymentDialogState extends State<QrPaymentDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                const Expanded(
-                  child: Text(
-                    'Scan to Pay',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
-                )
-              ],
+            Text(
+              'Scan to Pay',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             Container(
@@ -83,14 +85,7 @@ class _QrPaymentDialogState extends State<QrPaymentDialog> {
                 color: Colors.white,
               ),
               alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.qr_code, size: 64),
-                  SizedBox(height: 8),
-                  Text('QR Preview', style: TextStyle(color: Colors.grey)),
-                ],
-              ),
+              child: QrImageView(data: widget.qrCode, size: 200),
             ),
             const SizedBox(height: 12),
             Container(
@@ -103,11 +98,11 @@ class _QrPaymentDialogState extends State<QrPaymentDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('QR String',
+                  const Text('Or use this link:',
                       style: TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
                   SelectableText(
-                    widget.qrCode,
+                    widget.checkoutUrl,
                     maxLines: 4,
                     style: const TextStyle(fontSize: 12),
                   ),
@@ -158,8 +153,11 @@ class _QrPaymentDialogState extends State<QrPaymentDialog> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Close'),
+                onPressed: () {
+                  widget.onCancel?.call();
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
               ),
             ),
           ],

@@ -1,4 +1,4 @@
-import 'order_response_dto.dart';
+import 'order/order_response_dto.dart';
 
 class PaginatedOrders {
   final List<OrderResponse> content;

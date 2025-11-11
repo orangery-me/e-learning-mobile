@@ -10,7 +10,7 @@ CartItemDto _$CartItemDtoFromJson(Map<String, dynamic> json) => CartItemDto(
       id: json['id'] as String,
       courseId: json['courseId'] as String,
       courseTitle: json['courseTitle'] as String,
-      courseImage: json['courseImage'] as String,
+      courseImage: json['courseImage'] as String?,
       totalPrice: (json['totalPrice'] as num).toInt(),
       discountAmount: (json['discountAmount'] as num).toInt(),
       addedAt: (json['addedAt'] as num).toInt(),

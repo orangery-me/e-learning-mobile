@@ -37,14 +37,11 @@ class _OrderViewState extends State<OrderView>
   late final TabController _tabController;
   final ScrollController _scrollController = ScrollController();
 
-  // Tab 0 is "All"; others map to API/enum names (lowercase)
+  // Status keys map to API/enum names (lowercase)
   static const List<String> _statusKeys = <String>[
-    'all',
     'pending',
-    'paid',
     'failed',
     'cancelled',
-    'refunded',
     'delivered',
   ];
 
@@ -61,22 +58,19 @@ class _OrderViewState extends State<OrderView>
     _scrollController.addListener(_onScroll);
 
     // Ensure we show something when navigating directly (not from cart)
+    // Load pending orders by default (first tab)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final bloc = context.read<OrderBloc>();
       if (bloc.state is OrderInitial) {
-        bloc.add(const LoadOrders(page: 0, size: 10));
+        bloc.add(LoadOrdersByStatus(_statusKeys[0], page: 0, size: 10));
       }
     });
   }
 
   void _dispatchForIndex(int index) {
     final bloc = context.read<OrderBloc>();
-    if (index == 0) {
-      bloc.add(const LoadOrders(page: 0, size: 10));
-    } else {
-      final status = _statusKeys[index];
-      bloc.add(LoadOrdersByStatus(status, page: 0, size: 10));
-    }
+    final status = _statusKeys[index];
+    bloc.add(LoadOrdersByStatus(status, page: 0, size: 10));
   }
 
   void _onScroll() {
@@ -123,12 +117,9 @@ class _OrderViewState extends State<OrderView>
           unselectedLabelColor: Colors.grey[600],
           indicatorColor: context.palette.buttonBackground,
           tabs: const [
-            Tab(text: 'All'),
             Tab(text: 'Pending'),
-            Tab(text: 'Paid'),
             Tab(text: 'Failed'),
             Tab(text: 'Cancelled'),
-            Tab(text: 'Refunded'),
             Tab(text: 'Delivered'),
           ],
         ),
@@ -253,14 +244,40 @@ class _OrdersList extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       itemBuilder: (context, index) {
         final order = orders[index];
+        final firstCourseImage =
+            order.items.isNotEmpty ? order.items[0].courseImage : null;
         return ListTile(
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          leading: CircleAvatar(
-            backgroundColor: Colors.blue[50],
-            foregroundColor: context.palette.buttonBackground,
-            child: const Icon(Icons.receipt_long),
-          ),
+          leading: firstCourseImage != null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    firstCourseImage,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.receipt_long,
+                          color: context.palette.buttonBackground,
+                        ),
+                      );
+                    },
+                  ),
+                )
+              : CircleAvatar(
+                  backgroundColor: Colors.blue[50],
+                  foregroundColor: context.palette.buttonBackground,
+                  child: const Icon(Icons.receipt_long),
+                ),
           title: Text(
             '#${order.orderNumber}',
             style: const TextStyle(fontWeight: FontWeight.w700),
@@ -269,15 +286,35 @@ class _OrdersList extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 2),
-              Text(
-                'Total: ${FormatUtil.formatNumberAsCurrency(order.finalAmount, symbol: '₫')}',
-                style: TextStyle(color: Colors.grey[700]),
+              Row(
+                children: [
+                  Text(
+                    'Total: ',
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    FormatUtil.formatNumberAsCurrency(
+                      order.finalAmount,
+                      symbol: '₫',
+                    ),
+                    style: TextStyle(
+                      color: context.palette.buttonBackground,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                ],
               ),
-              if (order.createdAt != null)
+              if (order.createdAt != null) ...[
+                const SizedBox(height: 4),
                 Text(
-                  'Created: ${order.createdAt}',
+                  'Created: ${FormatUtil.formatDateTime(order.createdAt!)}',
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
+              ],
             ],
           ),
           trailing: Container(

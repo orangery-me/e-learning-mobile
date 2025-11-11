@@ -10,14 +10,14 @@ CourseResponseDto _$CourseResponseDtoFromJson(Map<String, dynamic> json) =>
     CourseResponseDto(
       courseId: json['courseId'] as String,
       title: json['title'] as String,
-      slug: json['slug'] as String,
-      description: json['description'] as String,
+      slug: json['slug'] as String?,
+      description: json['description'] as String?,
       price: (json['price'] as num).toDouble(),
-      level: json['level'] as String,
+      level: json['level'] as String?,
       instructorId: json['instructorId'] as String,
-      instructorName: json['instructorName'] as String,
+      instructorName: json['instructorName'] as String?,
       category: json['category'] as String,
-      image: json['image'] as String,
+      image: json['image'] as String?,
     );
 
 Map<String, dynamic> _$CourseResponseDtoToJson(CourseResponseDto instance) =>

@@ -1,8 +1,16 @@
+import 'dart:developer';
+
 import 'package:e_learning_mobile/common/extensions/context_extension.dart';
 import 'package:e_learning_mobile/common/utils/format_util.dart';
 import 'package:e_learning_mobile/data/dtos/order/order_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/payment/create_payment_request.dart';
 import 'package:e_learning_mobile/di/di.dart';
+import 'package:e_learning_mobile/presentation/auth/bloc/auth/auth_bloc.dart';
+import 'package:e_learning_mobile/presentation/core/bloc/root_bloc.dart';
+import 'package:e_learning_mobile/presentation/learn/bloc/enrollment/enrollment_bloc.dart';
 import 'package:e_learning_mobile/presentation/payment/bloc/order/order_bloc.dart';
+import 'package:e_learning_mobile/presentation/payment/bloc/payment/payment_bloc.dart';
+import 'package:e_learning_mobile/presentation/payment/bloc/payment_notification/payment_notification_bloc.dart';
 import 'package:e_learning_mobile/presentation/payment/widgets/payment_card.dart';
 import 'package:e_learning_mobile/presentation/payment/widgets/qr_payment_dialog.dart';
 import 'package:flutter/material.dart';
@@ -17,17 +25,24 @@ class OrderDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        final bloc = getIt<OrderBloc>();
-        final ev = initialEvent;
-        if (ev != null) {
-          bloc.add(ev);
-        } else if (orderId != null) {
-          bloc.add(LoadOrderDetail(orderId!));
-        }
-        return bloc;
-      },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) {
+            final bloc = getIt<OrderBloc>();
+            final ev = initialEvent;
+            if (ev != null) {
+              bloc.add(ev);
+            } else if (orderId != null) {
+              bloc.add(LoadOrderDetail(orderId!));
+            }
+            return bloc;
+          },
+        ),
+        BlocProvider(create: (_) => getIt<PaymentBloc>()),
+        BlocProvider(create: (_) => getIt<EnrollmentBloc>()),
+        BlocProvider(create: (_) => getIt<PaymentNotificationBloc>()),
+      ],
       child: const OrderDetailView(),
     );
   }
@@ -47,43 +62,90 @@ class OrderDetailView extends StatelessWidget {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
       ),
-      body: BlocConsumer<OrderBloc, OrderState>(
-        listener: (context, state) {
-          if (state is OrderError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          if (state is OrderLoading || state is OrderInitial) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<OrderBloc, OrderState>(
+            listener: (context, state) {
+              if (state is OrderError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+          ),
+          BlocListener<PaymentBloc, PaymentState>(
+            listener: (context, state) {
+              if (state is PaymentError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              } else if (state is PaymentActionSuccess) {
+                // Show QR dialog when payment is created successfully
+                final payment = state.payment;
+                log('Payment created: $payment');
+                if (payment.qrCode != null && payment.expiresAt != null) {
+                  final paymentBloc = context.read<PaymentBloc>();
+                  final orderBloc = context.read<OrderBloc>();
+                  final enrollmentBloc = context.read<EnrollmentBloc>();
+                  final paymentNotificationBloc =
+                      context.read<PaymentNotificationBloc>();
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider.value(value: paymentBloc),
+                        BlocProvider.value(value: orderBloc),
+                        BlocProvider.value(value: enrollmentBloc),
+                        BlocProvider.value(value: paymentNotificationBloc),
+                      ],
+                      child: QrPaymentDialogWrapper(
+                        qrCode: payment.qrCode!,
+                        checkoutUrl: payment.checkoutUrl!,
+                        expiresAt: payment.expiresAt!,
+                        orderCode: payment.orderCode,
+                      ),
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<OrderBloc, OrderState>(
+          builder: (context, state) {
+            if (state is OrderLoading || state is OrderInitial) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (state is OrderError) {
-            return _ErrorPane(
-              message: state.message,
-              onRetry: () => Navigator.of(context).maybePop(),
-            );
-          }
+            if (state is OrderError) {
+              return _ErrorPane(
+                message: state.message,
+                onRetry: () => Navigator.of(context).maybePop(),
+              );
+            }
 
-          if (state is OrderActionSuccess || state is OrderDetailLoaded) {
-            final order = state is OrderActionSuccess
-                ? state.order
-                : (state as OrderDetailLoaded).order;
-            return _OrderSummary(order: order);
-          }
+            if (state is OrderActionSuccess || state is OrderDetailLoaded) {
+              final order = state is OrderActionSuccess
+                  ? state.order
+                  : (state as OrderDetailLoaded).order;
+              return _OrderSummary(order: order);
+            }
 
-          if (state is OrdersLoaded) {
-            // Fallback: no specific order, show empty
-            return const Center(child: Text('No order selected'));
-          }
+            if (state is OrdersLoaded) {
+              // Fallback: no specific order, show empty
+              return const Center(child: Text('No order selected'));
+            }
 
-          return const SizedBox();
-        },
+            return const SizedBox();
+          },
+        ),
       ),
     );
   }
@@ -137,6 +199,93 @@ class _OrderSummary extends StatelessWidget {
 
   const _OrderSummary({required this.order});
 
+  Widget listItems() {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: order.items.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final it = order.items[index];
+        final finalPrice = (it.unitPrice ?? 0) - it.discountAmount;
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey[200]!),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Course Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  it.courseImage ?? '',
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 80,
+                      height: 80,
+                      color: Colors.grey[300],
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey[600],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Course Title
+                    Text(
+                      it.courseTitle ?? '',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    // Course ID
+                    Text(
+                      'ID: ${it.courseId}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Final Price
+                    Text(
+                      'Price: ${FormatUtil.formatNumberAsCurrency(
+                        finalPrice,
+                        symbol: '₫',
+                      )}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: context.palette.buttonBackground,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // can pay when pending; payment info may be null before initiating payment
@@ -181,11 +330,22 @@ class _OrderSummary extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              _SummaryRow(
-                label: 'Subtotal',
-                value: FormatUtil.formatNumberAsCurrency(order.totalAmount,
-                    symbol: '₫'),
+              const Text(
+                'Items',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
+              const SizedBox(height: 8),
+
+              listItems(),
+
+              if (order.payment != null) ...[
+                const SizedBox(height: 16),
+                PaymentCard(order: order),
+              ],
+
+              // push other content to bottom
+              Expanded(child: Container()),
+
               if (order.discountAmount > 0) ...[
                 const SizedBox(height: 8),
                 _SummaryRow(
@@ -215,73 +375,6 @@ class _OrderSummary extends StatelessWidget {
                   color: context.palette.buttonBackground,
                 ),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Items',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 8),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: order.items.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
-                itemBuilder: (context, index) {
-                  final it = order.items[index];
-                  return Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey[200]!),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(Icons.menu_book,
-                            color: context.palette.buttonBackground),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Course ID: ${it.courseId}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Unit price: ${it.unitPrice == null ? 'N/A' : FormatUtil.formatNumberAsCurrency(it.unitPrice!, symbol: '₫')}',
-                                    style: TextStyle(color: Colors.grey[700]),
-                                  ),
-                                  Text(
-                                    it.discountAmount > 0
-                                        ? '-${FormatUtil.formatNumberAsCurrency(it.discountAmount, symbol: '₫')}'
-                                        : '',
-                                    style: TextStyle(
-                                      color: Colors.green[700],
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              if (order.payment != null) ...[
-                const SizedBox(height: 16),
-                PaymentCard(order: order),
-              ],
             ],
           ),
         ),
@@ -301,38 +394,51 @@ class _OrderSummary extends StatelessWidget {
             ],
           ),
           child: (order.status.name.toLowerCase() == 'pending')
-              ? ElevatedButton(
-                  onPressed: () async {
-                    // After API call later, replace the below demo values
-                    final mockQr =
-                        '00020101021238590010A000000727012900069704180115V3CAS56019992280208QRIBFTTA530370454065500005802VN62...';
-                    final mockExpiresAt =
-                        DateTime.now().add(const Duration(minutes: 10));
-                    // ignore: use_build_context_synchronously
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (_) => QrPaymentDialog(
-                        qrCode: mockQr,
-                        expiresAt: mockExpiresAt,
+              ? BlocBuilder<PaymentBloc, PaymentState>(
+                  builder: (context, paymentState) {
+                    final isLoading = paymentState is PaymentLoading;
+                    return SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: OutlinedButton(
+                        onPressed: isLoading
+                            ? null
+                            : () {
+                                context.read<PaymentBloc>().add(
+                                      CreatePayment(
+                                        CreatePaymentRequest(
+                                          orderId: order.id,
+                                        ),
+                                      ),
+                                    );
+                              },
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: context.palette.buttonBackground,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: isLoading
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    context.palette.buttonText,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                'Confirm Payment',
+                                style: context.textStyles.heading4.copyWith(
+                                  color: context.palette.buttonText,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                       ),
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: context.palette.buttonBackground,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Pay Now',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
                 )
               : const SizedBox.shrink(),
         ),
@@ -365,6 +471,185 @@ class _SummaryRow extends StatelessWidget {
           style: valueStyle ?? const TextStyle(fontWeight: FontWeight.w600),
         ),
       ],
+    );
+  }
+}
+
+class QrPaymentDialogWrapper extends StatefulWidget {
+  final String qrCode;
+  final String checkoutUrl;
+  final DateTime expiresAt;
+  final String orderCode;
+
+  const QrPaymentDialogWrapper({
+    super.key,
+    required this.qrCode,
+    required this.checkoutUrl,
+    required this.expiresAt,
+    required this.orderCode,
+  });
+
+  @override
+  State<QrPaymentDialogWrapper> createState() => _QrPaymentDialogWrapperState();
+}
+
+class _QrPaymentDialogWrapperState extends State<QrPaymentDialogWrapper> {
+  bool _isExpired = false;
+  String? _userId;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Get userId from AuthBloc and connect WebSocket
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = context.read<AuthBloc>().state;
+      if (authState.user != null) {
+        _userId = authState.user!.id;
+        context.read<PaymentNotificationBloc>().add(
+              ConnectPaymentNotification(
+                userId: _userId!,
+                orderCode: widget.orderCode,
+              ),
+            );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // Disconnect WebSocket when dialog is closed
+    context.read<PaymentNotificationBloc>().add(
+          const DisconnectPaymentNotification(),
+        );
+    super.dispose();
+  }
+
+  void _handlePaymentSuccess() {
+    if (!mounted) return;
+
+    // Show success toast
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Bạn đã mua khóa học thành công! Học ngay'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 3),
+      ),
+    );
+
+    // Reload enrollments to show new courses in My Learning
+    final enrollmentBloc = context.read<EnrollmentBloc>();
+    if (_userId != null) {
+      enrollmentBloc.add(LoadEnrollmentsByUserId(_userId!));
+    }
+
+    // Navigate to home (index 0)
+    final rootBloc = context.read<RootBloc>();
+    rootBloc.add(const RootBottomTabChange(newIndex: 0));
+
+    // Also reload order to reflect updated status
+    final orderBloc = context.read<OrderBloc>();
+    final orderState = orderBloc.state;
+    if (orderState is OrderDetailLoaded) {
+      orderBloc.add(LoadOrderDetail(orderState.order.id));
+    }
+  }
+
+  void _handlePaymentFailed() {
+    if (!mounted) return;
+
+    // Show failed toast
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Thanh toán thất bại. Vui lòng thử lại sau'),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 3),
+      ),
+    );
+
+    // Reload order to reflect updated status
+    final orderBloc = context.read<OrderBloc>();
+    final orderState = orderBloc.state;
+    if (orderState is OrderDetailLoaded) {
+      orderBloc.add(LoadOrderDetail(orderState.order.id));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<PaymentBloc, PaymentState>(
+          listener: (context, state) {
+            if (state is PaymentActionSuccess && _isExpired) {
+              // Payment was cancelled due to expiration, reload order to reflect status change
+              final orderBloc = context.read<OrderBloc>();
+              final orderState = orderBloc.state;
+              if (orderState is OrderDetailLoaded) {
+                // Reload order detail to get updated status
+                orderBloc.add(LoadOrderDetail(orderState.order.id));
+              }
+              // Close dialog after cancel is complete
+              if (mounted) {
+                Navigator.of(context).pop();
+              }
+            }
+          },
+        ),
+        BlocListener<PaymentNotificationBloc, PaymentNotificationState>(
+          listener: (context, state) {
+            if (state.lastNotification != null) {
+              final notification = state.lastNotification!;
+              log('Handling payment notification: type=${notification.type}, status=${notification.paymentStatus}');
+
+              // Close dialog first
+              if (mounted) {
+                Navigator.of(context).pop();
+              }
+
+              // Handle based on notification type
+              if (notification.type == 'PAYMENT_SUCCESS') {
+                _handlePaymentSuccess();
+              } else if (notification.type == 'PAYMENT_FAILED') {
+                _handlePaymentFailed();
+              }
+            }
+
+            // Handle connection errors
+            if (state.errorMessage != null && mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('WebSocket error: ${state.errorMessage}'),
+                  backgroundColor: Colors.orange,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            }
+          },
+        ),
+      ],
+      child: QrPaymentDialog(
+        qrCode: widget.qrCode,
+        checkoutUrl: widget.checkoutUrl,
+        expiresAt: widget.expiresAt,
+        onExpired: () {
+          setState(() {
+            _isExpired = true;
+          });
+          // Cancel payment when QR expired
+          context.read<PaymentBloc>().add(CancelPayment(widget.orderCode));
+          // Disconnect WebSocket when expired
+          context.read<PaymentNotificationBloc>().add(
+                const DisconnectPaymentNotification(),
+              );
+        },
+        onCancel: () {
+          // Disconnect WebSocket when user cancels
+          context.read<PaymentNotificationBloc>().add(
+                const DisconnectPaymentNotification(),
+              );
+        },
+      ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:e_learning_mobile/common/constants/endpoints.dart';
 import 'package:e_learning_mobile/common/helpers/dio_helper.dart';
 import 'package:e_learning_mobile/data/dtos/courses/course_response_dto.dart';
@@ -15,19 +17,25 @@ class CourseRemoteDatasource {
       int? size = 10,
       String? sortBy = 'created_at',
       String? filter}) async {
-    final response =
-        await _dioHelper.get('${Endpoints.courses}/page', queryParameters: {
-      if (page != null) 'page': page,
-      if (size != null) 'paging': size,
-      if (order != null) 'order': order,
-      if (sortBy != null) 'sort': sortBy,
-      if (filter != null) 'filter': filter,
-    });
+    try {
+      final response =
+          await _dioHelper.get('${Endpoints.courses}/page', queryParameters: {
+        if (page != null) 'page': page,
+        if (size != null) 'paging': size,
+        if (order != null) 'order': order,
+        if (sortBy != null) 'sort': sortBy,
+        if (filter != null) 'filter': filter,
+      });
+      log('Fetched courses: ${response.data}');
 
-    // Parse and return the list of courses from response
-    return (response.data['data'] as List)
-        .map((course) => CourseResponseDto.fromJson(course))
-        .toList();
+      // Parse and return the list of courses from response
+      return (response.data['data'] as List)
+          .map((course) => CourseResponseDto.fromJson(course))
+          .toList();
+    } catch (e) {
+      log('Error fetching courses: $e');
+      rethrow;
+    }
   }
 
   // get course by id

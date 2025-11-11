@@ -6,14 +6,14 @@ part 'course_response_dto.g.dart';
 class CourseResponseDto {
   final String courseId;
   final String title;
-  final String slug;
-  final String description;
+  final String? slug;
+  final String? description;
   final double price;
-  final String level;
+  final String? level;
   final String instructorId;
-  final String instructorName;
+  final String? instructorName;
   final String category;
-  final String image;
+  final String? image;
 
   factory CourseResponseDto.fromJson(Map<String, dynamic> json) =>
       _$CourseResponseDtoFromJson(json);

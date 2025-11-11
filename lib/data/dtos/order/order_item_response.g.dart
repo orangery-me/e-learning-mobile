@@ -10,6 +10,8 @@ OrderItemResponse _$OrderItemResponseFromJson(Map<String, dynamic> json) =>
     OrderItemResponse(
       id: json['id'] as String,
       courseId: json['courseId'] as String,
+      courseTitle: json['courseTitle'] as String?,
+      courseImage: json['courseImage'] as String?,
       unitPrice: (json['unitPrice'] as num?)?.toDouble(),
       discountAmount: (json['discountAmount'] as num).toDouble(),
     );
@@ -18,6 +20,8 @@ Map<String, dynamic> _$OrderItemResponseToJson(OrderItemResponse instance) =>
     <String, dynamic>{
       'id': instance.id,
       'courseId': instance.courseId,
+      'courseTitle': instance.courseTitle,
+      'courseImage': instance.courseImage,
       'unitPrice': instance.unitPrice,
       'discountAmount': instance.discountAmount,
     };
