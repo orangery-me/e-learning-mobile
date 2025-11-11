@@ -37,6 +37,10 @@ class AppBottomNavigationBar extends StatelessWidget {
                 label: LocaleKeys.texts_notification.tr(),
               ),
               BottomNavigationBarItem(
+                icon: const Icon(Icons.school_outlined),
+                label: 'My Learning',
+              ),
+              BottomNavigationBarItem(
                 icon: const Icon(Icons.account_circle_outlined),
                 label: LocaleKeys.root_profile.tr(),
               ),

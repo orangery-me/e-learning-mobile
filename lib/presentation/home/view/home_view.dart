@@ -1,12 +1,16 @@
 import 'package:e_learning_mobile/data/models/category.dart';
 import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/auth/bloc/auth/auth_bloc.dart';
-import 'package:e_learning_mobile/presentation/home/bloc/home_bloc.dart';
+import 'package:e_learning_mobile/presentation/home/bloc/home/home_bloc.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/continue_learning.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/course_view_section.dart';
+import 'package:e_learning_mobile/presentation/home/widgets/enrollment_view_section.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/search_section.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/user_header.dart';
+import 'package:e_learning_mobile/presentation/core/bloc/root_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/courses/courses_bloc.dart';
+import 'package:e_learning_mobile/presentation/learn/bloc/enrollment/enrollment_bloc.dart';
+import 'package:e_learning_mobile/data/dtos/enrollment/enrollment_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,6 +22,7 @@ class HomePage extends StatelessWidget {
     return MultiBlocProvider(providers: [
       BlocProvider(create: (_) => getIt<CoursesBloc>()),
       BlocProvider(create: (_) => getIt<HomeBloc>()),
+      BlocProvider(create: (_) => getIt<EnrollmentBloc>()),
     ], child: const HomeView());
   }
 }
@@ -40,6 +45,12 @@ class _HomeViewState extends State<HomeView> {
 
     // load categories for random selection
     context.read<HomeBloc>().add(const LoadRandomCategoryCourses(count: 3));
+
+    // load enrollments for current user
+    final user = context.read<AuthBloc>().state.user;
+    if (user != null) {
+      context.read<EnrollmentBloc>().add(LoadEnrollmentsByUserId(user.id));
+    }
 
     super.initState();
   }
@@ -84,6 +95,11 @@ class _HomeViewState extends State<HomeView> {
           const SizedBox(height: 20),
 
           _exploreCategoriesSection(),
+
+          const SizedBox(height: 20),
+
+          // My Learning section
+          _myLearningSection(),
 
           const SizedBox(height: 20),
 
@@ -321,6 +337,51 @@ class _HomeViewState extends State<HomeView> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _myLearningSection() {
+    return BlocBuilder<EnrollmentBloc, EnrollmentState>(
+      builder: (context, state) {
+        if (state.isLoading) {
+          return const SizedBox(
+            height: 240,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (state.errorMessage != null) {
+          return const SizedBox();
+        }
+
+        if (state.enrollments.isEmpty) {
+          return const SizedBox();
+        }
+
+        // Show only active enrollments, limit to 5 for horizontal scroll
+        final activeEnrollments = state.enrollments
+            .where((e) => e.status == EnrollmentStatus.active)
+            .take(5)
+            .toList();
+
+        if (activeEnrollments.isEmpty) {
+          return const SizedBox();
+        }
+
+        return EnrollmentViewSection(
+          sectionTitle: 'My Learning',
+          subtitle: 'Continue your learning journey',
+          enrollments: activeEnrollments,
+          cardHeight: 240,
+          isHorizontal: true,
+          onSeeAllTap: () {
+            // Navigate to My Learning page (tab index 3, after Notification)
+            context.read<RootBloc>().add(
+                  const RootBottomTabChange(newIndex: 3),
+                );
+          },
+        );
+      },
     );
   }
 }
