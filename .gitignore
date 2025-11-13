@@ -48,7 +48,9 @@ app.*.map.json
 /ios/Runner.xcworkspace/
 /ios/Podfile.lock
 
+# Local configuration files
 config.json
+mock_data.json
 
 #test
 venv/
