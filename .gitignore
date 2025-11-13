@@ -51,6 +51,7 @@ app.*.map.json
 # Local configuration files
 config.json
 mock_data.json
+.env
 
 #test
 venv/

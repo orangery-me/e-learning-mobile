@@ -94,23 +94,23 @@ class CourseCard extends StatelessWidget {
                     child: IconButton(
                       onPressed: () {
                         // go to video play screen
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return VieoPlayPage(
-                            videoUrl: '',
-                            courseId: course.courseId,
-                          );
-                        }));
+                        // Navigator.push(context,
+                        //     MaterialPageRoute(builder: (context) {
+                        //   return VieoPlayPage(
+                        //     videoUrl: '',
+                        //     courseId: course.courseId,
+                        //   );
+                        // }));
 
                         // Navigate to course detail page
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => CourseDetailPage(
-                        //       course: course,
-                        //     ),
-                        //   ),
-                        // );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CourseDetailPage(
+                              course: course,
+                            ),
+                          ),
+                        );
                       },
                       icon: const Icon(
                         Icons.play_arrow_rounded,
