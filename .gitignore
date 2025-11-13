@@ -49,3 +49,6 @@ app.*.map.json
 /ios/Podfile.lock
 
 config.json
+
+#test
+venv/
