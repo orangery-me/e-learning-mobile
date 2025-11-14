@@ -31,7 +31,9 @@ import 'package:e_learning_mobile/presentation/learn/bloc/courses/courses_bloc.d
 import 'package:e_learning_mobile/presentation/learn/bloc/reviews/reviews_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart';
 import 'package:e_learning_mobile/presentation/payment/bloc/cart/cart_bloc.dart';
+import 'package:e_learning_mobile/presentation/payment/bloc/order/order_bloc.dart';
 import 'package:e_learning_mobile/presentation/payment/views/cart_view.dart';
+import 'package:e_learning_mobile/presentation/payment/views/order_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -520,7 +522,18 @@ class _CourseDetailViewState extends State<CourseDetailView> {
             height: 50,
             child: OutlinedButton(
               onPressed: () {
-                // Handle buy now
+                // Navigate to order detail page with CreateOrder event
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OrderDetailPage(
+                      initialEvent: CreateOrder({
+                        'courseId': widget.course.courseId,
+                        'price': widget.course.price,
+                      }),
+                    ),
+                  ),
+                );
               },
               style: OutlinedButton.styleFrom(
                 side: BorderSide(
