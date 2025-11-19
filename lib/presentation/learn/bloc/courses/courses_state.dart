@@ -1,11 +1,13 @@
 part of 'courses_bloc.dart';
 
 final class CoursesState extends Equatable {
-  final List<CourseResponseDto> courses;
+  final List<CourseWithInstructorInfoResponseDto> courses;
   final CourseResponseDto? selectedCourse;
   final List<String> categories;
-  final Map<String, List<CourseResponseDto>?> categoryCourses;
+  final Map<String, List<CourseWithInstructorInfoResponseDto>?> categoryCourses;
   final bool isLoading;
+  final Set<String>
+      loadingCategories; // Track which categories are currently loading
   final String? errorMessage;
 
   const CoursesState({
@@ -14,6 +16,7 @@ final class CoursesState extends Equatable {
     this.categories = const [],
     this.categoryCourses = const {},
     this.isLoading = false,
+    this.loadingCategories = const {},
     this.errorMessage,
   });
 
@@ -24,15 +27,17 @@ final class CoursesState extends Equatable {
         categories,
         categoryCourses,
         isLoading,
+        loadingCategories,
         errorMessage
       ];
 
   CoursesState copyWith({
-    List<CourseResponseDto>? courses,
+    List<CourseWithInstructorInfoResponseDto>? courses,
     CourseResponseDto? selectedCourse,
     List<String>? categories,
-    Map<String, List<CourseResponseDto>>? categoryCourses,
+    Map<String, List<CourseWithInstructorInfoResponseDto>>? categoryCourses,
     bool? isLoading,
+    Set<String>? loadingCategories,
     String? errorMessage,
   }) {
     return CoursesState(
@@ -41,12 +46,18 @@ final class CoursesState extends Equatable {
       categories: categories ?? this.categories,
       categoryCourses: categoryCourses ?? this.categoryCourses,
       isLoading: isLoading ?? this.isLoading,
+      loadingCategories: loadingCategories ?? this.loadingCategories,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
   // Helper methods
-  List<CourseResponseDto>? getCoursesForCategory(String category) {
+  List<CourseWithInstructorInfoResponseDto>? getCoursesForCategory(
+      String category) {
     return categoryCourses[category];
+  }
+
+  bool isCategoryLoading(String category) {
+    return loadingCategories.contains(category);
   }
 }

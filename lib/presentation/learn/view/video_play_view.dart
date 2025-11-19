@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:chewie/chewie.dart';
 import 'package:e_learning_mobile/common/theme/palette.dart';
 import 'package:e_learning_mobile/common/utils/dialog_util.dart';
+import 'package:e_learning_mobile/data/dtos/courses/course_response_dto.dart';
 import 'package:e_learning_mobile/data/dtos/lectures/lecture_response_dto.dart';
 import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart';
@@ -16,13 +17,9 @@ import 'package:e_learning_mobile/presentation/learn/bloc/video_play/video_play_
 
 class VieoPlayPage extends StatelessWidget {
   final String videoUrl;
-  final String courseId;
+  final CourseResponseDto course;
 
-  const VieoPlayPage({
-    super.key,
-    required this.videoUrl,
-    required this.courseId,
-  });
+  const VieoPlayPage({super.key, required this.videoUrl, required this.course});
 
   @override
   Widget build(BuildContext context) {
@@ -35,20 +32,17 @@ class VieoPlayPage extends StatelessWidget {
           create: (context) => getIt<VideoPlayBloc>(),
         ),
       ],
-      child: VideoPlayView(videoUrl: videoUrl, courseId: courseId),
+      child: VideoPlayView(videoUrl: videoUrl, course: course),
     );
   }
 }
 
 class VideoPlayView extends StatefulWidget {
   final String videoUrl;
-  final String courseId;
+  final CourseResponseDto course;
 
-  const VideoPlayView({
-    super.key,
-    required this.videoUrl,
-    required this.courseId,
-  });
+  const VideoPlayView(
+      {super.key, required this.videoUrl, required this.course});
 
   @override
   State<VideoPlayView> createState() => _VideoPlayViewState();
@@ -67,7 +61,9 @@ class _VideoPlayViewState extends State<VideoPlayView> {
 
     // Load sections after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SectionsBloc>().add(LoadSectionsByCourseId(widget.courseId));
+      context
+          .read<SectionsBloc>()
+          .add(LoadSectionsByCourseId(widget.course.courseId));
     });
   }
 
@@ -172,7 +168,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
                 BlocProvider.value(
                     value: context.read<VideoPlayBloc>(),
                     child: OtherFeaturePage(
-                        courseId: widget.courseId,
+                        courseId: widget.course.courseId,
                         selectedLecture: _selectedLecture,
                         videoController:
                             context.read<VideoPlayBloc>().videoController,
@@ -245,9 +241,12 @@ class _VideoPlayViewState extends State<VideoPlayView> {
       ],
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Course Learning',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+          title: Text(widget.course.title,
+              // ... if the title is too long, show ellipsis
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  overflow: TextOverflow.ellipsis)),
           backgroundColor: Palette.light().buttonBackground,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),

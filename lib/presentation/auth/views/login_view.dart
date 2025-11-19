@@ -81,6 +81,7 @@ class _LoginView extends StatelessWidget {
                   BlocBuilder<LoginBloc, LoginState>(
                     builder: (context, state) {
                       return CommonRoundedButton(
+                        key: const ValueKey('sign_in_button'),
                         onPressed: () => _submitLogin(context),
                         isLoading: state is LoginLoading,
                         content: LocaleKeys.auth_sign_in.tr(),

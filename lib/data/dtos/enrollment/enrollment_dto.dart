@@ -1,3 +1,9 @@
+import 'package:e_learning_mobile/common/utils/datetime_converter.dart';
+import 'package:e_learning_mobile/data/dtos/courses/course_with_instructor_info_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/user/user_info_dto.dart';
+import 'package:json_annotation/json_annotation.dart';
+part 'enrollment_dto.g.dart';
+
 enum EnrollmentStatus {
   active,
   completed;
@@ -11,23 +17,29 @@ enum EnrollmentStatus {
       );
 }
 
+@JsonSerializable()
 class EnrollmentDto {
   final String id;
-  final String userId;
-  final String courseId;
+  final UserInfoDto user;
+  final CourseWithInstructorInfoResponseDto course;
+  @DateTimeTimestampConverter()
   final DateTime enrollmentDate;
+  @DateTimeTimestampConverter()
   final DateTime? completionDate;
   final double progressPercentage;
   final EnrollmentStatus status;
   final int totalWatchTimeMinutes;
+  @DateTimeTimestampConverter()
   final DateTime? lastAccessedAt;
+  @DateTimeTimestampConverter()
   final DateTime? createdAt;
+  @DateTimeTimestampConverter()
   final DateTime? updatedAt;
 
   EnrollmentDto({
     required this.id,
-    required this.userId,
-    required this.courseId,
+    required this.user,
+    required this.course,
     required this.enrollmentDate,
     this.completionDate,
     required this.progressPercentage,
@@ -38,26 +50,8 @@ class EnrollmentDto {
     this.updatedAt,
   });
 
-  factory EnrollmentDto.fromJson(Map<String, dynamic> json) {
-    DateTime? parseEpoch(num? epoch) => epoch != null
-        ? DateTime.fromMillisecondsSinceEpoch((epoch * 1000).toInt(),
-            isUtc: true)
-        : null;
+  factory EnrollmentDto.fromJson(Map<String, dynamic> json) =>
+      _$EnrollmentDtoFromJson(json);
 
-    return EnrollmentDto(
-      id: json['id'],
-      userId: json['userId'],
-      courseId: json['courseId'],
-      enrollmentDate: parseEpoch(json['enrollmentDate'])!,
-      completionDate: parseEpoch(json['completionDate']),
-      progressPercentage: (json['progressPercentage'] as num).toDouble(),
-      status: EnrollmentStatus.fromJson(json['status']),
-      totalWatchTimeMinutes: json['totalWatchTimeMinutes'],
-      lastAccessedAt: parseEpoch(json['lastAccessedAt']),
-      createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      updatedAt:
-          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
-    );
-  }
+  Map<String, dynamic> toJson() => _$EnrollmentDtoToJson(this);
 }

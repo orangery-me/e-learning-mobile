@@ -61,9 +61,10 @@ class _HomeViewState extends State<HomeView> {
     // Combine loading từ nhiều bloc
     final homeState = context.watch<HomeBloc>().state;
     final coursesState = context.watch<CoursesBloc>().state;
-    final isLoading = homeState.isLoading || coursesState.isLoading;
+    final showPageLoading = homeState.isLoading ||
+        (coursesState.isLoading && coursesState.courses.isEmpty);
 
-    if (isLoading) {
+    if (showPageLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -195,8 +196,12 @@ class _HomeViewState extends State<HomeView> {
                     builder: (context, coursesState) {
                       final categoryCourses =
                           coursesState.getCoursesForCategory(category);
+                      final isCategoryLoading =
+                          coursesState.isCategoryLoading(category);
 
-                      if (categoryCourses == null) {
+                      if (categoryCourses == null &&
+                          !isCategoryLoading &&
+                          coursesState.errorMessage == null) {
                         // Load courses for this category using filter
                         context.read<CoursesBloc>().add(
                               LoadCourses(
@@ -207,6 +212,11 @@ class _HomeViewState extends State<HomeView> {
                                 filter: "category in ('$category')",
                               ),
                             );
+                        // Return loading indicator while fetching
+                        return const SizedBox(
+                          height: 200,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
                       }
 
                       if (categoryCourses != null &&
@@ -217,6 +227,14 @@ class _HomeViewState extends State<HomeView> {
                           courses: categoryCourses,
                           cardHeight: 400,
                           showCategory: true,
+                        );
+                      }
+
+                      // Show loading if currently loading this category
+                      if (isCategoryLoading) {
+                        return const SizedBox(
+                          height: 200,
+                          child: Center(child: CircularProgressIndicator()),
                         );
                       }
 
@@ -372,7 +390,7 @@ class _HomeViewState extends State<HomeView> {
           sectionTitle: 'My Learning',
           subtitle: 'Continue your learning journey',
           enrollments: activeEnrollments,
-          cardHeight: 240,
+          cardHeight: 280,
           isHorizontal: true,
           onSeeAllTap: () {
             // Navigate to My Learning page (tab index 3, after Notification)

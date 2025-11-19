@@ -85,6 +85,9 @@ class CommonTextFormField extends StatelessWidget {
             ),
           ),
         TextFormField(
+          key: labelText != null 
+              ? ValueKey('text_field_${labelText!.toLowerCase().replaceAll(' ', '_')}')
+              : null,
           controller: textController,
           focusNode: focusNode,
           textInputAction: TextInputAction.done,

@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:e_learning_mobile/data/datasources/course/course_datasource.dart';
+import 'package:e_learning_mobile/data/dtos/courses/course_with_instructor_info_response_dto.dart';
 import 'package:e_learning_mobile/data/dtos/courses/course_response_dto.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
@@ -21,7 +22,33 @@ class CoursesBloc extends Bloc<CoursesEvent, CoursesState> {
 
   Future<void> loadCourses(
       LoadCourses event, Emitter<CoursesState> emit) async {
-    emit(state.copyWith(isLoading: true, errorMessage: null));
+    // Extract category if this is a category filter request
+    String? categoryKey;
+    if (event.filter != null && event.filter!.contains('category')) {
+      categoryKey = _extractCategoryFromFilter(event.filter!);
+
+      // Check if this category is already loading or loaded
+      if (categoryKey != null) {
+        if (state.loadingCategories.contains(categoryKey) ||
+            state.categoryCourses.containsKey(categoryKey)) {
+          // Already loading or loaded, skip
+          return;
+        }
+
+        // Add to loading set
+        final updatedLoadingCategories =
+            Set<String>.from(state.loadingCategories);
+        updatedLoadingCategories.add(categoryKey);
+        emit(state.copyWith(
+          loadingCategories: updatedLoadingCategories,
+          errorMessage: null,
+        ));
+      } else {
+        emit(state.copyWith(isLoading: true, errorMessage: null));
+      }
+    } else {
+      emit(state.copyWith(isLoading: true, errorMessage: null));
+    }
 
     try {
       final courses = await datasource.fetchCourses(
@@ -32,18 +59,20 @@ class CoursesBloc extends Bloc<CoursesEvent, CoursesState> {
           filter: event.filter);
 
       // If filter contains category, cache the results
-      if (event.filter != null && event.filter!.contains('category')) {
+      if (categoryKey != null) {
         final updatedCategoryCourses =
-            Map<String, List<CourseResponseDto>>.from(state.categoryCourses);
-        // Extract category from filter for caching key
-        final categoryKey =
-            _extractCategoryFromFilter(event.filter!) ?? 'DEVELOPMENT';
-
+            Map<String, List<CourseWithInstructorInfoResponseDto>>.from(
+                state.categoryCourses);
         updatedCategoryCourses[categoryKey] = courses;
+
+        // Remove from loading set
+        final updatedLoadingCategories =
+            Set<String>.from(state.loadingCategories);
+        updatedLoadingCategories.remove(categoryKey);
 
         emit(state.copyWith(
           categoryCourses: updatedCategoryCourses,
-          isLoading: false,
+          loadingCategories: updatedLoadingCategories,
         ));
       } else {
         // Regular courses loading
@@ -51,7 +80,19 @@ class CoursesBloc extends Bloc<CoursesEvent, CoursesState> {
       }
     } catch (e) {
       log(e.toString());
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+
+      // Remove from loading set on error
+      if (categoryKey != null) {
+        final updatedLoadingCategories =
+            Set<String>.from(state.loadingCategories);
+        updatedLoadingCategories.remove(categoryKey);
+        emit(state.copyWith(
+          loadingCategories: updatedLoadingCategories,
+          errorMessage: e.toString(),
+        ));
+      } else {
+        emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+      }
     }
   }
 

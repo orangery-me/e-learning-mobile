@@ -1,26 +1,6 @@
-/// Course Detail Page for unpurchased courses
-///
-/// This page displays detailed information about a course including:
-/// - Course header with image and basic info
-/// - Instructor information (with mock data for now)
-/// - Reviews section (with mock data for now)
-/// - Course content (sections and lectures from DTO)
-/// - Purchase section with price and add to cart button
-///
-/// Usage:
-/// ```dart
-/// Navigator.push(
-///   context,
-///   MaterialPageRoute(
-///     builder: (context) => CourseDetailPage(
-///       course: courseResponseDto,
-///     ),
-///   ),
-/// );
-/// ```
 import 'package:e_learning_mobile/common/extensions/context_extension.dart';
 import 'package:e_learning_mobile/common/utils/format_util.dart';
-import 'package:e_learning_mobile/data/dtos/courses/course_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/courses/course_with_instructor_info_response_dto.dart';
 import 'package:e_learning_mobile/data/dtos/lectures/lecture_response_dto.dart';
 import 'package:e_learning_mobile/data/dtos/review/review_response_dto.dart';
 import 'package:e_learning_mobile/data/dtos/sections/section_response_dto.dart';
@@ -38,7 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CourseDetailPage extends StatelessWidget {
-  final CourseResponseDto course;
+  final CourseWithInstructorInfoResponseDto course;
 
   const CourseDetailPage({
     super.key,
@@ -77,7 +57,7 @@ class CourseDetailPage extends StatelessWidget {
 }
 
 class CourseDetailView extends StatefulWidget {
-  final CourseResponseDto course;
+  final CourseWithInstructorInfoResponseDto course;
 
   const CourseDetailView({
     super.key,
@@ -92,7 +72,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
   final Map<String, bool> _expandedSections = {};
 
   // Mock data for instructor
-  final String _mockInstructorName = 'Robert Petras';
+  // final String _mockInstructorName = 'Robert Petras';
   final String _mockInstructorImage =
       'https://i.pravatar.cc/150?img=12'; // Placeholder image
   final String _mockInstructorBio =
@@ -357,8 +337,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
               ],
             ),
             const SizedBox(height: 12),
-            _buildInfoRow(
-                'Instructor', widget.course.instructorName ?? 'Unknown'),
+            _buildInfoRow('Instructor', widget.course.instructor.name),
             const Divider(height: 20),
             _buildInfoRow('Level', widget.course.level ?? 'All Levels'),
             const Divider(height: 20),
@@ -444,6 +423,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
+                  key: const ValueKey('add_to_cart_button'),
                   onPressed: () {
                     if (isInCart) {
                       // Navigate to cart if already in cart
@@ -521,6 +501,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
             width: double.infinity,
             height: 50,
             child: OutlinedButton(
+              key: const ValueKey('buy_now_button'),
               onPressed: () {
                 // Navigate to order detail page with CreateOrder event
                 Navigator.push(
@@ -786,7 +767,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _mockInstructorName,
+                            widget.course.instructor.name,
                             style: context.textStyles.heading3.copyWith(
                               fontWeight: FontWeight.w700,
                             ),

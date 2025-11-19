@@ -30,7 +30,7 @@ class _SplashView extends StatelessWidget {
             const Spacer(),
             Center(child: Assets.icons.launcher.appIcon.image()),
             const Spacer(),
-            Text('Powered by GDSC-DUT', style: context.textStyles.subHeading2),
+            Text('Powered by DUT', style: context.textStyles.subHeading2),
           ],
         ),
       ),

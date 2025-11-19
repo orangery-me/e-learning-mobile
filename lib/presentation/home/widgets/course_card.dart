@@ -1,16 +1,15 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:e_learning_mobile/common/extensions/context_extension.dart';
+import 'package:e_learning_mobile/data/dtos/courses/course_with_instructor_info_response_dto.dart';
 import 'package:e_learning_mobile/data/models/category.dart';
-import 'package:e_learning_mobile/presentation/learn/view/video_play_view.dart';
 import 'package:flutter/material.dart';
 
 import 'package:e_learning_mobile/common/utils/format_util.dart';
-import 'package:e_learning_mobile/data/dtos/courses/course_response_dto.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/rating_widget.dart';
 import 'package:e_learning_mobile/presentation/learn/view/course_detail_view.dart';
 
 class CourseCard extends StatelessWidget {
-  final CourseResponseDto course;
+  final CourseWithInstructorInfoResponseDto course;
   final bool showCategory;
 
   const CourseCard({
@@ -28,6 +27,7 @@ class CourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      key: ValueKey('course_card_${course.courseId}'),
       width: 260, // Featured style width
       decoration: BoxDecoration(
         color: const Color(0xFFF8F9FF), // Light blue background
@@ -71,10 +71,10 @@ class CourseCard extends StatelessWidget {
                     topLeft: Radius.circular(12),
                     topRight: Radius.circular(12),
                   ),
-                  image: DecorationImage(
+                  image: course.image != null ? DecorationImage(
                     image: NetworkImage(course.image ?? ''),
                     fit: BoxFit.cover,
-                  ),
+                  ) : null,
                 ),
                 child: Center(
                   child: Container(
@@ -96,10 +96,7 @@ class CourseCard extends StatelessWidget {
                         // go to video play screen
                         // Navigator.push(context,
                         //     MaterialPageRoute(builder: (context) {
-                        //   return VieoPlayPage(
-                        //     videoUrl: '',
-                        //     courseId: course.courseId,
-                        //   );
+                        //   return VieoPlayPage(videoUrl: '', course: course);
                         // }));
 
                         // Navigate to course detail page
@@ -219,7 +216,7 @@ class CourseCard extends StatelessWidget {
                 const SizedBox(height: 6),
 
                 // Instructor
-                Text('By ${course.instructorName}',
+                Text('By ${course.instructor.name}',
                     style: context.textStyles.body1),
 
                 const SizedBox(height: 8),

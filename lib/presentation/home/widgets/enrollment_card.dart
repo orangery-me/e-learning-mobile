@@ -1,5 +1,7 @@
 import 'package:e_learning_mobile/common/extensions/context_extension.dart';
+import 'package:e_learning_mobile/data/datasources/course/course_datasource.dart';
 import 'package:e_learning_mobile/data/dtos/enrollment/enrollment_dto.dart';
+import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/learn/view/video_play_view.dart';
 import 'package:flutter/material.dart';
 
@@ -38,138 +40,157 @@ class EnrollmentCard extends StatelessWidget {
         ],
         border: Border.all(color: Colors.grey[200]!),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Course Image Placeholder (will need to fetch course details)
-          Container(
-            height: 140,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+      child: InkWell(
+        onTap: () => _navigateToCourseDetail(context),
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 140,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
+                ),
               ),
+              child: enrollment.course.image != null
+                  ? ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                      child: Image.network(
+                        enrollment.course.image!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                      ),
+                    )
+                  : Center(
+                      child: Icon(
+                        Icons.menu_book,
+                        size: 50,
+                        color: Colors.grey[400],
+                      ),
+                    ),
             ),
-            child: Center(
-              child: Icon(
-                Icons.menu_book,
-                size: 48,
-                color: Colors.grey[400],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Course ID
-                Text(
-                  'Course ID: ${enrollment.courseId}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Course ID
+                  Text(
+                    'Course: ${enrollment.course.title}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                // Progress Bar
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Progress',
+                  const SizedBox(height: 8),
+                  // Progress Bar
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Progress',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          Text(
+                            '${enrollment.progressPercentage.toStringAsFixed(0)}%',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: context.palette.buttonBackground,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: enrollment.progressPercentage / 100,
+                          minHeight: 8,
+                          backgroundColor: Colors.grey[200],
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            context.palette.buttonBackground,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Status and Watch Time
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: enrollment.status == EnrollmentStatus.completed
+                              ? Colors.green[50]
+                              : Colors.blue[50],
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color:
+                                enrollment.status == EnrollmentStatus.completed
+                                    ? Colors.green[300]!
+                                    : Colors.blue[300]!,
+                          ),
+                        ),
+                        child: Text(
+                          enrollment.status.name.toUpperCase(),
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey[700],
+                            color:
+                                enrollment.status == EnrollmentStatus.completed
+                                    ? Colors.green[700]
+                                    : Colors.blue[700],
                           ),
                         ),
-                        Text(
-                          '${enrollment.progressPercentage.toStringAsFixed(0)}%',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: context.palette.buttonBackground,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: enrollment.progressPercentage / 100,
-                        minHeight: 8,
-                        backgroundColor: Colors.grey[200],
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          context.palette.buttonBackground,
-                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                // Status and Watch Time
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: enrollment.status == EnrollmentStatus.completed
-                            ? Colors.green[50]
-                            : Colors.blue[50],
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: enrollment.status == EnrollmentStatus.completed
-                              ? Colors.green[300]!
-                              : Colors.blue[300]!,
-                        ),
-                      ),
-                      child: Text(
-                        enrollment.status.name.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: enrollment.status == EnrollmentStatus.completed
-                              ? Colors.green[700]
-                              : Colors.blue[700],
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 14,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${enrollment.totalWatchTimeMinutes}m',
-                          style: TextStyle(
-                            fontSize: 11,
+                      const Spacer(),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.access_time,
+                            size: 14,
                             color: Colors.grey[600],
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                          const SizedBox(width: 4),
+                          Text(
+                            '${enrollment.totalWatchTimeMinutes}m',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -190,18 +211,7 @@ class EnrollmentCard extends StatelessWidget {
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: InkWell(
-        onTap: () {
-          // Navigate to course detail or video play
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => VieoPlayPage(
-                videoUrl: '',
-                courseId: enrollment.courseId,
-              ),
-            ),
-          );
-        },
+        onTap: () => _navigateToCourseDetail(context),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -216,11 +226,21 @@ class EnrollmentCard extends StatelessWidget {
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  Icons.menu_book,
-                  size: 40,
-                  color: Colors.grey[400],
-                ),
+                child: enrollment.course.image != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          enrollment.course.image!,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Center(
+                        child: Icon(
+                          Icons.menu_book,
+                          size: 40,
+                          color: Colors.grey[400],
+                        ),
+                      ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -229,10 +249,10 @@ class EnrollmentCard extends StatelessWidget {
                   children: [
                     // Course ID
                     Text(
-                      'Course ID: ${enrollment.courseId}',
+                      'Course: ${enrollment.course.title}',
                       style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
+                        fontSize: 14,
+                        color: Colors.black,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -363,6 +383,53 @@ class EnrollmentCard extends StatelessWidget {
       return '${difference.inDays}d ago';
     } else {
       return '${date.day}/${date.month}/${date.year}';
+    }
+  }
+
+  Future<void> _navigateToCourseDetail(BuildContext context) async {
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // Fetch course details
+      final courseDatasource = getIt<CourseDatasource>();
+      final course =
+          await courseDatasource.fetchCourseById(enrollment.course.courseId);
+
+      // Close loading indicator
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+
+      // Navigate to course detail page
+      if (context.mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => VieoPlayPage(videoUrl: "", course: course)),
+        );
+      }
+    } catch (e) {
+      // Close loading indicator if still open
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+
+      // Show error message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading course: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:e_learning_mobile/data/datasources/course/remote/course_datasource.dart';
+import 'package:e_learning_mobile/data/dtos/courses/course_with_instructor_info_response_dto.dart';
 import 'package:e_learning_mobile/data/dtos/courses/course_response_dto.dart';
 import 'package:injectable/injectable.dart';
 
@@ -8,7 +9,7 @@ class CourseDatasource {
   CourseDatasource({required CourseRemoteDatasource remoteDatasource})
       : _remoteDatasource = remoteDatasource;
 
-  Future<List<CourseResponseDto>> fetchCourses(
+  Future<List<CourseWithInstructorInfoResponseDto>> fetchCourses(
       {String? order,
       int? page,
       int? size,

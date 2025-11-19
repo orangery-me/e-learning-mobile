@@ -294,6 +294,7 @@ class CartView extends StatelessWidget {
                           Expanded(
                             flex: 2,
                             child: ElevatedButton(
+                              key: const ValueKey('checkout_button'),
                               onPressed: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(

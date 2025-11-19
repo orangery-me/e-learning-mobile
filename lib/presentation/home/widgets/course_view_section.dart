@@ -1,5 +1,5 @@
 import 'package:e_learning_mobile/common/extensions/context_extension.dart';
-import 'package:e_learning_mobile/data/dtos/courses/course_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/courses/course_with_instructor_info_response_dto.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/course_card.dart';
 import 'package:flutter/material.dart';
 
@@ -7,7 +7,7 @@ class CourseViewSection extends StatelessWidget {
   final String sectionTitle;
   final Color? sectionTitleColor;
   final Color? backgroundColor;
-  final List<CourseResponseDto> courses;
+  final List<CourseWithInstructorInfoResponseDto> courses;
   final bool showSeeAll;
   final VoidCallback? onSeeAllTap;
   final String? subtitle;
@@ -149,7 +149,7 @@ class CourseViewSection extends StatelessWidget {
     );
   }
 
-  Widget _buildCourseCard(CourseResponseDto course) {
+  Widget _buildCourseCard(CourseWithInstructorInfoResponseDto course) {
     return CourseCard(
       course: course,
       showCategory: showCategory,

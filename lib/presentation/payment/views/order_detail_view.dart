@@ -401,6 +401,7 @@ class _OrderSummary extends StatelessWidget {
                       width: double.infinity,
                       height: 50,
                       child: OutlinedButton(
+                        key: const ValueKey('confirm_payment_button'),
                         onPressed: isLoading
                             ? null
                             : () {

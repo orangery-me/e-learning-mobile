@@ -65,6 +65,7 @@ class UserHeader extends StatelessWidget {
           children: [
             // Shopping cart icon
             InkWell(
+              key: const ValueKey('cart_icon_button'),
               onTap: () {
                 Navigator.push(
                   context,
