@@ -44,6 +44,10 @@ import 'package:e_learning_mobile/data/datasources/payment/payment_datasource.da
     as _i206;
 import 'package:e_learning_mobile/data/datasources/payment/remote/payment_remote_datasource.dart'
     as _i698;
+import 'package:e_learning_mobile/data/datasources/quizz/quizz_datasource.dart'
+    as _i576;
+import 'package:e_learning_mobile/data/datasources/quizz/remote/quizz_remote_datasource.dart'
+    as _i801;
 import 'package:e_learning_mobile/data/datasources/review/remote/review_remote_datasource.dart'
     as _i827;
 import 'package:e_learning_mobile/data/datasources/review/review_datasource.dart'
@@ -79,6 +83,10 @@ import 'package:e_learning_mobile/presentation/learn/bloc/lectures/lectures_bloc
     as _i770;
 import 'package:e_learning_mobile/presentation/learn/bloc/notes/notes_bloc.dart'
     as _i171;
+import 'package:e_learning_mobile/presentation/learn/bloc/progress/progress_bloc.dart'
+    as _i905;
+import 'package:e_learning_mobile/presentation/learn/bloc/quizz/quizz_bloc.dart'
+    as _i914;
 import 'package:e_learning_mobile/presentation/learn/bloc/reviews/reviews_bloc.dart'
     as _i275;
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart'
@@ -113,6 +121,7 @@ Future<_i174.GetIt> initGetIt(
   );
   final localModule = _$LocalModule();
   final networkModule = _$NetworkModule();
+  gh.factory<_i905.ProgressBloc>(() => _i905.ProgressBloc());
   gh.lazySingleton<_i719.GlobalKey<_i719.NavigatorState>>(
       () => localModule.navigatorKey);
   await gh.singletonAsync<_i986.Box<dynamic>>(
@@ -156,14 +165,20 @@ Future<_i174.GetIt> initGetIt(
       () => _i827.ReviewRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i927.CartRemoteDatasource>(
       () => _i927.CartRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
+  gh.lazySingleton<_i801.QuizzRemoteDatasource>(
+      () => _i801.QuizzRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i84.NoteDatasource>(
       () => _i84.NoteDatasource(remote: gh<_i277.NoteRemoteDatasource>()));
+  gh.lazySingleton<_i576.QuizzDatasource>(() => _i576.QuizzDatasource(
+      remoteDatasource: gh<_i801.QuizzRemoteDatasource>()));
   gh.lazySingleton<_i1056.UserDataSource>(() => _i1056.UserDataSource(
         remoteDataSource: gh<_i812.UserRemoteDataSource>(),
         localDataSource: gh<_i591.UserLocalDataSource>(),
       ));
   gh.singleton<_i734.VideoEventsDatasource>(() => _i734.VideoEventsDatasource(
       remoteDatasource: gh<_i184.VideoEventsRemoteDatasource>()));
+  gh.factory<_i914.QuizzBloc>(
+      () => _i914.QuizzBloc(datasource: gh<_i576.QuizzDatasource>()));
   gh.lazySingleton<_i24.CartDatasource>(
       () => _i24.CartDatasource(remote: gh<_i927.CartRemoteDatasource>()));
   gh.lazySingleton<_i201.CourseDatasource>(() => _i201.CourseDatasource(
@@ -195,6 +210,11 @@ Future<_i174.GetIt> initGetIt(
       () => _i741.EnrollmentBloc(datasource: gh<_i598.EnrollmentDatasource>()));
   gh.factory<_i171.NotesBloc>(
       () => _i171.NotesBloc(datasource: gh<_i84.NoteDatasource>()));
+  gh.factory<_i902.VideoPlayBloc>(() => _i902.VideoPlayBloc(
+        gh<_i734.VideoEventsDatasource>(),
+        gh<_i1004.CodeExerciseDatasource>(),
+        gh<_i576.QuizzDatasource>(),
+      ));
   gh.factory<_i399.SectionsBloc>(() => _i399.SectionsBloc(
         datasource: gh<_i439.SectionDatasource>(),
         lectureDatasource: gh<_i895.LectureDatasource>(),
@@ -209,10 +229,6 @@ Future<_i174.GetIt> initGetIt(
       _i1038.PaymentBloc(paymentDatasource: gh<_i206.PaymentDatasource>()));
   gh.factory<_i470.OrderBloc>(
       () => _i470.OrderBloc(orderDatasource: gh<_i637.OrderDatasource>()));
-  gh.factory<_i902.VideoPlayBloc>(() => _i902.VideoPlayBloc(
-        gh<_i734.VideoEventsDatasource>(),
-        gh<_i1004.CodeExerciseDatasource>(),
-      ));
   return getIt;
 }
 

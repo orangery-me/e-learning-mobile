@@ -42,4 +42,10 @@ abstract class Endpoints {
 
   // enrollments api
   static String enrollments = '$apiUrl/enrollments';
+
+  // quizz api
+  static String quizzes = '$apiUrl/quizzes';
+
+  // quizz-submission
+  static String quizzSubmissions = '$apiUrl/quizz-submissions';
 }
