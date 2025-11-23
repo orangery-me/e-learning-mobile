@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'package:e_learning_mobile/common/utils/format_util.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/rating_widget.dart';
-import 'package:e_learning_mobile/presentation/learn/view/course_detail_view.dart';
+import 'package:e_learning_mobile/presentation/home/view/course_detail_view.dart';
 
 class CourseCard extends StatelessWidget {
   final CourseWithInstructorInfoResponseDto course;

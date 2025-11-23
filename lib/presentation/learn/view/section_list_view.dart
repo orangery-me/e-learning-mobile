@@ -15,9 +15,6 @@ class SectionListView extends StatefulWidget {
 }
 
 class _SectionListViewState extends State<SectionListView> {
-  final Map<String, bool> _expandedSections = {};
-  String? _selectedLectureId;
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SectionsBloc, SectionsState>(
@@ -32,20 +29,29 @@ class _SectionListViewState extends State<SectionListView> {
           itemCount: state.sections.length,
           itemBuilder: (context, index) {
             final section = state.sections[index];
-            final isExpanded = _expandedSections[section.sectionId] ?? false;
+            final isExpanded = state.selectedSection
+                .any((s) => s.sectionId == section.sectionId);
 
             // Get lectures for this section from cache
             final sectionLectures =
                 state.getLecturesForSection(section.sectionId);
+
             // trạng thái loading của section đang được xét
             final isLoadingSection = state.isSectionLoading(section.sectionId);
 
+            if (isExpanded && sectionLectures.isEmpty && !isLoadingSection) {
+              context
+                  .read<SectionsBloc>()
+                  .add(LoadLecturesBySectionId(section.sectionId));
+            }
+
             return SectionListItem(
+              key: ValueKey(
+                  '${section.sectionId}-$isExpanded-${sectionLectures.length}'),
               section: section,
               isExpanded: isExpanded,
               lectures: sectionLectures,
               isLoading: isLoadingSection,
-              selectedLectureId: _selectedLectureId,
               onTap: () {
                 // Load lectures for this section when tapped
                 if (sectionLectures.isEmpty && !isLoadingSection) {
@@ -55,9 +61,15 @@ class _SectionListViewState extends State<SectionListView> {
                 }
               },
               onToggleExpanded: () {
-                setState(() {
-                  _expandedSections[section.sectionId] = !isExpanded;
-                });
+                if (isExpanded) {
+                  context
+                      .read<SectionsBloc>()
+                      .add(DeselectSection(section.sectionId));
+                } else {
+                  context
+                      .read<SectionsBloc>()
+                      .add(SelectSection(section.sectionId));
+                }
 
                 // Load lectures when expanding if not already loaded
                 if (!isExpanded &&
@@ -69,29 +81,18 @@ class _SectionListViewState extends State<SectionListView> {
                 }
               },
               onLectureTap: (lectureId) {
-                setState(() {
-                  _selectedLectureId = lectureId;
-                });
-
                 log('Selected lecture ID: $lectureId');
 
                 // Find the selected lecture from cached lectures and play its video
-                LectureResponseDto? selectedLecture;
-                for (final lectures in state.lecturesCache.values) {
-                  try {
-                    selectedLecture = lectures.firstWhere(
-                        (lecture) => lecture.lectureId == lectureId);
-                    break;
-                  } catch (e) {
-                    // Continue searching in other sections
-                  }
-                }
+                LectureResponseDto? selectedLecture = state
+                        .lecturesCache.values.isNotEmpty
+                    ? state.lecturesCache.values
+                        .expand((lectures) => lectures)
+                        .firstWhere((lecture) => lecture.lectureId == lectureId)
+                    : null;
 
                 if (selectedLecture != null) {
                   widget.onLectureSelected(selectedLecture);
-                } else {
-                  log('Lecture not found: $lectureId');
-                  return;
                 }
               },
             );

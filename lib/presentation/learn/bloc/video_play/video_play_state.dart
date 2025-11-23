@@ -4,12 +4,11 @@ class VideoPlayState extends Equatable {
   final List<VideoEvent> events; // All video events for the lecture
   final Set<String> triggeredIds; // IDs of events that have been triggered
   final List<VideoEvent> currentEvents; // Currently active event ID
-  final VideoType? videoType; // Current video type
+  final VideoType? videoType;
   // check if user accepts to do the exercise
   final bool acceptToDoExercise;
-  final CodeProblemStatement?
-      problemStatement; // problem statement for code event
-  // quiz event state can be added here
+  final CodeProblemStatement? problemStatement; // CODE
+  final QuizzOverviewDto? quizOverview; // QUIZ
 
   // Video player states
   final bool isLoading;
@@ -26,6 +25,7 @@ class VideoPlayState extends Equatable {
     this.acceptToDoExercise = false,
     this.videoType,
     this.problemStatement,
+    this.quizOverview,
     this.isLoading = true,
     this.isDisposed = false,
     this.currentVideoUrl,
@@ -41,6 +41,7 @@ class VideoPlayState extends Equatable {
     VideoType? videoType,
     bool? acceptToDoExercise,
     CodeProblemStatement? problemStatement,
+    QuizzOverviewDto? quizOverview,
     bool? isLoading,
     bool? isDisposed,
     String? currentVideoUrl,
@@ -55,6 +56,7 @@ class VideoPlayState extends Equatable {
       acceptToDoExercise: acceptToDoExercise ?? this.acceptToDoExercise,
       videoType: videoType ?? this.videoType,
       problemStatement: problemStatement ?? this.problemStatement,
+      quizOverview: quizOverview ?? this.quizOverview,
       isLoading: isLoading ?? this.isLoading,
       isDisposed: isDisposed ?? this.isDisposed,
       currentVideoUrl: currentVideoUrl ?? this.currentVideoUrl,
@@ -72,6 +74,7 @@ class VideoPlayState extends Equatable {
         acceptToDoExercise,
         videoType,
         problemStatement,
+        quizOverview,
         isLoading,
         isDisposed,
         currentVideoUrl,

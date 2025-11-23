@@ -2,7 +2,7 @@ part of 'sections_bloc.dart';
 
 final class SectionsState extends Equatable {
   final List<SectionResponseDto> sections;
-  final SectionResponseDto? selectedSection;
+  final List<SectionResponseDto> selectedSection;
   final Map<String, List<LectureResponseDto>> lecturesCache;
   final Set<String> loadingSectionIds;
   final String? errorMessage;
@@ -10,7 +10,7 @@ final class SectionsState extends Equatable {
 
   const SectionsState({
     this.sections = const [],
-    this.selectedSection,
+    this.selectedSection = const [],
     this.lecturesCache = const {},
     this.loadingSectionIds = const {},
     this.errorMessage,
@@ -29,7 +29,7 @@ final class SectionsState extends Equatable {
 
   SectionsState copyWith({
     List<SectionResponseDto>? sections,
-    SectionResponseDto? selectedSection,
+    List<SectionResponseDto>? selectedSection,
     Map<String, List<LectureResponseDto>>? lecturesCache,
     Set<String>? loadingSectionIds,
     String? errorMessage,

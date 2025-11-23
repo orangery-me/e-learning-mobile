@@ -4,22 +4,28 @@ import 'package:chewie/chewie.dart';
 import 'package:e_learning_mobile/common/theme/palette.dart';
 import 'package:e_learning_mobile/common/utils/dialog_util.dart';
 import 'package:e_learning_mobile/data/dtos/courses/course_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/enrollment/enrollment_dto.dart';
 import 'package:e_learning_mobile/data/dtos/lectures/lecture_response_dto.dart';
 import 'package:e_learning_mobile/di/di.dart';
+// import 'package:e_learning_mobile/presentation/learn/bloc/lectures/lectures_bloc.dart';
+import 'package:e_learning_mobile/presentation/learn/bloc/progress/progress_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/view/code_exercises/code_exercise_modal.dart';
+import 'package:e_learning_mobile/presentation/learn/view/quizz/quizz_modal.dart';
 import 'package:e_learning_mobile/presentation/learn/view/other_feature_view.dart';
 import 'package:e_learning_mobile/presentation/learn/view/section_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/video_play/video_play_bloc.dart';
+import 'package:e_learning_mobile/data/dtos/video_event/video_event.dart';
 
 class VieoPlayPage extends StatelessWidget {
-  final String videoUrl;
+  final EnrollmentDto enrollment;
   final CourseResponseDto course;
 
-  const VieoPlayPage({super.key, required this.videoUrl, required this.course});
+  const VieoPlayPage(
+      {super.key, required this.enrollment, required this.course});
 
   @override
   Widget build(BuildContext context) {
@@ -31,18 +37,24 @@ class VieoPlayPage extends StatelessWidget {
         BlocProvider(
           create: (context) => getIt<VideoPlayBloc>(),
         ),
+        BlocProvider(
+          create: (context) => getIt<ProgressBloc>(),
+        ),
+        // BlocProvider(
+        //   create: (context) => getIt<LecturesBloc>(),
+        // ),
       ],
-      child: VideoPlayView(videoUrl: videoUrl, course: course),
+      child: VideoPlayView(enrollment: enrollment, course: course),
     );
   }
 }
 
 class VideoPlayView extends StatefulWidget {
-  final String videoUrl;
+  final EnrollmentDto enrollment;
   final CourseResponseDto course;
 
   const VideoPlayView(
-      {super.key, required this.videoUrl, required this.course});
+      {super.key, required this.enrollment, required this.course});
 
   @override
   State<VideoPlayView> createState() => _VideoPlayViewState();
@@ -54,10 +66,8 @@ class _VideoPlayViewState extends State<VideoPlayView> {
   @override
   void initState() {
     super.initState();
-    // Initialize video through bloc
-    context
-        .read<VideoPlayBloc>()
-        .add(InitializeVideo(videoUrl: widget.videoUrl));
+    // load current progress
+    context.read<ProgressBloc>().add(LoadCurrentProgress(widget.enrollment.id));
 
     // Load sections after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -193,49 +203,124 @@ class _VideoPlayViewState extends State<VideoPlayView> {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
+        // event listener to get current progress and initialize video position
+        BlocListener<ProgressBloc, ProgressState>(
+          listenWhen: (previous, current) => previous != current,
+          listener: (context, state) {
+            if (state is ProgressLoaded) {
+              final progress = state.progress;
+
+              if (progress != null && progress.videoPositionSeconds != null) {
+                // 1. Select section from progress
+                context
+                    .read<SectionsBloc>()
+                    .add(SelectSection(progress.sectionId));
+
+                // 2. Select the lecture and initialize video
+                context.read<VideoPlayBloc>().add(SelectLecture(
+                      lectureId: progress.lectureId,
+                      videoUrl: progress.videoUrl ?? '',
+                    ));
+              }
+            }
+            if (state is ProgressError) {
+              log('Error loading progress: ${state.message}');
+            }
+          },
+        ),
+
+        // event listener to show modal for code exercise or quiz
         BlocListener<VideoPlayBloc, VideoPlayState>(
           listenWhen: (previous, current) =>
               previous.acceptToDoExercise != current.acceptToDoExercise,
           listener: (context, state) {
-            // show code exercise modal
-            if (state.acceptToDoExercise) {
-              showModalBottomSheet(
+            if (!state.acceptToDoExercise) return;
+
+            // Determine current event type (CODE or QUIZ)
+            final VideoEvent? currentEvent = state.currentEvents.isNotEmpty
+                ? state.currentEvents.first
+                : null;
+
+            if (currentEvent == null) {
+              // Fallback: open code exercise if available
+              if (state.problemStatement != null) {
+                showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
+                  shape: const RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(20)),
                   ),
                   builder: (_) => CodeExercisePage(
-                      problemStatement: state.problemStatement));
+                    problemStatement: state.problemStatement,
+                  ),
+                );
+              }
+              return;
+            }
+
+            if (currentEvent.eventType == VideoEventType.CODE) {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (_) =>
+                    CodeExercisePage(problemStatement: state.problemStatement),
+              );
+            } else if (currentEvent.eventType == VideoEventType.QUIZ) {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (_) => QuizzPage(
+                  quizzId: currentEvent.payload,
+                ),
+              );
             }
           },
         ),
+
+        // event listener to pause video and show dialog when an event is reached
         BlocListener<VideoPlayBloc, VideoPlayState>(
           listenWhen: (previous, current) =>
               previous.currentEvents != current.currentEvents,
           listener: (_, state) {
+            if (state.currentEvents.isEmpty) return;
+
+            final currentEvent = state.currentEvents.first;
+            final isCodeEvent = currentEvent.eventType == VideoEventType.CODE;
+
             // stop the video
             context.read<VideoPlayBloc>().add(const PauseVideo());
-            // show dialog to ask user to do the exercise
-            DialogUtil.showCustomDialog(context,
-                title: "Code Exercise",
-                content: "Do you want to attempt the code exercise now?",
-                isConfirmDialog: true,
-                confirmButtonText: "Yes",
-                cancelButtonText: "No",
-                confirmAction: () {
-                  // add event to accept exercise
-                  context
-                      .read<VideoPlayBloc>()
-                      .add(const AskToDoExercise(acceptToDoExercise: true));
-                  log('User accepted to do the exercise ${state.acceptToDoExercise}');
-                },
-                cancelAction: () => // Reset the acceptToDoExercise state
-                    context
-                        .read<VideoPlayBloc>()
-                        .add(const AskToDoExercise(acceptToDoExercise: false)));
+
+            // show dialog to ask user to do the exercise / quiz
+            DialogUtil.showCustomDialog(
+              context,
+              title: isCodeEvent ? "Code Exercise" : "Quiz",
+              content: isCodeEvent
+                  ? "Do you want to attempt the code exercise now?"
+                  : "Do you want to attempt the quiz now?",
+              isConfirmDialog: true,
+              confirmButtonText: "Yes",
+              cancelButtonText: "No",
+              confirmAction: () {
+                // add event to accept exercise / quiz
+                context
+                    .read<VideoPlayBloc>()
+                    .add(const AskToDoExercise(acceptToDoExercise: true));
+                log('User accepted to do the ${isCodeEvent ? 'code exercise' : 'quiz'} ${state.acceptToDoExercise}');
+              },
+              cancelAction: () => context.read<VideoPlayBloc>().add(
+                    const AskToDoExercise(acceptToDoExercise: false),
+                  ),
+            );
           },
         ),
       ],

@@ -412,7 +412,7 @@ class EnrollmentCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => VieoPlayPage(videoUrl: "", course: course)),
+              builder: (context) => VieoPlayPage(enrollment: enrollment, course: course)),
         );
       }
     } catch (e) {

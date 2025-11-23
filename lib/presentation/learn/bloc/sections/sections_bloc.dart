@@ -22,9 +22,10 @@ class SectionsBloc extends Bloc<SectionsEvent, SectionsState> {
   }) : super(SectionsState()) {
     on<LoadSectionsByCourseId>(
         (event, emit) => loadSectionsByCourseId(event, emit));
-    on<GetSelectedSection>((event, emit) => getSelectedSection(event, emit));
     on<LoadLecturesBySectionId>(
         (event, emit) => loadLecturesBySectionId(event, emit));
+    on<SelectSection>((event, emit) => _selectSection(event, emit));
+    on<DeselectSection>((event, emit) => _deselectSection(event, emit));
   }
 
   Future<void> loadSectionsByCourseId(
@@ -41,17 +42,6 @@ class SectionsBloc extends Bloc<SectionsEvent, SectionsState> {
       ));
     } catch (e) {
       log(e.toString());
-      emit(state.copyWith(errorMessage: e.toString(), isLoading: false));
-    }
-  }
-
-  Future<void> getSelectedSection(
-      GetSelectedSection event, Emitter<SectionsState> emit) async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      final section = await datasource.fetchSectionById(event.sectionId);
-      emit(state.copyWith(selectedSection: section, isLoading: false));
-    } catch (e) {
       emit(state.copyWith(errorMessage: e.toString(), isLoading: false));
     }
   }
@@ -109,5 +99,26 @@ class SectionsBloc extends Bloc<SectionsEvent, SectionsState> {
         errorMessage: e.toString(),
       ));
     }
+  }
+
+  void _selectSection(SelectSection event, Emitter<SectionsState> emit) {
+    if (state.sections.isEmpty) {
+      return;
+    }
+    final selectedSection = state.sections.firstWhere(
+        (section) => section.sectionId == event.sectionId,
+        orElse: () => state.sections[0]);
+
+    log('bbb Selected section: ${selectedSection.toJson()}');
+    emit(state.copyWith(
+        selectedSection: [...state.selectedSection, selectedSection]));
+  }
+
+  void _deselectSection(DeselectSection event, Emitter<SectionsState> emit) {
+    final updatedSelectedSections = state.selectedSection
+        .where((section) => section.sectionId != event.sectionId)
+        .toList();
+
+    emit(state.copyWith(selectedSection: updatedSelectedSections));
   }
 }

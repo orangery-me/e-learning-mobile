@@ -258,8 +258,10 @@ class _HomeViewState extends State<HomeView> {
             state.courses.isEmpty) {
           return const SizedBox();
         } else {
-          // Lấy 3 courses đầu tiên cho vertical layout
-          final verticalCourses = state.courses.take(3).toList();
+          // Lấy 3 courses cuối cùng để hiển thị theo dạng vertical
+          final verticalCourses = state.courses.sublist(
+              state.courses.length >= 3 ? state.courses.length - 3 : 0,
+              state.courses.length);
           return CourseViewSection(
             sectionTitle: "Quick Learning Path",
             subtitle: "Start your journey with these popular courses",

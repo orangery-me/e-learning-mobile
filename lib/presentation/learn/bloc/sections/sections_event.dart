@@ -33,3 +33,14 @@ class LoadLecturesBySectionId extends SectionsEvent {
   @override
   List<Object> get props => [sectionId];
 }
+
+class SelectSection extends SectionsEvent {
+  final String sectionId;
+  const SelectSection(this.sectionId);
+}
+
+class DeselectSection extends SectionsEvent {
+  final String sectionId;
+  const DeselectSection(this.sectionId);
+}
+
