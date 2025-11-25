@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:e_learning_mobile/data/datasources/quizz/quizz_datasource.dart';
 import 'package:e_learning_mobile/data/dtos/quizz/quizz_overview_dto.dart';
@@ -17,6 +19,7 @@ class QuizzBloc extends Bloc<QuizzEvent, QuizzState> {
     on<LoadQuizzByLectureId>(_loadQuizzByLectureId);
     on<LoadQuizzById>(_loadQuizzById);
     on<SubmitQuizz>(_submitQuiz);
+    on<LoadUserAttempts>(_loadUserAttempts);
     on<ResetQuizz>(_resetQuizz);
   }
 
@@ -46,10 +49,23 @@ class QuizzBloc extends Bloc<QuizzEvent, QuizzState> {
 
   Future<void> _submitQuiz(SubmitQuizz event, Emitter<QuizzState> emit) async {
     emit(state.copyWith(isLoading: true, errorMessage: null));
-
     try {
       final result = await datasource.submitQuizzAnswers(event.submit);
       emit(state.copyWith(result: result, isLoading: false));
+    } catch (e) {
+      log('submit quizz error: $e');
+      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> _loadUserAttempts(
+      LoadUserAttempts event, Emitter<QuizzState> emit) async {
+    emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    try {
+      final attempts = await datasource.getUserAttemptsByQuizzId(
+          event.quizzId, event.userId);
+      emit(state.copyWith(attempts: attempts, isLoading: false));
     } catch (e) {
       emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
     }

@@ -42,4 +42,16 @@ class QuizzRemoteDatasource {
       (response.data['data'] ?? response.data) as Map<String, dynamic>,
     );
   }
+
+  Future<List<QuizzResultDto>> getUserAttemptsByQuizzId(
+      String quizzId, String userId) async {
+    final response = await _dioHelper
+        .get('${Endpoints.quizzSubmissions}/quiz/$quizzId/user/$userId');
+
+    final List<dynamic> data = response.data as List<dynamic>;
+
+    return data
+        .map((e) => QuizzResultDto.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
 }

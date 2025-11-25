@@ -18,7 +18,8 @@ QuizzResultDto _$QuizzResultDtoFromJson(Map<String, dynamic> json) =>
       maxPossibleScore: (json['maxPossibleScore'] as num).toDouble(),
       scorePercentage: (json['scorePercentage'] as num).toDouble(),
       isPassed: json['isPassed'] as bool,
-      submittedAt: DateTime.parse(json['submittedAt'] as String),
+      submittedAt:
+          const UNIXTimestampConverter().fromJson(json['submittedAt'] as num),
       timeTakenMinutes: (json['timeTakenMinutes'] as num).toInt(),
       isCompleted: json['isCompleted'] as bool,
       answers: (json['answers'] as List<dynamic>)
@@ -38,7 +39,8 @@ Map<String, dynamic> _$QuizzResultDtoToJson(QuizzResultDto instance) =>
       'maxPossibleScore': instance.maxPossibleScore,
       'scorePercentage': instance.scorePercentage,
       'isPassed': instance.isPassed,
-      'submittedAt': instance.submittedAt.toIso8601String(),
+      'submittedAt':
+          const UNIXTimestampConverter().toJson(instance.submittedAt),
       'timeTakenMinutes': instance.timeTakenMinutes,
       'isCompleted': instance.isCompleted,
       'answers': instance.answers,

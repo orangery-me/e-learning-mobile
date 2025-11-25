@@ -1,3 +1,4 @@
+import 'package:e_learning_mobile/common/utils/datetime_converter.dart';
 import 'package:e_learning_mobile/data/dtos/quizz/quizz_answer_dto.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'quizz_result_dto.g.dart';
@@ -14,6 +15,7 @@ class QuizzResultDto {
   final double maxPossibleScore;
   final double scorePercentage;
   final bool isPassed;
+  @UNIXTimestampConverter()
   final DateTime submittedAt;
   final int timeTakenMinutes;
   final bool isCompleted;

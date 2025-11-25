@@ -12,15 +12,16 @@ QuizzSubmit _$QuizzSubmitFromJson(Map<String, dynamic> json) => QuizzSubmit(
           .toList(),
       enrollmentId: json['enrollmentId'] as String,
       quizId: json['quizId'] as String,
-      startedAt: DateTime.parse(json['startedAt'] as String),
+      startedAt:
+          const UNIXTimestampConverter().fromJson(json['startedAt'] as num),
       userId: json['userId'] as String,
     );
 
 Map<String, dynamic> _$QuizzSubmitToJson(QuizzSubmit instance) =>
     <String, dynamic>{
-      'answers': instance.answers,
+      'answers': instance.answers.map((e) => e.toJson()).toList(),
       'enrollmentId': instance.enrollmentId,
       'quizId': instance.quizId,
-      'startedAt': instance.startedAt.toIso8601String(),
+      'startedAt': const UNIXTimestampConverter().toJson(instance.startedAt),
       'userId': instance.userId,
     };

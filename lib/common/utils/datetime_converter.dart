@@ -20,3 +20,20 @@ class VideoPositionConverter implements JsonConverter<Duration, int> {
   @override
   int toJson(Duration object) => object.inMilliseconds;
 }
+
+class UNIXTimestampConverter implements JsonConverter<DateTime, num> {
+  const UNIXTimestampConverter();
+
+  @override
+  DateTime fromJson(num timestamp) {
+    return DateTime.fromMillisecondsSinceEpoch(
+      (timestamp * 1000).toInt(),
+      isUtc: true,
+    );
+  }
+
+  @override
+  num toJson(DateTime date) {
+    return date.millisecondsSinceEpoch / 1000;
+  }
+}

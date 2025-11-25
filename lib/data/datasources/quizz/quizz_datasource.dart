@@ -22,4 +22,9 @@ class QuizzDatasource {
   Future<QuizzResultDto> submitQuizzAnswers(QuizzSubmit submit) async {
     return _remoteDatasource.submitQuizzAnswers(submit);
   }
+
+  Future<List<QuizzResultDto>> getUserAttemptsByQuizzId(
+      String quizzId, String userId) async {
+    return _remoteDatasource.getUserAttemptsByQuizzId(quizzId, userId);
+  }
 }

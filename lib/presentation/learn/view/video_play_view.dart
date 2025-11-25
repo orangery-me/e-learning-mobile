@@ -11,7 +11,7 @@ import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/progress/progress_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/view/code_exercises/code_exercise_modal.dart';
-import 'package:e_learning_mobile/presentation/learn/view/quizz/quizz_modal.dart';
+import 'package:e_learning_mobile/presentation/learn/view/quizz/quizz_page.dart';
 import 'package:e_learning_mobile/presentation/learn/view/other_feature_view.dart';
 import 'package:e_learning_mobile/presentation/learn/view/section_list_view.dart';
 import 'package:flutter/material.dart';
@@ -39,10 +39,7 @@ class VieoPlayPage extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => getIt<ProgressBloc>(),
-        ),
-        // BlocProvider(
-        //   create: (context) => getIt<LecturesBloc>(),
-        // ),
+        )
       ],
       child: VideoPlayView(enrollment: enrollment, course: course),
     );
@@ -242,21 +239,6 @@ class _VideoPlayViewState extends State<VideoPlayView> {
                 : null;
 
             if (currentEvent == null) {
-              // Fallback: open code exercise if available
-              if (state.problemStatement != null) {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.white,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                  builder: (_) => CodeExercisePage(
-                    problemStatement: state.problemStatement,
-                  ),
-                );
-              }
               return;
             }
 
@@ -280,6 +262,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
                 builder: (_) => QuizzPage(
+                  enrollmentId: widget.enrollment.id,
                   quizzId: currentEvent.payload,
                 ),
               );

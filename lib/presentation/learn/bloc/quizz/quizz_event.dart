@@ -37,3 +37,13 @@ class SubmitQuizz extends QuizzEvent {
 class ResetQuizz extends QuizzEvent {
   const ResetQuizz();
 }
+
+class LoadUserAttempts extends QuizzEvent {
+  final String quizzId;
+  final String userId;
+
+  const LoadUserAttempts(this.quizzId, this.userId);
+
+  @override
+  List<Object?> get props => [quizzId, userId];
+}
