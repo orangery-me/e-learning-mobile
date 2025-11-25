@@ -20,7 +20,7 @@ class CourseRemoteDatasource {
       String? filter}) async {
     try {
       final response = await _dioHelper
-          .get('${Endpoints.courses}/not-purchased/page', queryParameters: {
+          .get('${Endpoints.courses}/page-v2', queryParameters: {
         if (page != null) 'page': page,
         if (size != null) 'paging': size,
         if (order != null) 'order': order,

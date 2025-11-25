@@ -105,11 +105,11 @@ class SectionsBloc extends Bloc<SectionsEvent, SectionsState> {
     if (state.sections.isEmpty) {
       return;
     }
+    // if do not exist, select the first one
     final selectedSection = state.sections.firstWhere(
         (section) => section.sectionId == event.sectionId,
         orElse: () => state.sections[0]);
 
-    log('bbb Selected section: ${selectedSection.toJson()}');
     emit(state.copyWith(
         selectedSection: [...state.selectedSection, selectedSection]));
   }

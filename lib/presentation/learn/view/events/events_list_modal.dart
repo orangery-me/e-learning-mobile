@@ -1,9 +1,11 @@
 import 'dart:developer';
 
 import 'package:e_learning_mobile/data/datasources/code_exercise/code_exercise_datasource.dart';
+import 'package:e_learning_mobile/data/datasources/quizz/quizz_datasource.dart';
 import 'package:e_learning_mobile/data/dtos/video_event/video_event.dart';
 import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/learn/view/code_exercises/code_exercise_modal.dart';
+import 'package:e_learning_mobile/presentation/learn/view/quizz/quizz_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/video_play/video_play_bloc.dart';
@@ -113,7 +115,7 @@ class _EventCard extends StatelessWidget {
     required this.index,
   });
 
-  Future<void> _onEventTap(BuildContext context) async {
+  Future<void> _onEventTap(VideoEvent event, BuildContext context) async {
     try {
       // Show loading indicator
       showDialog(
@@ -124,29 +126,52 @@ class _EventCard extends StatelessWidget {
         ),
       );
 
-      // Fetch the problem statement
-      final codeExerciseDatasource = getIt<CodeExerciseDatasource>();
-      final problemStatement =
-          await codeExerciseDatasource.getProblemStatementById(event.payload);
+      if (event.eventType == VideoEventType.CODE) {
+        // Fetch the problem statement
+        final codeExerciseDatasource = getIt<CodeExerciseDatasource>();
+        final problemStatement =
+            await codeExerciseDatasource.getProblemStatementById(event.payload);
 
-      // Close loading dialog
-      if (context.mounted) {
-        Navigator.pop(context);
-      }
+        // Close loading dialog
+        if (context.mounted) {
+          Navigator.pop(context);
+        }
 
-      // Open code exercise modal
-      if (context.mounted) {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.white,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          builder: (_) => CodeExercisePage(
-            problemStatement: problemStatement,
-          ),
-        );
+        // Open code exercise modal
+        if (context.mounted) {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.white,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            builder: (_) => CodeExercisePage(
+              problemStatement: problemStatement,
+            ),
+          );
+        }
+      } else if (event.eventType == VideoEventType.QUIZ) {
+        final quizDatasource = getIt<QuizzDatasource>();
+        final quiz = await quizDatasource.getQuizzById(event.payload);
+
+        // Close loading dialog
+        if (context.mounted) {
+          Navigator.pop(context);
+        }
+
+        // Open quiz modal
+        if (context.mounted) {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.white,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            builder: (_) => QuizzPage(quizzId: quiz.id),
+          );
+        }
       }
     } catch (e) {
       // Close loading dialog
@@ -206,7 +231,7 @@ class _EventCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
-        onTap: () => _onEventTap(context),
+        onTap: () => _onEventTap(event, context),
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.all(16),

@@ -36,8 +36,8 @@ Future<void> initializeApp() async {
   EasyLocalization.logger.enableBuildModes = [];
   // setUpDependencies();
 
-  // await LocalNotificationService.init();
-  // await FirebaseMessagingService.init();
+  await LocalNotificationService.init();
+  await FirebaseMessagingService.init();
 
   Bloc.observer = AppBlocObserver();
 }

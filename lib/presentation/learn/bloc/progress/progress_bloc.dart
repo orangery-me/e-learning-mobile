@@ -29,7 +29,9 @@ class ProgressBloc extends Bloc<ProgressEvent, ProgressState> {
         lastViewedAt: DateTime.now(),
         enrollmentId: '11bc53ac-3acd-4365-be9c-0a732bc3ec28',
         lectureId: '2c262526-7ee8-4d89-8d93-429d8b908c2f',
+        // lectureId: '438d01b6-feba-4a47-9f4b-5610e10bdfbf',
         sectionId: 'a1f7d3d1-1b22-4b12-b34c-123456789001',
+        // sectionId: 'a1f7d3d1-1b22-4b12-b34c-123456789011',
         videoUrl:
             'https://dinhlooc-test-2025.s3.us-east-1.amazonaws.com/video-30012ca2-77fb-4635-be60-77f481933d63-1758467257284.mp4',
         videoPositionSeconds:
