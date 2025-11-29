@@ -7,8 +7,6 @@ class VideoPlayState extends Equatable {
   final VideoType? videoType;
   // check if user accepts to do the exercise
   final bool acceptToDoExercise;
-  final CodeProblemStatement? problemStatement; // CODE
-  final QuizzOverviewDto? quizOverview; // QUIZ
 
   // Video player states
   final bool isLoading;
@@ -24,8 +22,6 @@ class VideoPlayState extends Equatable {
     this.currentEvents = const [],
     this.acceptToDoExercise = false,
     this.videoType,
-    this.problemStatement,
-    this.quizOverview,
     this.isLoading = true,
     this.isDisposed = false,
     this.currentVideoUrl,
@@ -40,8 +36,6 @@ class VideoPlayState extends Equatable {
     List<VideoEvent>? currentEvents,
     VideoType? videoType,
     bool? acceptToDoExercise,
-    CodeProblemStatement? problemStatement,
-    QuizzOverviewDto? quizOverview,
     bool? isLoading,
     bool? isDisposed,
     String? currentVideoUrl,
@@ -55,8 +49,6 @@ class VideoPlayState extends Equatable {
       currentEvents: currentEvents ?? this.currentEvents,
       acceptToDoExercise: acceptToDoExercise ?? this.acceptToDoExercise,
       videoType: videoType ?? this.videoType,
-      problemStatement: problemStatement ?? this.problemStatement,
-      quizOverview: quizOverview ?? this.quizOverview,
       isLoading: isLoading ?? this.isLoading,
       isDisposed: isDisposed ?? this.isDisposed,
       currentVideoUrl: currentVideoUrl ?? this.currentVideoUrl,
@@ -73,8 +65,6 @@ class VideoPlayState extends Equatable {
         currentEvents,
         acceptToDoExercise,
         videoType,
-        problemStatement,
-        quizOverview,
         isLoading,
         isDisposed,
         currentVideoUrl,

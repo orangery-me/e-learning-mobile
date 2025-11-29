@@ -2,11 +2,7 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:chewie/chewie.dart';
-import 'package:e_learning_mobile/data/datasources/code_exercise/code_exercise_datasource.dart';
-import 'package:e_learning_mobile/data/datasources/quizz/quizz_datasource.dart';
 import 'package:e_learning_mobile/data/datasources/video_events/video_events_datasource.dart';
-import 'package:e_learning_mobile/data/dtos/code/problem_statement/code_problem_statement.dart';
-import 'package:e_learning_mobile/data/dtos/quizz/quizz_overview_dto.dart';
 import 'package:e_learning_mobile/data/dtos/video_event/video_event.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
@@ -19,17 +15,13 @@ part 'video_play_state.dart';
 @injectable
 class VideoPlayBloc extends Bloc<VideoPlayEvent, VideoPlayState> {
   final VideoEventsDatasource videoEventsDatasource;
-  final CodeExerciseDatasource codeExerciseDatasource;
-  final QuizzDatasource quizDatasource;
 
   // Video controllers
   YoutubePlayerController? _youtubeController;
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
 
-  VideoPlayBloc(this.videoEventsDatasource, this.codeExerciseDatasource,
-      this.quizDatasource)
-      : super(const VideoPlayState()) {
+  VideoPlayBloc(this.videoEventsDatasource) : super(const VideoPlayState()) {
     on<GetEventsByLectureId>(_onGetEventsByLectureId);
     on<TriggerEvents>(_triggerEvent);
     on<AskToDoExercise>((event, emit) =>
@@ -82,23 +74,7 @@ class VideoPlayBloc extends Bloc<VideoPlayEvent, VideoPlayState> {
 
       emit(state.copyWith(triggeredIds: updated, currentEvents: currentEvents));
 
-      // Dispatch an event to handle the triggered events
-      for (final event in currentEvents) {
-        // CODE
-        if (event.eventType == VideoEventType.CODE) {
-          final problemStatement = await codeExerciseDatasource
-              .getProblemStatementById(event.payload);
-
-          emit(state.copyWith(problemStatement: problemStatement));
-        }
-        // QUIZ
-        else if (event.eventType == VideoEventType.QUIZ) {
-          final quiz = await quizDatasource.getQuizzById(event.payload);
-
-          emit(state.copyWith(quizOverview: quiz));
-        }
-        add(AskToDoExercise(acceptToDoExercise: false));
-      }
+      add(const AskToDoExercise(acceptToDoExercise: false));
     }
   }
 

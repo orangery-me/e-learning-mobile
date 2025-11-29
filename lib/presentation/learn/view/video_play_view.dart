@@ -175,7 +175,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
                 BlocProvider.value(
                     value: context.read<VideoPlayBloc>(),
                     child: OtherFeaturePage(
-                        courseId: widget.course.courseId,
+                        enrollment: widget.enrollment,
                         selectedLecture: _selectedLecture,
                         videoController:
                             context.read<VideoPlayBloc>().videoController,
@@ -250,8 +250,9 @@ class _VideoPlayViewState extends State<VideoPlayView> {
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
-                builder: (_) =>
-                    CodeExercisePage(problemStatement: state.problemStatement),
+                builder: (_) => CodeExercisePage(
+                  problemId: currentEvent.payload,
+                ),
               );
             } else if (currentEvent.eventType == VideoEventType.QUIZ) {
               showModalBottomSheet(
