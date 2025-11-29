@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:e_learning_mobile/common/extensions/context_extension.dart';
+import 'package:e_learning_mobile/common/theme/palette.dart';
 import 'package:e_learning_mobile/data/dtos/code/judge_response/judge_result_response_dto.dart';
 import 'package:e_learning_mobile/data/dtos/code/judge_response/feedback_response_dto.dart';
 import 'package:e_learning_mobile/data/dtos/code/problem_statement/code_problem_statement.dart';
@@ -21,28 +23,29 @@ const List<Map<String, dynamic>> languages = [
 enum RunMode { runOnly, aiJudge }
 
 class CodeExercisePage extends StatelessWidget {
-  final CodeProblemStatement? problemStatement;
-  const CodeExercisePage({super.key, this.problemStatement});
+  final String problemId;
+  const CodeExercisePage({super.key, required this.problemId});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<CodeExerciseBloc>(),
-      child: CodeExerciseModal(problemStatement: problemStatement),
+      create: (context) =>
+          getIt<CodeExerciseBloc>()..add(LoadProblemStatement(problemId)),
+      child: CodeExerciseModal(problemId: problemId),
     );
   }
 }
 
 class CodeExerciseModal extends StatefulWidget {
-  final CodeProblemStatement? problemStatement;
-  const CodeExerciseModal({super.key, this.problemStatement});
+  final String problemId;
+  const CodeExerciseModal({super.key, required this.problemId});
 
   @override
   State<CodeExerciseModal> createState() => _CodeExerciseModalState();
 }
 
 class _CodeExerciseModalState extends State<CodeExerciseModal>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final TextEditingController _codeController = TextEditingController();
   final TextEditingController _stdinController = TextEditingController();
   final TextEditingController _expectedController = TextEditingController();
@@ -51,28 +54,12 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
   String _selectedLanguage = '71';
   late TabController _tabController;
   int _selectedTestCaseIndex = 0;
+  int _tabLength = 1;
 
   @override
   void initState() {
     super.initState();
-    // Only create tab controller if we have a problem statement
-    final tabCount = widget.problemStatement != null ? 3 : 1;
-    _tabController = TabController(length: tabCount, vsync: this);
-
-    // Initialize test case data if available
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final problem = widget.problemStatement;
-      if (problem?.testCases != null && problem!.testCases!.isNotEmpty) {
-        final nonHiddenTestCases =
-            problem.testCases!.where((tc) => !tc.isHidden).toList();
-        if (nonHiddenTestCases.isNotEmpty && mounted) {
-          setState(() {
-            _stdinController.text = nonHiddenTestCases[0].inputData;
-            _expectedController.text = nonHiddenTestCases[0].expectedOutput;
-          });
-        }
-      }
-    });
+    _tabController = TabController(length: _tabLength, vsync: this);
   }
 
   @override
@@ -82,6 +69,36 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
     _stdinController.dispose();
     _expectedController.dispose();
     super.dispose();
+  }
+
+  void _updateTabController(bool hasProblem) {
+    final desiredLength = hasProblem ? 3 : 1;
+    if (_tabLength == desiredLength) return;
+    final previousIndex = _tabController.index
+        .clamp(0, (desiredLength - 1).clamp(0, desiredLength - 1));
+    _tabLength = desiredLength;
+    _tabController.dispose();
+    _tabController = TabController(
+      length: _tabLength,
+      vsync: this,
+      initialIndex: previousIndex.toInt(),
+    );
+  }
+
+  void _populateDefaultTestCase(CodeProblemStatement problem) {
+    final nonHiddenTestCases =
+        problem.testCases?.where((tc) => !tc.isHidden).toList() ?? [];
+    if (!mounted) return;
+    setState(() {
+      if (nonHiddenTestCases.isNotEmpty) {
+        _stdinController.text = nonHiddenTestCases[0].inputData;
+        _expectedController.text = nonHiddenTestCases[0].expectedOutput;
+      } else {
+        _stdinController.clear();
+        _expectedController.clear();
+      }
+      _selectedTestCaseIndex = 0;
+    });
   }
 
   String _getStateResult(JudgeResultResponseDto result) {
@@ -482,10 +499,14 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.play_arrow),
-            label: Text(state.isLoading ? 'Running...' : 'Run'),
+                : const Icon(Icons.play_arrow, color: Colors.white),
+            label: Text(state.isLoading ? 'Running...' : 'Run',
+                style: TextStyle(color: context.palette.buttonText)),
             style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              backgroundColor: context.palette.buttonBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         },
@@ -493,10 +514,7 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
     );
   }
 
-  Widget _buildProblemTab() {
-    final problem = widget.problemStatement;
-    if (problem == null) return const SizedBox.shrink();
-
+  Widget _buildProblemTab(CodeProblemStatement problem) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -652,9 +670,8 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
     );
   }
 
-  Widget _buildTestCasesTab() {
-    final problem = widget.problemStatement;
-    if (problem?.testCases == null || problem!.testCases!.isEmpty) {
+  Widget _buildTestCasesTab(CodeProblemStatement problem) {
+    if (problem.testCases == null || problem.testCases!.isEmpty) {
       return const Center(
         child: Text('No test cases available'),
       );
@@ -1012,55 +1029,140 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        title: Row(
+  Widget _buildProblemLoadError(BuildContext context, String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.code, size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                widget.problemStatement?.title ?? 'Custom Test',
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                overflow: TextOverflow.ellipsis,
-              ),
+            const Icon(Icons.error_outline, color: Colors.red, size: 48),
+            const SizedBox(height: 12),
+            Text(
+              'Failed to load exercise',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                context
+                    .read<CodeExerciseBloc>()
+                    .add(LoadProblemStatement(widget.problemId));
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              context.read<CodeExerciseBloc>().add(ClearResult());
-              Navigator.pop(context);
-            },
-          ),
-        ],
-        bottom: widget.problemStatement != null
-            ? TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(icon: Icon(Icons.description), text: 'Problem'),
-                  Tab(icon: Icon(Icons.code), text: 'Code'),
-                  Tab(icon: Icon(Icons.check_circle), text: 'Tests'),
-                ],
-              )
-            : null,
       ),
-      body: widget.problemStatement != null
-          ? TabBarView(
-              controller: _tabController,
-              children: [
-                _buildProblemTab(),
-                _buildCodeTab(),
-                _buildTestCasesTab(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<CodeExerciseBloc, CodeExerciseState>(
+      listenWhen: (previous, current) =>
+          previous.problemStatement != current.problemStatement,
+      listener: (_, state) {
+        final problem = state.problemStatement;
+        if (problem != null) {
+          _populateDefaultTestCase(problem);
+        }
+      },
+      child: BlocBuilder<CodeExerciseBloc, CodeExerciseState>(
+        builder: (context, state) {
+          final problem = state.problemStatement;
+          final hasProblem = problem != null;
+          _updateTabController(hasProblem);
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Row(
+                children: [
+                  const Icon(Icons.code, size: 24, color: Colors.white),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      problem?.title ?? 'Code Exercise',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: Palette.light().buttonBackground,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ],
-            )
-          : _buildCustomTestLayout(),
+              bottom: hasProblem
+                  ? TabBar(
+                      controller: _tabController,
+                      indicatorColor: Colors.white,
+                      labelColor: Colors.white,
+                      unselectedLabelColor: Colors.white60,
+                      tabs: const [
+                        Tab(
+                            icon: Icon(Icons.description, color: Colors.white),
+                            text: 'Problem'),
+                        Tab(
+                            icon: Icon(Icons.code, color: Colors.white),
+                            text: 'Code'),
+                        Tab(
+                            icon: Icon(Icons.check_circle, color: Colors.white),
+                            text: 'Tests'),
+                      ],
+                    )
+                  : null,
+            ),
+            body: () {
+              if (state.isProblemLoading && !hasProblem) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (state.problemErrorMessage != null && !hasProblem) {
+                return _buildProblemLoadError(
+                    context, state.problemErrorMessage!);
+              }
+
+              if (problem != null) {
+                final resolvedProblem = problem;
+                return TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildProblemTab(resolvedProblem),
+                    _buildCodeTab(),
+                    _buildTestCasesTab(resolvedProblem),
+                  ],
+                );
+              }
+
+              return _buildCustomTestLayout();
+            }(),
+          );
+        },
+      ),
     );
   }
 }

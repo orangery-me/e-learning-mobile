@@ -7,6 +7,15 @@ sealed class CodeExerciseEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class LoadProblemStatement extends CodeExerciseEvent {
+  final String problemId;
+
+  const LoadProblemStatement(this.problemId);
+
+  @override
+  List<Object> get props => [problemId];
+}
+
 class ExecuteCodeEvent extends CodeExerciseEvent {
   final String sourceCode;
   final int languageId;
