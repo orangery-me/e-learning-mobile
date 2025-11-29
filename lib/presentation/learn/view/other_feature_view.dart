@@ -1,3 +1,4 @@
+import 'package:e_learning_mobile/data/dtos/enrollment/enrollment_dto.dart';
 import 'package:e_learning_mobile/data/dtos/lectures/lecture_response_dto.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/video_play/video_play_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/view/events/events_list_modal.dart';
@@ -9,13 +10,13 @@ import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class OtherFeaturePage extends StatelessWidget {
-  final String courseId;
+  final EnrollmentDto enrollment;
   final LectureResponseDto? selectedLecture;
   final VideoPlayerController? videoController;
   final YoutubePlayerController? youtubeController;
   const OtherFeaturePage(
       {super.key,
-      required this.courseId,
+      required this.enrollment,
       this.selectedLecture,
       this.videoController,
       this.youtubeController});
@@ -23,7 +24,7 @@ class OtherFeaturePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OtherFeatureView(
-      courseId: courseId,
+      enrollment: enrollment,
       selectedLecture: selectedLecture,
       videoController: videoController,
       youtubeController: youtubeController,
@@ -32,13 +33,13 @@ class OtherFeaturePage extends StatelessWidget {
 }
 
 class OtherFeatureView extends StatefulWidget {
-  final String courseId;
+  final EnrollmentDto enrollment;
   final LectureResponseDto? selectedLecture;
   final VideoPlayerController? videoController;
   final YoutubePlayerController? youtubeController;
   const OtherFeatureView(
       {super.key,
-      required this.courseId,
+      required this.enrollment,
       this.selectedLecture,
       this.videoController,
       this.youtubeController});
@@ -57,6 +58,7 @@ class _OtherFeatureViewState extends State<OtherFeatureView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // TODO: enhance UI + fix bugs + implement skip to noted timestamp feature
         ListTile(
           title: Text('Notes'),
           // image icon
@@ -101,11 +103,12 @@ class _OtherFeatureViewState extends State<OtherFeatureView> {
                       value: context.read<VideoPlayBloc>(),
                       child: SizedBox(
                         height: MediaQuery.of(context).size.height * 0.9,
-                        child: EventsListModal(),
+                        child: EventsListModal(enrollment: widget.enrollment),
                       ));
                 });
           },
         ),
+        // TODO: implement exercise view - temporary show EVENT MODAL
         ListTile(
           title: Text('Exercises'),
           leading: Image.asset(
@@ -125,7 +128,7 @@ class _OtherFeatureViewState extends State<OtherFeatureView> {
                 builder: (_) {
                   return SizedBox(
                     height: MediaQuery.of(context).size.height * 0.9,
-                    child: const EventsListModal(),
+                    child: EventsListModal(enrollment: widget.enrollment),
                   );
                 });
           },
@@ -147,7 +150,8 @@ class _OtherFeatureViewState extends State<OtherFeatureView> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                 ),
                 builder: (_) {
-                  return ReviewModalPage(courseId: widget.courseId);
+                  return ReviewModalPage(
+                      courseId: widget.enrollment.course.courseId);
                 });
           },
         )

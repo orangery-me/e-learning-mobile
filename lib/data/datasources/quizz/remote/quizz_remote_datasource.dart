@@ -26,7 +26,7 @@ class QuizzRemoteDatasource {
 
   Future<QuizzOverviewDto> getQuizzById(String quizzId) async {
     final response = await _dioHelper.get('${Endpoints.quizzes}/$quizzId');
-
+    log('Fetched quizz by ID: $response');
     return QuizzOverviewDto.fromJson(
       (response.data['data'] ?? response.data) as Map<String, dynamic>,
     );

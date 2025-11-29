@@ -1,9 +1,5 @@
-import 'dart:developer';
-
-import 'package:e_learning_mobile/data/datasources/code_exercise/code_exercise_datasource.dart';
-import 'package:e_learning_mobile/data/datasources/quizz/quizz_datasource.dart';
+import 'package:e_learning_mobile/data/dtos/enrollment/enrollment_dto.dart';
 import 'package:e_learning_mobile/data/dtos/video_event/video_event.dart';
-import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/learn/view/code_exercises/code_exercise_modal.dart';
 import 'package:e_learning_mobile/presentation/learn/view/quizz/quizz_page.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/video_play/video_play_bloc.dart';
 
 class EventsListModal extends StatelessWidget {
-  const EventsListModal({super.key});
+  final EnrollmentDto enrollment;
+  const EventsListModal({super.key, required this.enrollment});
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +90,7 @@ class EventsListModal extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final event = triggeredEvents[index];
                     return _EventCard(
+                      enrollmentId: enrollment.id,
                       event: event,
                       index: index,
                     );
@@ -107,87 +105,38 @@ class EventsListModal extends StatelessWidget {
 }
 
 class _EventCard extends StatelessWidget {
+  final String enrollmentId;
   final VideoEvent event;
   final int index;
 
   const _EventCard({
+    required this.enrollmentId,
     required this.event,
     required this.index,
   });
 
-  Future<void> _onEventTap(VideoEvent event, BuildContext context) async {
-    try {
-      // Show loading indicator
-      showDialog(
+  void _onEventTap(VideoEvent event, BuildContext context) {
+    if (event.eventType == VideoEventType.CODE) {
+      showModalBottomSheet(
         context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
+        isScrollControlled: true,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
+        builder: (_) => CodeExercisePage(problemId: event.payload),
       );
-
-      if (event.eventType == VideoEventType.CODE) {
-        // Fetch the problem statement
-        final codeExerciseDatasource = getIt<CodeExerciseDatasource>();
-        final problemStatement =
-            await codeExerciseDatasource.getProblemStatementById(event.payload);
-
-        // Close loading dialog
-        if (context.mounted) {
-          Navigator.pop(context);
-        }
-
-        // Open code exercise modal
-        if (context.mounted) {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.white,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            builder: (_) => CodeExercisePage(
-              problemStatement: problemStatement,
-            ),
-          );
-        }
-      } else if (event.eventType == VideoEventType.QUIZ) {
-        final quizDatasource = getIt<QuizzDatasource>();
-        final quiz = await quizDatasource.getQuizzById(event.payload);
-
-        // Close loading dialog
-        if (context.mounted) {
-          Navigator.pop(context);
-        }
-
-        // Open quiz modal
-        if (context.mounted) {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.white,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            builder: (_) => QuizzPage(quizzId: quiz.id),
-          );
-        }
-      }
-    } catch (e) {
-      // Close loading dialog
-      if (context.mounted) {
-        Navigator.pop(context);
-      }
-      log('Error fetching problem statement: $e');
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error loading exercise: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    } else if (event.eventType == VideoEventType.QUIZ) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (_) =>
+            QuizzPage(enrollmentId: enrollmentId, quizzId: event.payload),
+      );
     }
   }
 
