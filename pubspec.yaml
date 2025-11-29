@@ -2,7 +2,7 @@ name: e_learning_mobile
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -20,7 +20,7 @@ version: 1.0.0+1
 
 environment:
   # sdk: ^3.9.0-211.0.dev
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -58,7 +58,7 @@ dependencies:
   simple_circular_progress_bar: ^1.0.2
   qr_flutter: ^4.1.0
   web_socket_channel: ^3.0.1
-
+  stomp_dart_client: ^3.0.1
 
 dev_dependencies:
   flutter_test:
@@ -84,52 +84,50 @@ dev_dependencies:
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
-
 flavorizr:
   app:
     android:
-      flavorDimensions: 'flavor-type'
+      flavorDimensions: "flavor-type"
   flavors:
     dev:
       app:
-        name: 'Coursevo E-Learning Platform DEV'
-        icon: 'assets/icons/launcher/app_icon.png'
+        name: "Coursevo E-Learning Platform DEV"
+        icon: "assets/icons/launcher/app_icon.png"
       android:
-        applicationId: 'com.coursevo.dev'
+        applicationId: "com.coursevo.dev"
         firebase:
-          config: '.firebase/dev/google-services.json'
+          config: ".firebase/dev/google-services.json"
       ios:
-        bundleId: 'com.coursevo.dev'
+        bundleId: "com.coursevo.dev"
         firebase:
-          config: '.firebase/dev/GoogleService-Info.plist'
+          config: ".firebase/dev/GoogleService-Info.plist"
     staging:
       app:
-        name: 'Coursevo E-Learning Platform Staging'
-        icon: 'assets/icons/launcher/app_icon.png'
+        name: "Coursevo E-Learning Platform Staging"
+        icon: "assets/icons/launcher/app_icon.png"
       android:
-        applicationId: 'com.coursevo.staging'
+        applicationId: "com.coursevo.staging"
         firebase:
-          config: '.firebase/staging/google-services.json'
+          config: ".firebase/staging/google-services.json"
       ios:
-        bundleId: 'com.coursevo.staging'
+        bundleId: "com.coursevo.staging"
         firebase:
-          config: '.firebase/staging/GoogleService-Info.plist'
+          config: ".firebase/staging/GoogleService-Info.plist"
     prod:
       app:
-        name: 'Coursevo E-Learning Platform'
-        icon: 'assets/icons/launcher/app_icon.png'
+        name: "Coursevo E-Learning Platform"
+        icon: "assets/icons/launcher/app_icon.png"
       android:
-        applicationId: 'com.coursevo.prod'
+        applicationId: "com.coursevo.prod"
         firebase:
-          config: '.firebase/prod/google-services.json'
+          config: ".firebase/prod/google-services.json"
       ios:
-        bundleId: 'com.coursevo.prod'
+        bundleId: "com.coursevo.prod"
         firebase:
-          config: '.firebase/prod/GoogleService-Info.plist'
+          config: ".firebase/prod/GoogleService-Info.plist"
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -178,5 +176,5 @@ flutter_gen:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 # dependency_overrides:
-  # package_info_plus: ^8.3.1
-  # wakelock_plus: ^1.3.3
+# package_info_plus: ^8.3.1
+# wakelock_plus: ^1.3.3

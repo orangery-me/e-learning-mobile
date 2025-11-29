@@ -153,6 +153,8 @@ Future<_i174.GetIt> initGetIt(
       () => _i759.CourseRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i629.SectionRemoteDatasource>(
       () => _i629.SectionRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
+  gh.lazySingleton<_i801.QuizzRemoteDatasource>(
+      () => _i801.QuizzRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i87.EnrollmentRemoteDatasource>(
       () => _i87.EnrollmentRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i698.PaymentRemoteDatasource>(
@@ -165,8 +167,6 @@ Future<_i174.GetIt> initGetIt(
       () => _i827.ReviewRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i927.CartRemoteDatasource>(
       () => _i927.CartRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
-  gh.lazySingleton<_i801.QuizzRemoteDatasource>(
-      () => _i801.QuizzRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i84.NoteDatasource>(
       () => _i84.NoteDatasource(remote: gh<_i277.NoteRemoteDatasource>()));
   gh.lazySingleton<_i576.QuizzDatasource>(() => _i576.QuizzDatasource(
@@ -200,6 +200,8 @@ Future<_i174.GetIt> initGetIt(
       _i206.PaymentDatasource(remote: gh<_i698.PaymentRemoteDatasource>()));
   gh.lazySingleton<_i598.EnrollmentDatasource>(() => _i598.EnrollmentDatasource(
       remoteDatasource: gh<_i87.EnrollmentRemoteDatasource>()));
+  gh.factory<_i902.VideoPlayBloc>(
+      () => _i902.VideoPlayBloc(gh<_i734.VideoEventsDatasource>()));
   gh.lazySingleton<_i895.LectureDatasource>(() => _i895.LectureDatasource(
       remoteDatasource: gh<_i789.LectureRemoteDatasource>()));
   gh.factory<_i280.CodeExerciseBloc>(() => _i280.CodeExerciseBloc(
@@ -210,11 +212,6 @@ Future<_i174.GetIt> initGetIt(
       () => _i741.EnrollmentBloc(datasource: gh<_i598.EnrollmentDatasource>()));
   gh.factory<_i171.NotesBloc>(
       () => _i171.NotesBloc(datasource: gh<_i84.NoteDatasource>()));
-  gh.factory<_i902.VideoPlayBloc>(() => _i902.VideoPlayBloc(
-        gh<_i734.VideoEventsDatasource>(),
-        gh<_i1004.CodeExerciseDatasource>(),
-        gh<_i576.QuizzDatasource>(),
-      ));
   gh.factory<_i399.SectionsBloc>(() => _i399.SectionsBloc(
         datasource: gh<_i439.SectionDatasource>(),
         lectureDatasource: gh<_i895.LectureDatasource>(),

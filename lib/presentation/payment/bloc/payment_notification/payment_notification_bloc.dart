@@ -38,10 +38,8 @@ class PaymentNotificationBloc
         event.userId,
         (notification) {
           // Only handle notifications for the current order
-          if (notification.orderCode == event.orderCode) {
+          if (notification.type == 'PAYMENT_SUCCESS') {
             add(PaymentNotificationReceived(notification));
-          } else {
-            log('Received notification for different order: ${notification.orderCode}');
           }
         },
       );

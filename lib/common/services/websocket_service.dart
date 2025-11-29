@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
@@ -7,8 +6,7 @@ import 'package:e_learning_mobile/data/dtos/payment/payment_notification_dto.dar
 import 'package:e_learning_mobile/flavors.dart';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/io.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 typedef PaymentNotificationCallback = void Function(
     PaymentNotificationDto notification);
@@ -18,11 +16,11 @@ class WebSocketService {
   WebSocketService(@Named(HiveKeys.authBox) this._authBox);
 
   final Box<dynamic> _authBox;
-  WebSocketChannel? _channel;
-  StreamSubscription? _subscription;
+  StompClient? _stompClient;
   PaymentNotificationCallback? _onPaymentNotification;
   String? _userId;
   bool _isConnected = false;
+  String? _subscriptionId;
 
   bool get isConnected => _isConnected;
 
@@ -48,141 +46,100 @@ class WebSocketService {
 
       log('Connecting to WebSocket: $wsUrl for user: $userId');
 
-      // Create WebSocket connection with authentication token in query parameter
-      // Spring WebSocket interceptor can extract token from query or header
-      final uri = Uri.parse(wsUrl).replace(
-        queryParameters: {
-          'token': accessToken,
-        },
+      _stompClient = StompClient(
+        config: StompConfig(
+          url: wsUrl,
+          stompConnectHeaders: {
+            'Authorization': 'Bearer $accessToken',
+          },
+          onConnect: (frame) => _onStompConnected(frame, accessToken),
+          onWebSocketError: (dynamic error) {
+            log('WebSocket error: $error');
+            _isConnected = false;
+          },
+          onStompError: (StompFrame frame) {
+            log('STOMP error: ${frame.body}');
+            _isConnected = false;
+          },
+          onDisconnect: (StompFrame frame) {
+            log('WebSocket disconnected: ${frame.body}');
+            _isConnected = false;
+          },
+          beforeConnect: () async {
+            log('Preparing to connect to WebSocket...');
+            await Future.delayed(const Duration(milliseconds: 100));
+          },
+          reconnectDelay: const Duration(milliseconds: 3000),
+        ),
       );
-      _channel = IOWebSocketChannel.connect(uri);
 
-      _isConnected = true;
-
-      // Listen to messages
-      _subscription = _channel!.stream.listen(
-        (message) {
-          log('Received WebSocket message: $message');
-          _handleMessage(message);
-        },
-        onError: (error) {
-          log('WebSocket error: $error');
-          _isConnected = false;
-        },
-        onDone: () {
-          log('WebSocket connection closed');
-          _isConnected = false;
-        },
-        cancelOnError: false,
-      );
-
-      // Send STOMP CONNECT frame
-      _sendStompConnect();
+      _stompClient!.activate();
     } catch (e) {
       log('Error connecting to WebSocket: $e');
       _isConnected = false;
     }
   }
 
-  void _sendStompConnect() {
-    if (_channel == null) return;
-
-    final connectFrame = 'CONNECT\n'
-        'accept-version:1.1,1.0\n'
-        'heart-beat:10000,10000\n'
-        '\n'
-        '\x00';
-
-    _channel!.sink.add(connectFrame);
-    log('Sent STOMP CONNECT frame');
-
-    // After connecting, subscribe to user queue
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _subscribeToNotifications();
-    });
+  void _onStompConnected(StompFrame frame, String token) {
+    log('STOMP connected successfully');
+    _isConnected = true;
+    _subscribeToNotifications(token);
   }
 
-  void _subscribeToNotifications() {
-    if (_channel == null || _userId == null) {
-      log('Cannot subscribe: channel or userId is null');
+  void _subscribeToNotifications(String token) {
+    if (_stompClient == null || _userId == null || !_isConnected) {
+      log('Cannot subscribe: client, userId is null or not connected');
       return;
     }
 
     try {
-      // Subscribe to user-specific notifications
-      // Spring WebSocket with user destination prefix will automatically route
-      final destination = '/user/queue/notifications';
-      final subscriptionId = 'sub-${DateTime.now().millisecondsSinceEpoch}';
+      final destination = '/user/$_userId/queue/notifications';
+      _subscriptionId = 'sub-${DateTime.now().millisecondsSinceEpoch}';
 
-      final subscribeFrame = 'SUBSCRIBE\n'
-          'id:$subscriptionId\n'
-          'destination:$destination\n'
-          '\n'
-          '\x00';
+      _stompClient!.subscribe(
+        destination: destination,
+        callback: (StompFrame frame) {
+          _handleNotification(frame);
+        },
+      );
 
-      _channel!.sink.add(subscribeFrame);
-      log('Subscribed to: $destination with id: $subscriptionId');
+      log('Subscribed to: $destination with id: $_subscriptionId');
     } catch (e) {
       log('Error subscribing to notifications: $e');
     }
   }
 
-  void _handleMessage(dynamic message) {
+  void _handleNotification(StompFrame frame) {
     try {
-      final messageStr = message.toString();
-
-      // Parse STOMP message frame
-      if (messageStr.startsWith('MESSAGE')) {
-        final lines = messageStr.split('\n');
-        String? body;
-        bool inBody = false;
-        final buffer = StringBuffer();
-
-        for (var line in lines) {
-          if (line.isEmpty && !inBody) {
-            inBody = true;
-            continue;
-          }
-          if (inBody && line != '\x00') {
-            buffer.writeln(line);
-          }
-        }
-
-        body = buffer.toString().trim();
-        if (body.isEmpty) return;
-
-        log('Parsed STOMP message body: $body');
-
-        // Parse JSON notification
-        final json = jsonDecode(body) as Map<String, dynamic>;
-        final notification = PaymentNotificationDto.fromJson(json);
-        log('Parsed notification: type=${notification.type}, orderCode=${notification.orderCode}');
-
-        _onPaymentNotification?.call(notification);
-      } else if (messageStr.startsWith('CONNECTED')) {
-        log('STOMP connected successfully');
-        _subscribeToNotifications();
-      } else if (messageStr.startsWith('ERROR')) {
-        log('STOMP error: $messageStr');
+      if (frame.body == null || frame.body!.isEmpty) {
+        log('Received empty notification');
+        return;
       }
+
+      log('Received notification: ${frame.body}');
+
+      // Parse JSON notification
+      // final json = jsonDecode(frame.body!) as Map<String, dynamic>;
+      final notification =
+          PaymentNotificationDto.fromJson(jsonDecode(frame.body!));
+      log('Parsed notification: type=${notification.type}'
+          ', title=${notification.title}, message=${notification.message}');
+
+      _onPaymentNotification?.call(notification);
     } catch (e) {
-      log('Error handling WebSocket message: $e');
+      log('Error handling notification: $e');
     }
   }
 
   void disconnect() {
     try {
-      if (_channel != null) {
-        // Send STOMP DISCONNECT frame
-        final disconnectFrame = 'DISCONNECT\n'
-            '\n'
-            '\x00';
-        _channel!.sink.add(disconnectFrame);
-        _channel!.sink.close();
-        _channel = null;
+      if (_stompClient != null) {
+        // deactivate() will automatically unsubscribe from all destinations
+        _stompClient!.deactivate();
+        _stompClient = null;
       }
-      _subscription?.cancel();
-      _subscription = null;
+
+      _subscriptionId = null;
       _onPaymentNotification = null;
       _userId = null;
       _isConnected = false;
@@ -202,7 +159,7 @@ class WebSocketService {
         .replaceFirst('https://', 'wss://');
     // For SockJS, we can try native WebSocket endpoint
     // Backend endpoint is /ws-notifications, SockJS adds /websocket for native WS
-    wsUrl = '$wsUrl/ws-notifications/websocket';
+    wsUrl = '$wsUrl/ws-notifications';
     return wsUrl;
   }
 }
