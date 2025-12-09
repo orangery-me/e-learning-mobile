@@ -16,7 +16,6 @@ class EnrollmentRemoteDatasource {
       final response = await _dioHelper.get(
         '${Endpoints.enrollments}/user/$userId',
       );
-      log('Fetched enrollments by userId: ${response.data}');
 
       // Parse and return the list of enrollments from response
       return (response.data as List)

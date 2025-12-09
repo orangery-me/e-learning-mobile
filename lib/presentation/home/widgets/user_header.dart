@@ -1,6 +1,7 @@
-import 'package:e_learning_mobile/common/theme/palette.dart';
+import 'package:e_learning_mobile/common/extensions/context_extension.dart';
 import 'package:e_learning_mobile/presentation/payment/views/cart_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
 
 class UserHeader extends StatelessWidget {
   final String name;
@@ -22,10 +23,14 @@ class UserHeader extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: context.palette.primaryColor.withOpacity(0.2),
+                  width: 2,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Palette.light().buttonBackground.withOpacity(0.2),
-                    blurRadius: 8,
+                    color: context.palette.primaryColor.withOpacity(0.15),
+                    blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -33,7 +38,7 @@ class UserHeader extends StatelessWidget {
               child: CircleAvatar(
                 radius: 28,
                 backgroundImage: AssetImage(avatarUrl),
-                backgroundColor: Colors.grey[300],
+                backgroundColor: Colors.grey[200],
               ),
             ),
             const SizedBox(width: 16),
@@ -41,20 +46,18 @@ class UserHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Hello',
-                  style: TextStyle(
-                    fontSize: 14,
+                  'Hello,',
+                  style: context.textStyles.body1.copyWith(
                     color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
                   name,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                  style: context.textStyles.heading3.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: context.palette.normalText,
                   ),
                 ),
               ],
@@ -64,8 +67,9 @@ class UserHeader extends StatelessWidget {
         Row(
           children: [
             // Shopping cart icon
-            InkWell(
-              key: const ValueKey('cart_icon_button'),
+            _buildIconButton(
+              context,
+              icon: IconlyBold.buy,
               onTap: () {
                 Navigator.push(
                   context,
@@ -74,60 +78,26 @@ class UserHeader extends StatelessWidget {
                   ),
                 );
               },
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.shopping_cart_outlined,
-                  color: Colors.black87,
-                  size: 24,
-                ),
-              ),
             ),
             const SizedBox(width: 12),
             // Notification icon
             Stack(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Palette.light().buttonBackground,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            Palette.light().buttonBackground.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.notifications_outlined,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                _buildIconButton(
+                  context,
+                  icon: IconlyBold.notification,
+                  isPrimary: true,
                 ),
                 Positioned(
-                  right: 8,
-                  top: 8,
+                  right: 10,
+                  top: 10,
                   child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: context.palette.errorButtonLabel,
                       shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
                     ),
                   ),
                 ),
@@ -136,6 +106,48 @@ class UserHeader extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildIconButton(
+    BuildContext context, {
+    required IconData icon,
+    VoidCallback? onTap,
+    bool isPrimary = false,
+  }) {
+    final bgColor = isPrimary
+        ? context.palette.primaryColor
+        : context.palette.scaffoldBackground;
+    final iconColor = isPrimary ? Colors.white : context.palette.normalText;
+    final shadowColor = isPrimary
+        ? context.palette.primaryColor.withOpacity(0.3)
+        : Colors.black.withOpacity(0.05);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: isPrimary
+              ? null
+              : Border.all(color: Colors.grey.withOpacity(0.1)),
+          boxShadow: [
+            BoxShadow(
+              color: shadowColor,
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: iconColor,
+          size: 24,
+        ),
+      ),
     );
   }
 }

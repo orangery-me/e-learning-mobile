@@ -13,7 +13,7 @@ extension on TextStyle {
 
 class Fonts {
   static const TextStyle _defaultTextStyle = TextStyle(
-    fontFamily: FontFamily.mulish,
+    fontFamily: FontFamily.openSans,
   );
 
   static final TextStyle s10w4 = _defaultTextStyle.copyWith(fontSize: 10.sp).w4;

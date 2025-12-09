@@ -1,3 +1,4 @@
+import 'package:e_learning_mobile/common/extensions/context_extension.dart';
 import 'package:e_learning_mobile/data/models/category.dart';
 import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/auth/bloc/auth/auth_bloc.dart';
@@ -80,12 +81,11 @@ class _HomeViewState extends State<HomeView> {
           const SizedBox(height: 24),
 
           // Motivational text
-          const Text(
+          Text(
             'What do you want to learn today?',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
+            style: context.textStyles.heading3.copyWith(
+              fontWeight: FontWeight.w800,
+              color: context.palette.normalText,
             ),
           ),
           const SizedBox(height: 16),
@@ -141,15 +141,22 @@ class _HomeViewState extends State<HomeView> {
             padding: const EdgeInsets.all(20.0),
             decoration: BoxDecoration(
               // gradient blue
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 colors: [
-                  Color(0xFF007AFF), // xanh dương đậm (giống góc trái)
-                  Color(0xFF00C6FF), // xanh dương nhạt (giống góc phải)
+                  context.palette.primaryColor, // 0xFF106C54
+                  context.palette.primaryColor.withOpacity(0.8),
                 ],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: context.palette.primaryColor.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: CourseViewSection(
               sectionTitle: "Recently Released Courses",
@@ -307,7 +314,7 @@ class _HomeViewState extends State<HomeView> {
     final secondRow = categories.sublist(half);
 
     return SizedBox(
-      height: 100,
+      height: 120,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Column(
@@ -337,22 +344,31 @@ class _HomeViewState extends State<HomeView> {
 
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: context.palette.scaffoldBackground,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(
+          color: context.palette.primaryColor.withOpacity(0.1),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(emoji, style: const TextStyle(fontSize: 18)),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           Text(
             displayName,
-            style: const TextStyle(
+            style: context.textStyles.body2.copyWith(
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: context.palette.normalText,
             ),
           ),
         ],

@@ -24,12 +24,32 @@ class $AssetsFontsGen {
   /// File path: assets/fonts/Mulish-SemiBold.ttf
   String get mulishSemiBold => 'assets/fonts/Mulish-SemiBold.ttf';
 
+  /// File path: assets/fonts/OpenSans-Bold.ttf
+  String get openSansBold => 'assets/fonts/OpenSans-Bold.ttf';
+
+  /// File path: assets/fonts/OpenSans-Light.ttf
+  String get openSansLight => 'assets/fonts/OpenSans-Light.ttf';
+
+  /// File path: assets/fonts/OpenSans-Medium.ttf
+  String get openSansMedium => 'assets/fonts/OpenSans-Medium.ttf';
+
+  /// File path: assets/fonts/OpenSans-Regular.ttf
+  String get openSansRegular => 'assets/fonts/OpenSans-Regular.ttf';
+
+  /// File path: assets/fonts/OpenSans-SemiBold.ttf
+  String get openSansSemiBold => 'assets/fonts/OpenSans-SemiBold.ttf';
+
   /// List of all assets
   List<String> get values => [
     mulishBold,
     mulishMedium,
     mulishRegular,
     mulishSemiBold,
+    openSansBold,
+    openSansLight,
+    openSansMedium,
+    openSansRegular,
+    openSansSemiBold,
   ];
 }
 

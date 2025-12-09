@@ -54,7 +54,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       // final random = Random();
       // final shuffled = List<String>.from(categories)..shuffle(random);
       // final randomCategories = shuffled.take(event.count).toList();
-      final randomCategories = [categories[5], categories[1], categories[4]];
+      final randomCategories = [categories[5], categories[1], categories[6]];
+      dev.log('Selected random categories: $randomCategories');
 
       emit(state.copyWith(
         allCategories: categories,

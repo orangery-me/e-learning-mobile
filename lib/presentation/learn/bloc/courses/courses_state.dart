@@ -9,6 +9,8 @@ final class CoursesState extends Equatable {
   final Set<String>
       loadingCategories; // Track which categories are currently loading
   final String? errorMessage;
+  final int page;
+  final bool hasMore;
 
   const CoursesState({
     this.courses = const [],
@@ -18,6 +20,8 @@ final class CoursesState extends Equatable {
     this.isLoading = false,
     this.loadingCategories = const {},
     this.errorMessage,
+    this.page = 1,
+    this.hasMore = true,
   });
 
   @override
@@ -28,7 +32,9 @@ final class CoursesState extends Equatable {
         categoryCourses,
         isLoading,
         loadingCategories,
-        errorMessage
+        errorMessage,
+        page,
+        hasMore,
       ];
 
   CoursesState copyWith({
@@ -39,6 +45,8 @@ final class CoursesState extends Equatable {
     bool? isLoading,
     Set<String>? loadingCategories,
     String? errorMessage,
+    int? page,
+    bool? hasMore,
   }) {
     return CoursesState(
       courses: courses ?? this.courses,
@@ -48,6 +56,8 @@ final class CoursesState extends Equatable {
       isLoading: isLoading ?? this.isLoading,
       loadingCategories: loadingCategories ?? this.loadingCategories,
       errorMessage: errorMessage ?? this.errorMessage,
+      page: page ?? this.page,
+      hasMore: hasMore ?? this.hasMore,
     );
   }
 

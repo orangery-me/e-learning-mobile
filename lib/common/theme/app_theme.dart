@@ -9,16 +9,16 @@ class ThemeSheet {
   final AppTextStyles textStyles;
 
   ThemeSheet({required this.palette, required this.textStyles})
-    : themeData = ThemeData(
-        pageTransitionsTheme: const PageTransitionsTheme(
-          builders: {
-            TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          },
-        ),
-        brightness: palette.brightness,
-        fontFamily: FontFamily.mulish,
-        scaffoldBackgroundColor: palette.scaffoldBackground,
-        extensions: [palette, textStyles],
-      );
+      : themeData = ThemeData(
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: {
+              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            },
+          ),
+          brightness: palette.brightness,
+          fontFamily: FontFamily.openSans,
+          scaffoldBackgroundColor: palette.scaffoldBackground,
+          extensions: [palette, textStyles],
+        );
 }

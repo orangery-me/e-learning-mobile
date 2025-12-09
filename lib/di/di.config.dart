@@ -16,6 +16,8 @@ import 'package:e_learning_mobile/data/datasources/cart/cart_datasource.dart'
     as _i24;
 import 'package:e_learning_mobile/data/datasources/cart/remote/cart_remote_datasource.dart'
     as _i927;
+import 'package:e_learning_mobile/data/datasources/chat/chat_datasource.dart'
+    as _i944;
 import 'package:e_learning_mobile/data/datasources/code_exercise/code_exercise_datasource.dart'
     as _i1004;
 import 'package:e_learning_mobile/data/datasources/code_exercise/remote/code_exercise_remote_datasource.dart'
@@ -71,6 +73,8 @@ import 'package:e_learning_mobile/data/repositories/user_repository.dart'
 import 'package:e_learning_mobile/di/modules/local_module.dart' as _i414;
 import 'package:e_learning_mobile/di/modules/network_module.dart' as _i220;
 import 'package:e_learning_mobile/di/providers/dio_provider.dart' as _i958;
+import 'package:e_learning_mobile/presentation/home/bloc/chat/chat_bloc.dart'
+    as _i673;
 import 'package:e_learning_mobile/presentation/home/bloc/home/home_bloc.dart'
     as _i597;
 import 'package:e_learning_mobile/presentation/learn/bloc/code_exercise/code_exercise_bloc.dart'
@@ -155,6 +159,8 @@ Future<_i174.GetIt> initGetIt(
       () => _i629.SectionRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i801.QuizzRemoteDatasource>(
       () => _i801.QuizzRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
+  gh.lazySingleton<_i944.ChatDatasource>(
+      () => _i944.ChatDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i87.EnrollmentRemoteDatasource>(
       () => _i87.EnrollmentRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i698.PaymentRemoteDatasource>(
@@ -212,6 +218,8 @@ Future<_i174.GetIt> initGetIt(
       () => _i741.EnrollmentBloc(datasource: gh<_i598.EnrollmentDatasource>()));
   gh.factory<_i171.NotesBloc>(
       () => _i171.NotesBloc(datasource: gh<_i84.NoteDatasource>()));
+  gh.factory<_i673.ChatBloc>(
+      () => _i673.ChatBloc(chatDatasource: gh<_i944.ChatDatasource>()));
   gh.factory<_i399.SectionsBloc>(() => _i399.SectionsBloc(
         datasource: gh<_i439.SectionDatasource>(),
         lectureDatasource: gh<_i895.LectureDatasource>(),

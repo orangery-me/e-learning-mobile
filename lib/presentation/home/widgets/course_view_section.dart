@@ -85,17 +85,17 @@ class CourseViewSection extends StatelessWidget {
                 onTap: onSeeAllTap,
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF5B7FFF).withOpacity(0.1),
+                    color: context.palette.primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     'See all',
-                    style: TextStyle(
+                    style: context.textStyles.buttonLabel.copyWith(
                       fontSize: 14,
-                      color: const Color(0xFF5B7FFF),
-                      fontWeight: FontWeight.w600,
+                      color: context.palette.primaryColor,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),

@@ -17,7 +17,8 @@ class CourseRemoteDatasource {
       int? page = 1,
       int? size = 10,
       String? sortBy = 'created_at',
-      String? filter}) async {
+      String? filter,
+      String? query}) async {
     try {
       final response = await _dioHelper
           .get('${Endpoints.courses}/page-v2', queryParameters: {
@@ -26,8 +27,8 @@ class CourseRemoteDatasource {
         if (order != null) 'order': order,
         if (sortBy != null) 'sort': sortBy,
         if (filter != null) 'filter': filter,
+        if (query != null && query.isNotEmpty) 'search': query,
       });
-      log('Fetched courses: ${response.data}');
 
       // Parse and return the list of courses from response
       return (response.data['data'] as List)

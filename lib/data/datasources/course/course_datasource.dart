@@ -14,9 +14,15 @@ class CourseDatasource {
       int? page,
       int? size,
       String? sortBy,
-      String? filter}) async {
+      String? filter,
+      String? query}) async {
     return _remoteDatasource.fetchCourses(
-        page: page, size: size, order: order, sortBy: sortBy, filter: filter);
+        page: page,
+        size: size,
+        order: order,
+        sortBy: sortBy,
+        filter: filter,
+        query: query);
   }
 
   Future<CourseResponseDto> fetchCourseById(String courseId) async {

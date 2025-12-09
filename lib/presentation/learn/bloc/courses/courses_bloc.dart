@@ -14,7 +14,7 @@ part 'courses_state.dart';
 class CoursesBloc extends Bloc<CoursesEvent, CoursesState> {
   final CourseDatasource datasource;
 
-  CoursesBloc({required this.datasource}) : super(CoursesState()) {
+  CoursesBloc({required this.datasource}) : super(const CoursesState()) {
     on<LoadCourses>((event, emit) => loadCourses(event, emit));
     on<GetSelectedCourse>((event, emit) => getSelectedCourse(event, emit));
     on<LoadCategories>((event, emit) => loadCategories(event, emit));
@@ -47,7 +47,13 @@ class CoursesBloc extends Bloc<CoursesEvent, CoursesState> {
         emit(state.copyWith(isLoading: true, errorMessage: null));
       }
     } else {
-      emit(state.copyWith(isLoading: true, errorMessage: null));
+      // Logic for regular courses loading (including search)
+      if (event.page != null && event.page! > 1) {
+        // Appending (pagination) - keep loading state false for seamless scroll or use separate loading state
+        // For simplicity, we keep isLoading false if appending, or maybe set a new state isAppending
+      } else {
+        emit(state.copyWith(isLoading: true, errorMessage: null));
+      }
     }
 
     try {
@@ -56,7 +62,8 @@ class CoursesBloc extends Bloc<CoursesEvent, CoursesState> {
           size: event.size,
           order: event.order,
           sortBy: event.sortBy,
-          filter: event.filter);
+          filter: event.filter,
+          query: event.query);
 
       // If filter contains category, cache the results
       if (categoryKey != null) {
@@ -76,7 +83,17 @@ class CoursesBloc extends Bloc<CoursesEvent, CoursesState> {
         ));
       } else {
         // Regular courses loading
-        emit(state.copyWith(courses: courses, isLoading: false));
+        final isFirstPage = event.page == 1 || event.page == null;
+        final updatedCourses =
+            isFirstPage ? courses : [...state.courses, ...courses];
+        final hasMore = courses.length >= (event.size ?? 10);
+
+        emit(state.copyWith(
+          courses: updatedCourses,
+          isLoading: false,
+          page: event.page ?? 1,
+          hasMore: hasMore,
+        ));
       }
     } catch (e) {
       log(e.toString());

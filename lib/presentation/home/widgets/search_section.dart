@@ -1,41 +1,79 @@
+import 'package:e_learning_mobile/common/extensions/context_extension.dart';
+import 'package:e_learning_mobile/di/di.dart';
+import 'package:e_learning_mobile/presentation/home/view/search_view.dart';
+import 'package:e_learning_mobile/presentation/learn/bloc/courses/courses_bloc.dart';
+import 'package:e_learning_mobile/presentation/learn/bloc/enrollment/enrollment_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchSection extends StatelessWidget {
   const SearchSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: const [
-          Expanded(
-            child: Text(
-              'Search courses',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-              ),
+    return GestureDetector(
+      onTap: () {
+        // Capture the existing EnrollmentBloc from the current context
+        final enrollmentBloc = context.read<EnrollmentBloc>();
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (_) => getIt<CoursesBloc>(),
+                ),
+                BlocProvider.value(
+                  value: enrollmentBloc,
+                ),
+              ],
+              child: const SearchView(),
             ),
           ),
-          Icon(
-            Icons.search,
-            color: Color(0xFF5B7FFF),
-            size: 26,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: context.palette.textFieldBackground,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Colors.grey.withOpacity(0.1),
+            width: 1,
           ),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Search for courses...',
+                style: context.textStyles.body1.copyWith(
+                  color: context.palette.hintTextField,
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: context.palette.primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.search_rounded,
+                color: context.palette.primaryColor,
+                size: 24,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
