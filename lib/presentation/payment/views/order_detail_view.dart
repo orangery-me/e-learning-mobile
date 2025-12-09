@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:e_learning_mobile/common/extensions/context_extension.dart';
+import 'package:e_learning_mobile/common/utils/dialog_util.dart';
 import 'package:e_learning_mobile/common/utils/format_util.dart';
 import 'package:e_learning_mobile/data/dtos/order/order_response_dto.dart';
 import 'package:e_learning_mobile/data/dtos/payment/create_payment_request.dart';
@@ -58,16 +59,9 @@ class _OrderDetailViewState extends State<OrderDetailView> {
 
   @override
   void initState() {
-    // for test only: connect websocket here
     final authState = context.read<AuthBloc>().state;
     if (authState.user != null) {
       _userId = authState.user!.id;
-      context.read<PaymentNotificationBloc>().add(
-            ConnectPaymentNotification(
-              userId: _userId!,
-              orderCode: "ORDER-20251126-091857-985",
-            ),
-          );
     }
     super.initState();
   }
@@ -110,16 +104,30 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                 // Show QR dialog when payment is created successfully
                 final payment = state.payment;
                 log('Payment created: $payment');
+                if (_userId != null && payment.orderCode.isNotEmpty) {
+                  context.read<PaymentNotificationBloc>().add(
+                        ConnectPaymentNotification(
+                          userId: _userId!,
+                          orderCode: payment.orderCode,
+                        ),
+                      );
+                }
                 if (payment.qrCode != null && payment.expiresAt != null) {
                   final paymentBloc = context.read<PaymentBloc>();
                   final orderBloc = context.read<OrderBloc>();
                   final enrollmentBloc = context.read<EnrollmentBloc>();
                   final paymentNotificationBloc =
                       context.read<PaymentNotificationBloc>();
-                  showDialog(
-                    context: context,
+                  DialogUtil.showCustomDialog(
+                    context,
+                    title: 'Payment QR Code',
                     barrierDismissible: false,
-                    builder: (_) => MultiBlocProvider(
+                    confirmButtonText: 'Close',
+                    confirmAction: () {
+                      paymentNotificationBloc
+                          .add(const DisconnectPaymentNotification());
+                    },
+                    child: MultiBlocProvider(
                       providers: [
                         BlocProvider.value(value: paymentBloc),
                         BlocProvider.value(value: orderBloc),
@@ -127,10 +135,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                         BlocProvider.value(value: paymentNotificationBloc),
                       ],
                       child: QrPaymentDialogWrapper(
-                        qrCode: payment.qrCode!,
-                        checkoutUrl: payment.checkoutUrl!,
-                        expiresAt: payment.expiresAt!,
-                        orderCode: payment.orderCode,
+                        payment: payment,
                       ),
                     ),
                   );
@@ -356,14 +361,11 @@ class _OrderSummary extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
-
               listItems(),
-
               if (order.payment != null) ...[
                 const SizedBox(height: 16),
                 PaymentCard(order: order),
               ],
-
               if (order.discountAmount > 0) ...[
                 const SizedBox(height: 8),
                 _SummaryRow(

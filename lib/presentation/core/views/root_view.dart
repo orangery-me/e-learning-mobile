@@ -1,3 +1,4 @@
+import 'package:e_learning_mobile/presentation/core/widgets/crystal_bottom_navigation_bar.dart';
 import 'package:e_learning_mobile/presentation/payment/views/order_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,15 +25,16 @@ class _RootView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: BlocBuilder<RootBloc, RootState>(
         builder: (context, state) {
           return SlideIndexedStack(
             index: state.currentIndex,
             children: [
               HomePage(),
-              OrderPage(),
-              NotificationPage(),
               MyLearningPage(),
+              NotificationPage(),
+              OrderPage(),
               ProfilePage(),
             ],
           );
@@ -41,7 +43,7 @@ class _RootView extends StatelessWidget {
           return previous.currentIndex != current.currentIndex;
         },
       ),
-      bottomNavigationBar: const AppBottomNavigationBar(),
+      bottomNavigationBar: const CrystalBottomNavigationBar(),
     );
   }
 }

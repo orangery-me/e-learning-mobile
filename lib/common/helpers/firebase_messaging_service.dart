@@ -25,6 +25,10 @@ abstract final class FirebaseMessagingService {
         id: NotificationChannelIds.fcmChannel,
         title: NotificationChannelNames.fcmChannel,
       );
+      await LocalNotificationService.createAndroidNotificationChannel(
+        id: NotificationChannelIds.updatesChannel,
+        title: NotificationChannelNames.updatesChannel,
+      );
     }
 
     _listenForegroundMessaging();
@@ -46,10 +50,10 @@ abstract final class FirebaseMessagingService {
 
       await FirebaseMessaging.instance
           .setForegroundNotificationPresentationOptions(
-            alert: true, // Required to display a heads up notification
-            badge: true,
-            sound: true,
-          );
+        alert: true, // Required to display a heads up notification
+        badge: true,
+        sound: true,
+      );
     }
   }
 

@@ -20,11 +20,11 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/video_play/video_play_bloc.dart';
 import 'package:e_learning_mobile/data/dtos/video_event/video_event.dart';
 
-class VieoPlayPage extends StatelessWidget {
+class VideoPlayPage extends StatelessWidget {
   final EnrollmentDto enrollment;
   final CourseResponseDto course;
 
-  const VieoPlayPage(
+  const VideoPlayPage(
       {super.key, required this.enrollment, required this.course});
 
   @override

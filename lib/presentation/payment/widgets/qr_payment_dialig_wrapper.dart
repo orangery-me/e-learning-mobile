@@ -1,3 +1,4 @@
+import 'package:e_learning_mobile/data/dtos/payment/payment_response_dto.dart';
 import 'package:e_learning_mobile/presentation/core/bloc/root_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/enrollment/enrollment_bloc.dart';
 import 'package:e_learning_mobile/presentation/payment/bloc/order/order_bloc.dart';
@@ -8,17 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class QrPaymentDialogWrapper extends StatefulWidget {
-  final String qrCode;
-  final String checkoutUrl;
-  final DateTime expiresAt;
-  final String orderCode;
+  final PaymentResponseDto payment;
 
   const QrPaymentDialogWrapper({
     super.key,
-    required this.qrCode,
-    required this.checkoutUrl,
-    required this.expiresAt,
-    required this.orderCode,
+    required this.payment,
   });
 
   @override
@@ -130,6 +125,8 @@ class _QrPaymentDialogWrapperState extends State<QrPaymentDialogWrapper> {
           },
         ),
         BlocListener<PaymentNotificationBloc, PaymentNotificationState>(
+          listenWhen: (previous, current) =>
+              previous.lastNotification != current.lastNotification,
           listener: (context, state) {
             if (state.lastNotification != null) {
               final notification = state.lastNotification!;
@@ -161,15 +158,15 @@ class _QrPaymentDialogWrapperState extends State<QrPaymentDialogWrapper> {
         ),
       ],
       child: QrPaymentDialog(
-        qrCode: widget.qrCode,
-        checkoutUrl: widget.checkoutUrl,
-        expiresAt: widget.expiresAt,
+        payment: widget.payment,
         onExpired: () {
           setState(() {
             _isExpired = true;
           });
           // Cancel payment when QR expired
-          context.read<PaymentBloc>().add(CancelPayment(widget.orderCode));
+          context
+              .read<PaymentBloc>()
+              .add(CancelPayment(widget.payment.orderCode));
           // Disconnect WebSocket when expired
           context.read<PaymentNotificationBloc>().add(
                 const DisconnectPaymentNotification(),

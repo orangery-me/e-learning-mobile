@@ -1,6 +1,9 @@
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
+import 'package:e_learning_mobile/common/constants/notifications/notification_channel_ids.dart';
+import 'package:e_learning_mobile/common/constants/notifications/notification_channel_names.dart';
+import 'package:e_learning_mobile/common/helpers/local_notification_service.dart';
 import 'package:e_learning_mobile/common/services/websocket_service.dart';
 import 'package:e_learning_mobile/data/dtos/payment/payment_notification_dto.dart';
 import 'package:equatable/equatable.dart';
@@ -79,7 +82,19 @@ class PaymentNotificationBloc
     PaymentNotificationReceived event,
     Emitter<PaymentNotificationState> emit,
   ) {
-    log('Payment notification received: type=${event.notification.type}');
+    if (event.notification.type == 'PAYMENT_SUCCESS') {
+      LocalNotificationService.showNotification(
+          title: event.notification.title ?? 'Thông báo mới',
+          body: event.notification.message ?? 'Thanh toán thành công',
+          channelId: NotificationChannelIds.updatesChannel,
+          channelName: NotificationChannelNames.updatesChannel);
+    } else if (event.notification.type == 'PAYMENT_FAILED') {
+      LocalNotificationService.showNotification(
+          title: event.notification.title ?? 'Thông báo mới',
+          body: event.notification.message ?? 'Thanh toán thất bại',
+          channelId: NotificationChannelIds.updatesChannel,
+          channelName: NotificationChannelNames.updatesChannel);
+    }
     emit(state.copyWith(
       lastNotification: event.notification,
       clearError: true,

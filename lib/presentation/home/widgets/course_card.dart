@@ -1,12 +1,17 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:e_learning_mobile/common/extensions/context_extension.dart';
+import 'package:e_learning_mobile/data/dtos/courses/course_response_dto.dart';
 import 'package:e_learning_mobile/data/dtos/courses/course_with_instructor_info_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/enrollment/enrollment_dto.dart';
 import 'package:e_learning_mobile/data/models/category.dart';
+import 'package:e_learning_mobile/presentation/learn/bloc/enrollment/enrollment_bloc.dart';
+import 'package:e_learning_mobile/presentation/learn/view/video_play_view.dart';
 import 'package:flutter/material.dart';
 
 import 'package:e_learning_mobile/common/utils/format_util.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/rating_widget.dart';
 import 'package:e_learning_mobile/presentation/home/view/course_detail_view.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CourseCard extends StatelessWidget {
   final CourseWithInstructorInfoResponseDto course;
@@ -26,6 +31,15 @@ class CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final EnrollmentDto? enrollment =
+        context.select<EnrollmentBloc, EnrollmentDto?>((bloc) {
+      for (final e in bloc.state.enrollments) {
+        if (e.course.courseId == course.courseId) return e;
+      }
+      return null;
+    });
+    final bool isEnrolled = enrollment != null;
+
     return Container(
       key: ValueKey('course_card_${course.courseId}'),
       width: 260, // Featured style width
@@ -71,10 +85,12 @@ class CourseCard extends StatelessWidget {
                     topLeft: Radius.circular(12),
                     topRight: Radius.circular(12),
                   ),
-                  image: course.image != null ? DecorationImage(
-                    image: NetworkImage(course.image ?? ''),
-                    fit: BoxFit.cover,
-                  ) : null,
+                  image: course.image != null
+                      ? DecorationImage(
+                          image: NetworkImage(course.image ?? ''),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
                 child: Center(
                   child: Container(
@@ -91,29 +107,49 @@ class CourseCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: IconButton(
-                      onPressed: () {
-                        // go to video play screen
-                        // Navigator.push(context,
-                        //     MaterialPageRoute(builder: (context) {
-                        //   return VieoPlayPage(videoUrl: '', course: course);
-                        // }));
-
-                        // Navigate to course detail page
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CourseDetailPage(
-                              course: course,
-                            ),
+                    child: BlocBuilder<EnrollmentBloc, EnrollmentState>(
+                      builder: (context, state) {
+                        return IconButton(
+                          onPressed: () {
+                            if (isEnrolled) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => VideoPlayPage(
+                                    enrollment: enrollment,
+                                    course: CourseResponseDto(
+                                      courseId: course.courseId,
+                                      title: course.title,
+                                      slug: course.slug,
+                                      description: course.description,
+                                      price: course.price,
+                                      level: course.level,
+                                      instructorId: course.instructor.userId,
+                                      instructorName: course.instructor.name,
+                                      category: course.category,
+                                      image: course.image,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CourseDetailPage(
+                                    course: course,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          icon: const Icon(
+                            Icons.play_arrow_rounded,
+                            size: 36,
+                            color: Color(0xFF5B7FFF),
                           ),
                         );
                       },
-                      icon: const Icon(
-                        Icons.play_arrow_rounded,
-                        size: 36,
-                        color: Color(0xFF5B7FFF),
-                      ),
                     ),
                   ),
                 ),
@@ -249,12 +285,40 @@ class CourseCard extends StatelessWidget {
                       size: 12,
                     ),
                     const Spacer(),
-                    Text(
-                      FormatUtil.formatNumberAsCurrency(course.price,
-                          symbol: '₫'),
-                      style: context.textStyles.heading4
-                          .copyWith(fontWeight: FontWeight.w800),
-                    ),
+                    if (isEnrolled)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8F5E8),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFF4CAF50).withOpacity(0.4),
+                          ),
+                        ),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.check_circle,
+                                size: 14, color: Color(0xFF4CAF50)),
+                            SizedBox(width: 6),
+                            Text(
+                              'Enrolled',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF2E7D32),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Text(
+                        FormatUtil.formatNumberAsCurrency(course.price,
+                            symbol: '₫'),
+                        style: context.textStyles.heading4
+                            .copyWith(fontWeight: FontWeight.w800),
+                      ),
                   ],
                 ),
               ],
