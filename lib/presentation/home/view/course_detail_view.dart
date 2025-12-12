@@ -438,6 +438,17 @@ class _CourseDetailViewState extends State<CourseDetailView> {
                   (item) => item.courseId == widget.course.courseId,
                 );
 
+            final isLoading = cartState is CartLoading ||
+                cartState is CartInitial ||
+                orderState is OrderLoading ||
+                orderState is OrderInitial;
+            if (isLoading) {
+              return const SizedBox(
+                height: 110,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
             OrderResponse? pendingOrder;
             if (orderState is OrdersLoaded) {
               for (final o in orderState.orders) {
