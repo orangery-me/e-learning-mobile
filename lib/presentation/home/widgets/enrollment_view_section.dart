@@ -52,7 +52,7 @@ class EnrollmentViewSection extends StatelessWidget {
             children: [
               Text(
                 sectionTitle,
-                style: context.textStyles.heading3
+                style: context.textStyles.heading4
                     .copyWith(color: sectionTitleColor),
               ),
               if (subtitle != null) ...[

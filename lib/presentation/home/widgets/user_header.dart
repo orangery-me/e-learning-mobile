@@ -55,7 +55,7 @@ class UserHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   name,
-                  style: context.textStyles.heading3.copyWith(
+                  style: context.textStyles.heading4.copyWith(
                     fontWeight: FontWeight.w600,
                     color: context.palette.normalText,
                   ),

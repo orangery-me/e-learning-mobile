@@ -68,14 +68,14 @@ class CourseViewSection extends StatelessWidget {
                 children: [
                   Text(
                     sectionTitle,
-                    style: context.textStyles.heading3
+                    style: context.textStyles.heading4
                         .copyWith(color: sectionTitleColor),
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),
                     Text(subtitle!,
-                        style: context.textStyles.body1
-                            .copyWith(color: subtitleColor, fontSize: 14)),
+                        style: context.textStyles.body2
+                            .copyWith(color: subtitleColor, fontSize: 12)),
                   ],
                 ],
               ),

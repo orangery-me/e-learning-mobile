@@ -1,3 +1,4 @@
+import 'package:e_learning_mobile/common/extensions/context_extension.dart';
 import 'package:flutter/material.dart';
 
 class ContinueLearningCard extends StatelessWidget {
@@ -23,7 +24,7 @@ class ContinueLearningCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
@@ -31,7 +32,7 @@ class ContinueLearningCard extends StatelessWidget {
             child: const Icon(
               Icons.play_arrow_rounded,
               color: Color(0xFF5B7FFF),
-              size: 36,
+              size: 28,
             ),
           ),
           const SizedBox(width: 16),
@@ -41,19 +42,14 @@ class ContinueLearningCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+                  style: context.textStyles.body2
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[700],
-                  ),
+                  style: context.textStyles.body1
+                      .copyWith(color: Colors.grey[600], fontSize: 12),
                 ),
               ],
             ),

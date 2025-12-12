@@ -330,7 +330,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
                 const SizedBox(width: 8),
                 Text(
                   'Course Info',
-                  style: context.textStyles.heading3.copyWith(
+                  style: context.textStyles.heading4.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -768,7 +768,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
                         children: [
                           Text(
                             widget.course.instructor.name,
-                            style: context.textStyles.heading3.copyWith(
+                            style: context.textStyles.heading4.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -1101,7 +1101,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
                 sectionTitle: '',
                 courses: relatedCourses,
                 showSeeAll: false,
-                cardHeight: 400,
+                cardHeight: 300,
                 showCategory: true,
                 padding: EdgeInsets.zero,
               ),

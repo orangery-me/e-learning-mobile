@@ -52,16 +52,16 @@ class RatingWidget extends StatelessWidget {
           ),
         ),
         // Review count
-        if (showReviewCount && reviewCount > 0) ...[
-          const SizedBox(width: 4),
-          Text(
-            '($reviewCount)',
-            style: TextStyle(
-              fontSize: size - 4,
-              color: Colors.grey[500],
-            ),
-          ),
-        ],
+        // if (showReviewCount && reviewCount > 0) ...[
+        //   const SizedBox(width: 4),
+        //   Text(
+        //     '($reviewCount)',
+        //     style: TextStyle(
+        //       fontSize: size - 4,
+        //       color: Colors.grey[500],
+        //     ),
+        //   ),
+        // ],
       ],
     );
   }

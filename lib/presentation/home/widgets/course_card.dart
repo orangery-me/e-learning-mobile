@@ -42,7 +42,7 @@ class CourseCard extends StatelessWidget {
 
     return Container(
       key: ValueKey('course_card_${course.courseId}'),
-      width: 260, // Featured style width
+      width: 200, // Featured style width
       decoration: BoxDecoration(
         color: const Color(0xFFF8F9FF), // Light blue background
         borderRadius: BorderRadius.circular(12), // Featured style border radius
@@ -79,7 +79,7 @@ class CourseCard extends StatelessWidget {
             children: [
               // Thumbnail Image
               Container(
-                height: 150, // Featured style image height
+                height: 100, // Featured style image height
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(12),
@@ -243,7 +243,7 @@ class CourseCard extends StatelessWidget {
                 // Title
                 Text(
                   course.title,
-                  style: context.textStyles.heading4
+                  style: context.textStyles.body1
                       .copyWith(fontWeight: FontWeight.w700),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -253,7 +253,8 @@ class CourseCard extends StatelessWidget {
 
                 // Instructor
                 Text('By ${course.instructor.name}',
-                    style: context.textStyles.body1),
+                    style: context.textStyles.body2
+                        .copyWith(color: Colors.grey[600], fontSize: 10)),
 
                 const SizedBox(height: 8),
 
@@ -282,7 +283,7 @@ class CourseCard extends StatelessWidget {
                   children: [
                     DurationWidget(
                       durationInMinutes: _mockDuration,
-                      size: 12,
+                      size: 10,
                     ),
                     const Spacer(),
                     if (isEnrolled)
@@ -316,8 +317,8 @@ class CourseCard extends StatelessWidget {
                       Text(
                         FormatUtil.formatNumberAsCurrency(course.price,
                             symbol: '₫'),
-                        style: context.textStyles.heading4
-                            .copyWith(fontWeight: FontWeight.w800),
+                        style: context.textStyles.subHeading2
+                            .copyWith(fontWeight: FontWeight.w700),
                       ),
                   ],
                 ),

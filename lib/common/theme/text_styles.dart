@@ -78,7 +78,8 @@ class AppTextStyles extends ThemeExtension<AppTextStyles> {
       heading1: Fonts.s32w7.copyWith(color: palette.normalText),
       heading2: Fonts.s24w7.copyWith(color: palette.normalText),
       heading3: Fonts.s22w7.copyWith(color: palette.normalText),
-      heading4: Fonts.s18w6.copyWith(color: palette.normalText),
+      heading4: Fonts.s16w6
+          .copyWith(color: palette.normalText, fontWeight: FontWeight.w700),
       subHeading1: Fonts.s18w6.copyWith(color: palette.normalText),
       subHeading2: Fonts.s16w6.copyWith(color: palette.normalText),
       body1: Fonts.s14w6.copyWith(color: palette.normalText),

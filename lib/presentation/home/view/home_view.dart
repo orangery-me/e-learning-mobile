@@ -83,10 +83,7 @@ class _HomeViewState extends State<HomeView> {
           // Motivational text
           Text(
             'What do you want to learn today?',
-            style: context.textStyles.heading3.copyWith(
-              fontWeight: FontWeight.w800,
-              color: context.palette.normalText,
-            ),
+            style: context.textStyles.heading4,
           ),
           const SizedBox(height: 16),
 
@@ -164,7 +161,7 @@ class _HomeViewState extends State<HomeView> {
               sectionTitleColor: Colors.white,
               subtitleColor: Colors.white70,
               courses: state.courses,
-              cardHeight: 400,
+              cardHeight: 300,
               showCategory: true,
             ),
           );
@@ -232,7 +229,7 @@ class _HomeViewState extends State<HomeView> {
                           sectionTitle: randomTitle,
                           subtitle: "Top-rated courses in $category",
                           courses: categoryCourses,
-                          cardHeight: 400,
+                          cardHeight: 300,
                           showCategory: true,
                         );
                       }
@@ -273,7 +270,7 @@ class _HomeViewState extends State<HomeView> {
             sectionTitle: "Quick Learning Path",
             subtitle: "Start your journey with these popular courses",
             courses: verticalCourses,
-            cardHeight: 400,
+            cardHeight: 300,
             showCategory: true,
           );
         }
@@ -293,13 +290,7 @@ class _HomeViewState extends State<HomeView> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Explore Categories",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text("Explore Categories", style: context.textStyles.heading4),
             const SizedBox(height: 16),
             _buildCategoryList(state.allCategories!),
           ],

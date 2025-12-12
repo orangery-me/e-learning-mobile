@@ -24,12 +24,6 @@ class _AppState extends State<App> {
   NavigatorState get _navigator => _navigatorKey.currentState!;
 
   @override
-  void dispose() {
-    _navigator.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return EasyLocalization(
       supportedLocales: const [AppLocales.en, AppLocales.vi],
