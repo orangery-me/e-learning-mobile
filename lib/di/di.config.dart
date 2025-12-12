@@ -73,6 +73,8 @@ import 'package:e_learning_mobile/data/repositories/user_repository.dart'
 import 'package:e_learning_mobile/di/modules/local_module.dart' as _i414;
 import 'package:e_learning_mobile/di/modules/network_module.dart' as _i220;
 import 'package:e_learning_mobile/di/providers/dio_provider.dart' as _i958;
+import 'package:e_learning_mobile/presentation/core/bloc/root_bloc.dart'
+    as _i565;
 import 'package:e_learning_mobile/presentation/home/bloc/chat/chat_bloc.dart'
     as _i673;
 import 'package:e_learning_mobile/presentation/home/bloc/home/home_bloc.dart'
@@ -126,6 +128,7 @@ Future<_i174.GetIt> initGetIt(
   final localModule = _$LocalModule();
   final networkModule = _$NetworkModule();
   gh.factory<_i905.ProgressBloc>(() => _i905.ProgressBloc());
+  gh.factory<_i565.RootBloc>(() => _i565.RootBloc());
   gh.lazySingleton<_i719.GlobalKey<_i719.NavigatorState>>(
       () => localModule.navigatorKey);
   await gh.singletonAsync<_i986.Box<dynamic>>(

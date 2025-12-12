@@ -4,6 +4,7 @@ import 'package:e_learning_mobile/common/extensions/context_extension.dart';
 import 'package:e_learning_mobile/common/utils/dialog_util.dart';
 import 'package:e_learning_mobile/common/utils/format_util.dart';
 import 'package:e_learning_mobile/data/dtos/order/order_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/order/order_status.dart';
 import 'package:e_learning_mobile/data/dtos/payment/create_payment_request.dart';
 import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/auth/bloc/auth/auth_bloc.dart';
@@ -69,13 +70,16 @@ class _OrderDetailViewState extends State<OrderDetailView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.scaffoldBackground,
       appBar: AppBar(
-        title: const Text('Order Detail'),
+        title: Text(
+          'Order Detail',
+          style: context.textStyles.heading4,
+        ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        backgroundColor: context.palette.scaffoldBackground,
+        foregroundColor: context.palette.normalText,
       ),
       body: MultiBlocListener(
         listeners: [
@@ -165,7 +169,6 @@ class _OrderDetailViewState extends State<OrderDetailView> {
             }
 
             if (state is OrdersLoaded) {
-              // Fallback: no specific order, show empty
               return const Center(child: Text('No order selected'));
             }
 
@@ -195,17 +198,15 @@ class _ErrorPane extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'Failed to load order',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[800],
-              ),
+              style: context.textStyles.heading4,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: context.textStyles.body2.copyWith(
+                color: Colors.grey[600],
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -225,21 +226,30 @@ class _OrderSummary extends StatelessWidget {
 
   const _OrderSummary({required this.order});
 
-  Widget listItems() {
+  Widget listItems(BuildContext context) {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: order.items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final it = order.items[index];
         final finalPrice = (it.unitPrice ?? 0) - it.discountAmount;
         return Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey[200]!),
+            color: context.palette.textFieldBackground,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.grey.withOpacity(0.1),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,10 +266,13 @@ class _OrderSummary extends StatelessWidget {
                     return Container(
                       width: 80,
                       height: 80,
-                      color: Colors.grey[300],
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       child: Icon(
                         Icons.image_not_supported,
-                        color: Colors.grey[600],
+                        color: Colors.grey[400],
                       ),
                     );
                   },
@@ -273,33 +286,22 @@ class _OrderSummary extends StatelessWidget {
                     // Course Title
                     Text(
                       it.courseTitle ?? '',
-                      style: const TextStyle(
+                      style: context.textStyles.body1.copyWith(
                         fontWeight: FontWeight.w600,
-                        fontSize: 15,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
-                    // Course ID
-                    Text(
-                      'ID: ${it.courseId}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
                     const SizedBox(height: 8),
                     // Final Price
                     Text(
-                      'Price: ${FormatUtil.formatNumberAsCurrency(
+                      FormatUtil.formatNumberAsCurrency(
                         finalPrice,
                         symbol: '₫',
-                      )}',
-                      style: TextStyle(
-                        fontSize: 16,
+                      ),
+                      style: context.textStyles.heading4.copyWith(
+                        color: context.palette.primaryColor,
                         fontWeight: FontWeight.bold,
-                        color: context.palette.buttonBackground,
                       ),
                     ),
                   ],
@@ -312,39 +314,246 @@ class _OrderSummary extends StatelessWidget {
     );
   }
 
+  String _getStatusText(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return 'Pending';
+      case OrderStatus.paid:
+        return 'Paid';
+      case OrderStatus.failed:
+        return 'Failed';
+      case OrderStatus.cancelled:
+        return 'Cancelled';
+      case OrderStatus.refunded:
+        return 'Refunded';
+      case OrderStatus.delivered:
+        return 'Delivered';
+    }
+  }
+
+  Color _getStatusColor(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return Colors.orange;
+      case OrderStatus.paid:
+      case OrderStatus.delivered:
+        return Colors.green;
+      case OrderStatus.failed:
+        return Colors.red;
+      case OrderStatus.cancelled:
+        return Colors.grey;
+      case OrderStatus.refunded:
+        return Colors.blue;
+    }
+  }
+
+  String _getButtonText(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return 'Confirm Payment';
+      case OrderStatus.cancelled:
+      case OrderStatus.failed:
+        return 'Thanh toán lại';
+      default:
+        return '';
+    }
+  }
+
+  bool _shouldShowButton(OrderStatus status) {
+    return status == OrderStatus.pending ||
+        status == OrderStatus.cancelled ||
+        status == OrderStatus.failed;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // can pay when pending; payment info may be null before initiating payment
-
     return Column(
       children: [
+        // Order Header
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.blue[50],
-            border: Border(
-              bottom: BorderSide(color: Colors.grey[200]!),
-            ),
-          ),
-          child: Row(
+              // gradient: LinearGradient(
+              //   colors: [
+              //     context.palette.primaryColor,
+              //     context.palette.primaryColor.withOpacity(0.8),
+              //   ],
+              //   begin: Alignment.topLeft,
+              //   end: Alignment.bottomRight,
+              // ),
+              // boxShadow: [
+              //   BoxShadow(
+              //     color: context.palette.primaryColor.withOpacity(0.3),
+              //     blurRadius: 12,
+              //     offset: const Offset(0, 4),
+              //   ),
+              // ],
+              ),
+          child: Column(
             children: [
-              Icon(Icons.receipt_long,
-                  color: context.palette.buttonBackground, size: 28),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.receipt_long,
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Order #${order.orderNumber}',
+                          style: context.textStyles.heading4.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          FormatUtil.formatNumberAsCurrency(
+                            order.finalAmount,
+                            symbol: '₫',
+                          ),
+                          style: context.textStyles.heading4,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Status Badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(order.status),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          _getStatusText(order.status),
+                          style: context.textStyles.metadata1.copyWith(
+                            color: _getStatusColor(order.status),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (order.createdAt != null) ...[
+                const SizedBox(height: 12),
+                Divider(color: Colors.white.withOpacity(0.2)),
+                const SizedBox(height: 8),
+                Row(
                   children: [
+                    Icon(
+                      Icons.calendar_today,
+                      size: 14,
+                      color: Colors.black,
+                    ),
+                    const SizedBox(width: 6),
                     Text(
-                      'Order #${order.orderNumber}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
+                      'Created: ${FormatUtil.formatDateTime(order.createdAt!)}',
+                      style: context.textStyles.metadata1.copyWith(
+                        color: Colors.black,
                       ),
                     ),
-                    Text(
-                      'Total: ${FormatUtil.formatNumberAsCurrency(order.finalAmount, symbol: '₫')}',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              // Items Section
+              Text(
+                'Items',
+                style: context.textStyles.heading4.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              listItems(context),
+
+              // Payment Info Section
+              if (order.payment != null) ...[
+                const SizedBox(height: 24),
+                PaymentCard(order: order),
+              ],
+
+              // Summary Section
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: context.palette.textFieldBackground,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.grey.withOpacity(0.1),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    if (order.discountAmount > 0) ...[
+                      _SummaryRow(
+                        label: 'Subtotal',
+                        value: FormatUtil.formatNumberAsCurrency(
+                          order.totalAmount,
+                          symbol: '₫',
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      _SummaryRow(
+                        label: 'Discount',
+                        value:
+                            '-${FormatUtil.formatNumberAsCurrency(order.discountAmount, symbol: '₫')}',
+                        valueStyle: TextStyle(
+                          color: Colors.green[700],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Divider(color: Colors.grey.withOpacity(0.2)),
+                      const SizedBox(height: 12),
+                    ],
+                    _SummaryRow(
+                      label: 'Total',
+                      value: FormatUtil.formatNumberAsCurrency(
+                        order.finalAmount,
+                        symbol: '₫',
+                      ),
+                      labelStyle: context.textStyles.heading4.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      valueStyle: context.textStyles.heading3.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: context.palette.primaryColor,
+                      ),
                     ),
                   ],
                 ),
@@ -352,117 +561,72 @@ class _OrderSummary extends StatelessWidget {
             ],
           ),
         ),
-        Expanded(
-          child: ListView(
+
+        // Action Button
+        if (_shouldShowButton(order.status))
+          Container(
             padding: const EdgeInsets.all(16),
-            children: [
-              const Text(
-                'Items',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                top: BorderSide(color: Colors.grey.withOpacity(0.1)),
               ),
-              const SizedBox(height: 8),
-              listItems(),
-              if (order.payment != null) ...[
-                const SizedBox(height: 16),
-                PaymentCard(order: order),
-              ],
-              if (order.discountAmount > 0) ...[
-                const SizedBox(height: 8),
-                _SummaryRow(
-                  label: 'Discount',
-                  value:
-                      '-${FormatUtil.formatNumberAsCurrency(order.discountAmount, symbol: '₫')}',
-                  valueStyle: TextStyle(
-                    color: Colors.green[700],
-                    fontWeight: FontWeight.w600,
-                  ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
                 ),
               ],
-              const SizedBox(height: 8),
-              const Divider(),
-              const SizedBox(height: 8),
-              _SummaryRow(
-                label: 'Total',
-                value: FormatUtil.formatNumberAsCurrency(order.finalAmount,
-                    symbol: '₫'),
-                labelStyle: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                valueStyle: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: context.palette.buttonBackground,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(
-              top: BorderSide(color: Colors.grey[200]!),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: (order.status.name.toLowerCase() == 'pending')
-              ? BlocBuilder<PaymentBloc, PaymentState>(
-                  builder: (context, paymentState) {
-                    final isLoading = paymentState is PaymentLoading;
-                    return SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: OutlinedButton(
-                        key: const ValueKey('confirm_payment_button'),
-                        onPressed: isLoading
-                            ? null
-                            : () {
-                                context.read<PaymentBloc>().add(
-                                      CreatePayment(
-                                        CreatePaymentRequest(
-                                          orderId: order.id,
-                                        ),
-                                      ),
-                                    );
-                              },
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: context.palette.buttonBackground,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: isLoading
-                            ? SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    context.palette.buttonText,
+            child: BlocBuilder<PaymentBloc, PaymentState>(
+              builder: (context, paymentState) {
+                final isLoading = paymentState is PaymentLoading;
+                return SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    key: const ValueKey('payment_action_button'),
+                    onPressed: isLoading
+                        ? null
+                        : () {
+                            context.read<PaymentBloc>().add(
+                                  CreatePayment(
+                                    CreatePaymentRequest(
+                                      orderId: order.id,
+                                    ),
                                   ),
-                                ),
-                              )
-                            : Text(
-                                'Confirm Payment',
-                                style: context.textStyles.heading4.copyWith(
-                                  color: context.palette.buttonText,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
+                                );
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: context.palette.primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    );
-                  },
-                )
-              : const SizedBox.shrink(),
-        ),
+                      elevation: 0,
+                    ),
+                    child: isLoading
+                        ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                context.palette.buttonText,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            _getButtonText(order.status),
+                            style: context.textStyles.buttonLabel.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                  ),
+                );
+              },
+            ),
+          ),
       ],
     );
   }
@@ -486,10 +650,19 @@ class _SummaryRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: labelStyle ?? TextStyle(color: Colors.grey[600])),
+        Text(
+          label,
+          style: labelStyle ??
+              context.textStyles.body2.copyWith(
+                color: Colors.grey[600],
+              ),
+        ),
         Text(
           value,
-          style: valueStyle ?? const TextStyle(fontWeight: FontWeight.w600),
+          style: valueStyle ??
+              context.textStyles.body1.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
         ),
       ],
     );

@@ -37,7 +37,7 @@ class _FloatingChatBubbleState extends State<FloatingChatBubble> {
 
     // When open, force position to top right
     final double targetX =
-        widget.isOpen ? MediaQuery.of(context).size.width - 70 : (x ?? 0);
+        widget.isOpen ? MediaQuery.of(context).size.width - 60 : (x ?? 0);
     final double targetY = widget.isOpen ? 60 : (y ?? 0);
 
     final bubble = GestureDetector(
@@ -51,8 +51,8 @@ class _FloatingChatBubbleState extends State<FloatingChatBubble> {
             },
       onTap: widget.onTap,
       child: Container(
-        width: 60,
-        height: 60,
+        width: widget.isOpen ? 50 : 60,
+        height: widget.isOpen ? 50 : 60,
         decoration: BoxDecoration(
           color: widget.isOpen ? Colors.white : context.palette.primaryColor,
           shape: BoxShape.circle,
@@ -78,7 +78,7 @@ class _FloatingChatBubbleState extends State<FloatingChatBubble> {
                   Icons.close_rounded,
                   key: const ValueKey('close'),
                   color: Colors.grey[600],
-                  size: 28,
+                  size: 32,
                 )
               : const Icon(
                   IconlyBold.chat,

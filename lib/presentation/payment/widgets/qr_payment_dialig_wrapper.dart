@@ -1,4 +1,6 @@
 import 'package:e_learning_mobile/data/dtos/payment/payment_response_dto.dart';
+import 'package:e_learning_mobile/di/di.dart';
+import 'package:e_learning_mobile/presentation/auth/bloc/auth/auth_bloc.dart';
 import 'package:e_learning_mobile/presentation/core/bloc/root_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/enrollment/enrollment_bloc.dart';
 import 'package:e_learning_mobile/presentation/payment/bloc/order/order_bloc.dart';
@@ -28,20 +30,11 @@ class _QrPaymentDialogWrapperState extends State<QrPaymentDialogWrapper> {
   void initState() {
     super.initState();
 
-    // Get userId from AuthBloc and connect WebSocket
-    // For test: move this to parent widget
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   final authState = context.read<AuthBloc>().state;
-    //   if (authState.user != null) {
-    //     _userId = authState.user!.id;
-    //     context.read<PaymentNotificationBloc>().add(
-    //           ConnectPaymentNotification(
-    //             userId: _userId!,
-    //             orderCode: widget.orderCode,
-    //           ),
-    //         );
-    //   }
-    // });
+    // Cache userId for reload enrollment after payment success
+    final authState = context.read<AuthBloc>().state;
+    if (authState.user != null) {
+      _userId = authState.user!.id;
+    }
   }
 
   @override
@@ -68,12 +61,27 @@ class _QrPaymentDialogWrapperState extends State<QrPaymentDialogWrapper> {
     // Reload enrollments to show new courses in My Learning
     final enrollmentBloc = context.read<EnrollmentBloc>();
     if (_userId != null) {
+      // Reload local bloc (dialog scope)
       enrollmentBloc.add(LoadEnrollmentsByUserId(_userId!));
+      // Trigger global EnrollmentBloc (home page) via DI to refresh My Learning
+      try {
+        getIt<EnrollmentBloc>().add(LoadEnrollmentsByUserId(_userId!));
+      } catch (_) {
+        // ignore if not registered
+      }
     }
 
-    // Navigate to home (index 0)
-    final rootBloc = context.read<RootBloc>();
-    rootBloc.add(const RootBottomTabChange(newIndex: 0));
+    // Navigate to Tab My Learning (index 0). 
+    RootBloc? rootBloc;
+    try {
+      rootBloc = context.read<RootBloc>();
+    } catch (_) {
+      rootBloc = getIt<RootBloc>();
+    }
+    rootBloc.add(const RootBottomTabChange(newIndex: 1));
+
+    // Close all routes back to root (exit order detail page)
+    Navigator.of(context).popUntil((route) => route.isFirst);
 
     // Also reload order to reflect updated status
     final orderBloc = context.read<OrderBloc>();

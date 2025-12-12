@@ -72,56 +72,58 @@ class _HomeViewState extends State<HomeView> {
     return Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 8, 12),
         child: SingleChildScrollView(
+            padding:
+                const EdgeInsets.only(bottom: 100), // Space for bottom nav bar
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          // profile widget
-          UserHeader(
-              name: '${user?.firstName} ${user?.lastName}',
-              avatarUrl: 'assets/images/banners/avatar.png'),
-          const SizedBox(height: 16),
+              // profile widget
+              UserHeader(
+                  name: '${user?.firstName} ${user?.lastName}',
+                  avatarUrl: 'assets/images/banners/avatar.png'),
+              const SizedBox(height: 16),
 
-          // Motivational text
-          Text(
-            'What do you want to learn today?',
-            style: context.textStyles.heading4,
-          ),
-          const SizedBox(height: 12),
+              // Motivational text
+              Text(
+                'What do you want to learn today?',
+                style: context.textStyles.heading4,
+              ),
+              const SizedBox(height: 12),
 
-          // search section
-          SearchSection(),
+              // search section
+              SearchSection(),
 
-          const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-          _exploreCategoriesSection(),
+              _exploreCategoriesSection(),
 
-          const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-          // My Learning section
-          _myLearningSection(),
+              // My Learning section
+              _myLearningSection(),
 
-          const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-          // Vertical layout demo
-          _verticalCourseSection(),
+              const ContinueLearningCard(
+                title: 'How to get started',
+                subtitle: 'You can start from where you left',
+                progress: 0.6,
+              ),
 
-          const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-          const ContinueLearningCard(
-            title: 'How to get started',
-            subtitle: 'You can start from where you left',
-            progress: 0.6,
-          ),
+              // Vertical layout demo
+              _verticalCourseSection(),
 
-          const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-          // Recently released courses section
-          _latestCourse(),
+              // Recently released courses section
+              _latestCourse(),
 
-          const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-          // Category-based courses sections,
-          _categoryBasedCourseSection(),
-        ])));
+              // Category-based courses sections,
+              _categoryBasedCourseSection(),
+            ])));
   }
 
   Widget _latestCourse() {
@@ -140,16 +142,16 @@ class _HomeViewState extends State<HomeView> {
               // gradient blue
               gradient: LinearGradient(
                 colors: [
-                  context.palette.primaryColor, // 0xFF106C54
-                  context.palette.primaryColor.withOpacity(0.8),
+                  context.palette.primaryColor.withOpacity(0.8), // 0xFF106C54
+                  context.palette.primaryColor.withOpacity(0.7),
                 ],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: context.palette.primaryColor.withOpacity(0.3),
+                  color: context.palette.primaryColor.withOpacity(0.1),
                   blurRadius: 12,
                   offset: const Offset(0, 8),
                 ),

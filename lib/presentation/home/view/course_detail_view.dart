@@ -8,12 +8,16 @@ import 'package:e_learning_mobile/di/di.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/course_view_section.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/rating_widget.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/courses/courses_bloc.dart';
+import 'package:e_learning_mobile/data/dtos/order/order_response_dto.dart';
+import 'package:e_learning_mobile/data/dtos/order/order_status.dart';
+import 'package:e_learning_mobile/presentation/learn/bloc/enrollment/enrollment_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/reviews/reviews_bloc.dart';
 import 'package:e_learning_mobile/presentation/learn/bloc/sections/sections_bloc.dart';
 import 'package:e_learning_mobile/presentation/payment/bloc/cart/cart_bloc.dart';
 import 'package:e_learning_mobile/presentation/payment/bloc/order/order_bloc.dart';
 import 'package:e_learning_mobile/presentation/payment/views/cart_view.dart';
 import 'package:e_learning_mobile/presentation/payment/views/order_detail_view.dart';
+import 'package:e_learning_mobile/presentation/auth/bloc/auth/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -48,7 +52,21 @@ class CourseDetailPage extends StatelessWidget {
               getIt<ReviewsBloc>()..add(LoadReviewsByCourseId(course.courseId)),
         ),
         BlocProvider(
+          create: (context) {
+            final bloc = getIt<EnrollmentBloc>();
+            final auth = context.read<AuthBloc>().state.user;
+            if (auth != null) {
+              bloc.add(LoadEnrollmentsByUserId(auth.id));
+            }
+            return bloc;
+          },
+        ),
+        BlocProvider(
           create: (context) => getIt<CartBloc>()..add(const LoadCart()),
+        ),
+        BlocProvider(
+          create: (context) => getIt<OrderBloc>()
+            ..add(const LoadOrdersByStatus('pending', page: 0, size: 20)),
         ),
       ],
       child: CourseDetailView(course: course),
@@ -411,127 +429,183 @@ class _CourseDetailViewState extends State<CourseDetailView> {
             ],
           ),
           const SizedBox(height: 12),
-          // Add to cart button
-          BlocBuilder<CartBloc, CartState>(
-            builder: (context, cartState) {
-              final isInCart = cartState is CartLoaded &&
-                  cartState.cart.items.any(
-                    (item) => item.courseId == widget.course.courseId,
-                  );
+          Builder(builder: (context) {
+            final cartState = context.watch<CartBloc>().state;
+            final orderState = context.watch<OrderBloc>().state;
 
-              return SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  key: const ValueKey('add_to_cart_button'),
-                  onPressed: () {
-                    if (isInCart) {
-                      // Navigate to cart if already in cart
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CartPage(),
-                        ),
-                      );
-                    } else {
-                      // Add to cart
-                      context.read<CartBloc>().add(
-                            AddItemToCart(
-                              courseId: widget.course.courseId,
-                              price: widget.course.price,
+            final isInCart = cartState is CartLoaded &&
+                cartState.cart.items.any(
+                  (item) => item.courseId == widget.course.courseId,
+                );
+
+            OrderResponse? pendingOrder;
+            if (orderState is OrdersLoaded) {
+              for (final o in orderState.orders) {
+                if (o.status == OrderStatus.pending &&
+                    o.items
+                        .any((it) => it.courseId == widget.course.courseId)) {
+                  pendingOrder = o;
+                  break;
+                }
+              }
+            }
+
+            if (pendingOrder != null) {
+              return Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => OrderDetailPage(
+                              orderId: pendingOrder!.id,
                             ),
-                          );
-
-                      // Show toast notification
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Row(
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                              SizedBox(width: 8),
-                              Text('Đã thêm khóa học vào giỏ hàng thành công'),
-                            ],
                           ),
-                          backgroundColor: Colors.green[600],
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          duration: const Duration(seconds: 2),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: context.palette.buttonBackground,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isInCart
-                        ? Colors.green[600]
-                        : context.palette.buttonBackground,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (isInCart) ...[
-                        const Icon(Icons.shopping_cart, color: Colors.white),
-                        const SizedBox(width: 8),
-                      ],
-                      Text(
-                        isInCart ? 'Xem giỏ hàng' : 'Add to cart',
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Xem đơn hàng',
                         style: context.textStyles.heading4.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 8),
-          // Buy now button
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: OutlinedButton(
-              key: const ValueKey('buy_now_button'),
-              onPressed: () {
-                // Navigate to order detail page with CreateOrder event
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => OrderDetailPage(
-                      initialEvent: CreateOrder({
-                        'courseId': widget.course.courseId,
-                        'price': widget.course.price,
-                      }),
                     ),
                   ),
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(
-                    color: context.palette.buttonBackground, width: 2),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  const SizedBox(height: 8),
+                ],
+              );
+            }
+
+            return Column(
+              children: [
+                // Add to cart button
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    key: const ValueKey('add_to_cart_button'),
+                    onPressed: () {
+                      if (isInCart) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CartPage(),
+                          ),
+                        );
+                      } else {
+                        context.read<CartBloc>().add(
+                              AddItemToCart(
+                                courseId: widget.course.courseId,
+                                price: widget.course.price,
+                              ),
+                            );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Row(
+                              children: [
+                                Icon(
+                                  Icons.check_circle,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                    'Đã thêm khóa học vào giỏ hàng thành công'),
+                              ],
+                            ),
+                            backgroundColor: Colors.green[600],
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isInCart
+                          ? Colors.green[600]
+                          : context.palette.buttonBackground,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (isInCart) ...[
+                          const Icon(Icons.shopping_cart, color: Colors.white),
+                          const SizedBox(width: 8),
+                        ],
+                        Text(
+                          isInCart ? 'Xem giỏ hàng' : 'Add to cart',
+                          style: context.textStyles.heading4.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              child: Text(
-                'Buy now',
-                style: context.textStyles.heading4.copyWith(
-                  color: context.palette.buttonBackground,
-                  fontWeight: FontWeight.w700,
+                const SizedBox(height: 8),
+                // Buy now button
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton(
+                    key: const ValueKey('buy_now_button'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OrderDetailPage(
+                            initialEvent: CreateOrder({
+                              'items': [
+                                {
+                                  'courseId': widget.course.courseId,
+                                  'coursePrice': widget.course.price,
+                                }
+                              ],
+                              'notes': null,
+                            }),
+                          ),
+                        ),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                          color: context.palette.buttonBackground, width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Buy now',
+                      style: context.textStyles.heading4.copyWith(
+                        color: context.palette.buttonBackground,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
+              ],
+            );
+          }),
           const SizedBox(height: 8),
           // Guarantee
           Row(

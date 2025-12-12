@@ -59,6 +59,7 @@ class OrderRemoteDatasource {
   }
 
   Future<OrderResponse> createOrder(Map<String, dynamic> orderData) async {
+    log('Creating order with data: $orderData');
     final response = await _dioHelper.post(Endpoints.orders, data: orderData);
     return OrderResponse.fromJson(response.data['data']);
   }
