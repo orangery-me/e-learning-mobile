@@ -133,7 +133,7 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
 
     return _OutlinedArea(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -142,59 +142,62 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
               children: [
                 const Text(
                   'Result',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: badgeColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     badgeText,
                     style: TextStyle(
                       color: badgeColor,
                       fontWeight: FontWeight.w600,
+                      fontSize: 12,
                     ),
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             // Time & Memory
             Row(
               children: [
-                Text('Time: ${result.time ?? '0'}s'),
-                const SizedBox(width: 20),
-                Text('Memory: ${result.memory ?? '0'} KB'),
+                Text('Time: ${result.time ?? '0'}s',
+                    style: const TextStyle(fontSize: 12)),
+                const SizedBox(width: 16),
+                Text('Memory: ${result.memory ?? '0'} KB',
+                    style: const TextStyle(fontSize: 12)),
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // Output
             const Text(
               'Output (stdout):',
-              style: TextStyle(fontWeight: FontWeight.w600),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: const Color(0xFF0B1020),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 _getStateResult(result),
                 style: const TextStyle(
                   fontFamily: 'monospace',
                   color: Colors.white,
-                  fontSize: 13,
+                  fontSize: 12,
                 ),
               ),
             ),
@@ -208,71 +211,72 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
     log('Building feedback area with feedback: ${feedback.toJson()}');
     return _OutlinedArea(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
             Row(
               children: [
-                const Icon(Icons.psychology, color: Colors.purple, size: 24),
+                const Icon(Icons.psychology, color: Colors.purple, size: 20),
                 const SizedBox(width: 8),
                 const Text(
                   'AI Feedback',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 if (feedback.score != null)
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: _getScoreColor(feedback.score!).withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
                       'Score: ${feedback.score}/100',
                       style: TextStyle(
                         color: _getScoreColor(feedback.score!),
                         fontWeight: FontWeight.w600,
+                        fontSize: 12,
                       ),
                     ),
                   ),
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // Summary
             if (feedback.summary != null) ...[
               const Text(
                 'Summary',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                   border: Border.all(color: Colors.blue.shade200),
                 ),
                 child: Text(
                   feedback.summary!,
-                  style: const TextStyle(fontSize: 14),
+                  style: const TextStyle(fontSize: 13),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
             ],
 
             // Code Quality Metrics
             if (feedback.codeQualityMetricsDto != null) ...[
               const Text(
                 'Code Quality Metrics',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Row(
                 children: [
                   Expanded(
@@ -282,7 +286,7 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
                       Colors.green,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: _buildMetricCard(
                       'Readability',
@@ -290,7 +294,7 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
                       Colors.blue,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: _buildMetricCard(
                       'Best Practices',
@@ -300,7 +304,7 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
             ],
 
             // Strengths
@@ -308,38 +312,38 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
                 feedback.strengths!.isNotEmpty) ...[
               const Text(
                 'Strengths',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                   border: Border.all(color: Colors.green.shade200),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: feedback.strengths!
                       .map((strength) => Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
+                            padding: const EdgeInsets.only(bottom: 2),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Icon(Icons.check_circle,
-                                    color: Colors.green, size: 16),
-                                const SizedBox(width: 8),
+                                    color: Colors.green, size: 14),
+                                const SizedBox(width: 6),
                                 Expanded(
                                     child: Text(strength,
-                                        style: const TextStyle(fontSize: 14))),
+                                        style: const TextStyle(fontSize: 13))),
                               ],
                             ),
                           ))
                       .toList(),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
             ],
 
             // Weaknesses
@@ -347,38 +351,38 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
                 feedback.weaknesses!.isNotEmpty) ...[
               const Text(
                 'Areas for Improvement',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.orange.shade50,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                   border: Border.all(color: Colors.orange.shade200),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: feedback.weaknesses!
                       .map((weakness) => Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
+                            padding: const EdgeInsets.only(bottom: 2),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Icon(Icons.warning,
-                                    color: Colors.orange, size: 16),
-                                const SizedBox(width: 8),
+                                    color: Colors.orange, size: 14),
+                                const SizedBox(width: 6),
                                 Expanded(
                                     child: Text(weakness,
-                                        style: const TextStyle(fontSize: 14))),
+                                        style: const TextStyle(fontSize: 13))),
                               ],
                             ),
                           ))
                       .toList(),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
             ],
 
             // Suggestions
@@ -386,31 +390,31 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
                 feedback.suggestions!.isNotEmpty) ...[
               const Text(
                 'Suggestions',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.purple.shade50,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                   border: Border.all(color: Colors.purple.shade200),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: feedback.suggestions!
                       .map((suggestion) => Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
+                            padding: const EdgeInsets.only(bottom: 2),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Icon(Icons.lightbulb,
-                                    color: Colors.purple, size: 16),
-                                const SizedBox(width: 8),
+                                    color: Colors.purple, size: 14),
+                                const SizedBox(width: 6),
                                 Expanded(
                                     child: Text(suggestion,
-                                        style: const TextStyle(fontSize: 14))),
+                                        style: const TextStyle(fontSize: 13))),
                               ],
                             ),
                           ))
@@ -517,7 +521,7 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
   Widget _buildProblemTab(CodeProblemStatement problem) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -526,11 +530,11 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
               Text(
                 problem.title!,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
             ],
 
             // Problem Statement
@@ -538,59 +542,61 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
               const Text(
                 'Problem Statement',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
                 problem.problemStatement!,
-                style: const TextStyle(fontSize: 14, height: 1.5),
+                style: const TextStyle(fontSize: 13, height: 1.4),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
             ],
 
             // Time Limit
             if (problem.timeLimitSeconds != null)
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                   border: Border.all(color: Colors.blue.shade200),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.timer, size: 18, color: Colors.blue),
-                    const SizedBox(width: 8),
+                    const Icon(Icons.timer, size: 16, color: Colors.blue),
+                    const SizedBox(width: 6),
                     Text(
                       'Time limit: ${problem.timeLimitSeconds}s',
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         color: Colors.blue,
+                        fontSize: 12,
                       ),
                     ),
                   ],
                 ),
               ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // Test Cases Info
             if (problem.testCases != null && problem.testCases!.isNotEmpty) ...[
               const Text(
                 'Test Cases',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
                 'Total: ${problem.testCases!.length} test cases',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: Colors.grey.shade700,
                 ),
               ),

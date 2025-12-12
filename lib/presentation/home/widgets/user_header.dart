@@ -30,29 +30,28 @@ class UserHeader extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                     color: context.palette.primaryColor.withOpacity(0.15),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
               child: CircleAvatar(
-                radius: 28,
+                radius: 22,
                 backgroundImage: AssetImage(avatarUrl),
                 backgroundColor: Colors.grey[200],
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Hello,',
-                  style: context.textStyles.body1.copyWith(
+                  style: context.textStyles.body2.copyWith(
                     color: Colors.grey[600],
-                    fontSize: 16,
+                    fontSize: 14,
                   ),
                 ),
-                const SizedBox(height: 4),
                 Text(
                   name,
                   style: context.textStyles.heading4.copyWith(
@@ -79,7 +78,7 @@ class UserHeader extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             // Notification icon
             Stack(
               children: [
@@ -89,15 +88,15 @@ class UserHeader extends StatelessWidget {
                   isPrimary: true,
                 ),
                 Positioned(
-                  right: 10,
-                  top: 10,
+                  right: 8,
+                  top: 8,
                   child: Container(
-                    width: 10,
-                    height: 10,
+                    width: 8,
+                    height: 8,
                     decoration: BoxDecoration(
                       color: context.palette.errorButtonLabel,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(color: Colors.white, width: 1.5),
                     ),
                   ),
                 ),
@@ -125,27 +124,27 @@ class UserHeader extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           border: isPrimary
               ? null
               : Border.all(color: Colors.grey.withOpacity(0.1)),
           boxShadow: [
             BoxShadow(
               color: shadowColor,
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Icon(
           icon,
           color: iconColor,
-          size: 24,
+          size: 20,
         ),
       ),
     );

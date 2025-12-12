@@ -229,13 +229,13 @@ class QuizzOverviewView extends StatelessWidget {
     final isPassed = attempt.isPassed;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 8),
+      elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
           color: isPassed ? Colors.green.shade300 : Colors.orange.shade300,
-          width: 1.5,
+          width: 1,
         ),
       ),
       child: InkWell(
@@ -252,13 +252,13 @@ class QuizzOverviewView extends StatelessWidget {
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Row(
             children: [
               // Status Icon
               Container(
-                width: 48,
-                height: 48,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: (isPassed ? Colors.green : Colors.orange).shade50,
                   shape: BoxShape.circle,
@@ -266,10 +266,10 @@ class QuizzOverviewView extends StatelessWidget {
                 child: Icon(
                   isPassed ? Icons.check_circle : Icons.error,
                   color: isPassed ? Colors.green : Colors.orange,
-                  size: 24,
+                  size: 20,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               // Attempt Info
               Expanded(
                 child: Column(
@@ -280,24 +280,24 @@ class QuizzOverviewView extends StatelessWidget {
                         Text(
                           'Attempt #${attempt.attemptNumber}',
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                            horizontal: 6,
+                            vertical: 3,
                           ),
                           decoration: BoxDecoration(
                             color: isPassed ? Colors.green : Colors.orange,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             isPassed ? 'Passed' : 'Failed',
                             style: const TextStyle(
-                              fontSize: 11,
+                              fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
@@ -309,16 +309,16 @@ class QuizzOverviewView extends StatelessWidget {
                     Text(
                       'Score: ${attempt.totalScore.toStringAsFixed(0)}/${attempt.maxPossibleScore.toStringAsFixed(0)} (${attempt.scorePercentage.toStringAsFixed(1)}%)',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         color: Colors.grey.shade700,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       dateFormat.format(attempt.submittedAt),
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Colors.grey.shade600,
                       ),
                     ),
@@ -329,6 +329,7 @@ class QuizzOverviewView extends StatelessWidget {
               Icon(
                 Icons.chevron_right,
                 color: Colors.grey.shade400,
+                size: 20,
               ),
             ],
           ),

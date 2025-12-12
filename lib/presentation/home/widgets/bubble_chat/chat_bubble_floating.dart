@@ -51,8 +51,8 @@ class _FloatingChatBubbleState extends State<FloatingChatBubble> {
             },
       onTap: widget.onTap,
       child: Container(
-        width: 65,
-        height: 65,
+        width: 60,
+        height: 60,
         decoration: BoxDecoration(
           color: widget.isOpen ? Colors.white : context.palette.primaryColor,
           shape: BoxShape.circle,

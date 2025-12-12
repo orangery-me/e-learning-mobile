@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 abstract class AppSize {
-  static const double horizontalSpacing = 20;
-  static const double cardRadius = 10;
+  static const double horizontalSpacing = 16;
+  static const double cardRadius = 8;
 
   // App bar
-  static const double appBarHeight = 60;
-  static const double titleSpacing = 20;
+  static const double appBarHeight = 56;
+  static const double titleSpacing = 16;
 
   // Horizontal spacing
   static final SizedBox w5 = SizedBox(width: 5.w);

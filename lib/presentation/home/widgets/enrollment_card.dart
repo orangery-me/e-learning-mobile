@@ -26,16 +26,16 @@ class EnrollmentCard extends StatelessWidget {
 
   Widget _buildHorizontalCard(BuildContext context) {
     return Container(
-      width: 280,
-      margin: const EdgeInsets.only(right: 16),
+      width: 240,
+      margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
         border: Border.all(color: Colors.grey[200]!),
@@ -48,7 +48,7 @@ class EnrollmentCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              height: 140,
+              height: 110,
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: const BorderRadius.only(
@@ -71,13 +71,13 @@ class EnrollmentCard extends StatelessWidget {
                   : Center(
                       child: Icon(
                         Icons.menu_book,
-                        size: 50,
+                        size: 40,
                         color: Colors.grey[400],
                       ),
                     ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -86,14 +86,14 @@ class EnrollmentCard extends StatelessWidget {
                   Text(
                     'Course: ${enrollment.course.title}',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   // Progress Bar
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +104,7 @@ class EnrollmentCard extends StatelessWidget {
                           Text(
                             'Progress',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: Colors.grey[700],
                             ),
@@ -112,19 +112,19 @@ class EnrollmentCard extends StatelessWidget {
                           Text(
                             '${enrollment.progressPercentage.toStringAsFixed(0)}%',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: context.palette.buttonBackground,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: enrollment.progressPercentage / 100,
-                          minHeight: 8,
+                          minHeight: 6,
                           backgroundColor: Colors.grey[200],
                           valueColor: AlwaysStoppedAnimation<Color>(
                             context.palette.buttonBackground,
@@ -133,20 +133,20 @@ class EnrollmentCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   // Status and Watch Time
                   Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                          horizontal: 6,
+                          vertical: 3,
                         ),
                         decoration: BoxDecoration(
                           color: enrollment.status == EnrollmentStatus.completed
                               ? Colors.green[50]
                               : Colors.blue[50],
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(4),
                           border: Border.all(
                             color:
                                 enrollment.status == EnrollmentStatus.completed
@@ -157,7 +157,7 @@ class EnrollmentCard extends StatelessWidget {
                         child: Text(
                           enrollment.status.name.toUpperCase(),
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 9,
                             fontWeight: FontWeight.w600,
                             color:
                                 enrollment.status == EnrollmentStatus.completed
@@ -171,14 +171,14 @@ class EnrollmentCard extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.access_time,
-                            size: 14,
+                            size: 12,
                             color: Colors.grey[600],
                           ),
                           const SizedBox(width: 4),
                           Text(
                             '${enrollment.totalWatchTimeMinutes}m',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 10,
                               color: Colors.grey[600],
                             ),
                           ),
@@ -197,15 +197,15 @@ class EnrollmentCard extends StatelessWidget {
 
   Widget _buildVerticalCard(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
         border: Border.all(color: Colors.grey[200]!),
@@ -214,14 +214,14 @@ class EnrollmentCard extends StatelessWidget {
         onTap: () => _navigateToCourseDetail(context),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Course Image
               Container(
-                width: 100,
-                height: 100,
+                width: 80,
+                height: 80,
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(8),
@@ -237,12 +237,12 @@ class EnrollmentCard extends StatelessWidget {
                     : Center(
                         child: Icon(
                           Icons.menu_book,
-                          size: 40,
+                          size: 30,
                           color: Colors.grey[400],
                         ),
                       ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,13 +251,13 @@ class EnrollmentCard extends StatelessWidget {
                     Text(
                       'Course: ${enrollment.course.title}',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         color: Colors.black,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     // Progress Section
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,7 +268,7 @@ class EnrollmentCard extends StatelessWidget {
                             Text(
                               'Progress',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.grey[700],
                               ),
@@ -276,19 +276,19 @@ class EnrollmentCard extends StatelessWidget {
                             Text(
                               '${enrollment.progressPercentage.toStringAsFixed(0)}%',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 color: context.palette.buttonBackground,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
                             value: enrollment.progressPercentage / 100,
-                            minHeight: 8,
+                            minHeight: 6,
                             backgroundColor: Colors.grey[200],
                             valueColor: AlwaysStoppedAnimation<Color>(
                               context.palette.buttonBackground,
@@ -297,21 +297,21 @@ class EnrollmentCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     // Status and Watch Time
                     Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                            horizontal: 6,
+                            vertical: 3,
                           ),
                           decoration: BoxDecoration(
                             color:
                                 enrollment.status == EnrollmentStatus.completed
                                     ? Colors.green[50]
                                     : Colors.blue[50],
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(4),
                             border: Border.all(
                               color: enrollment.status ==
                                       EnrollmentStatus.completed
@@ -322,7 +322,7 @@ class EnrollmentCard extends StatelessWidget {
                           child: Text(
                             enrollment.status.name.toUpperCase(),
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 9,
                               fontWeight: FontWeight.w600,
                               color: enrollment.status ==
                                       EnrollmentStatus.completed
@@ -331,19 +331,19 @@ class EnrollmentCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 10),
                         Row(
                           children: [
                             Icon(
                               Icons.access_time,
-                              size: 14,
+                              size: 12,
                               color: Colors.grey[600],
                             ),
                             const SizedBox(width: 4),
                             Text(
                               '${enrollment.totalWatchTimeMinutes}m',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 10,
                                 color: Colors.grey[600],
                               ),
                             ),
@@ -354,7 +354,7 @@ class EnrollmentCard extends StatelessWidget {
                           Text(
                             'Last: ${_formatDate(enrollment.lastAccessedAt!)}',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 10,
                               color: Colors.grey[500],
                             ),
                           ),

@@ -42,7 +42,7 @@ class CourseViewSection extends StatelessWidget {
         children: [
           // Header
           _buildHeader(context),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // Course List
           _buildCourseList(context),

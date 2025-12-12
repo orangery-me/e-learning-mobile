@@ -20,13 +20,13 @@ class QuizzQuestionCardWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Colors.grey.shade300,
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -34,17 +34,17 @@ class QuizzQuestionCardWidget extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
+                    horizontal: 8,
+                    vertical: 4,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     'Question $questionNumber',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: Colors.blue,
                     ),
@@ -54,7 +54,7 @@ class QuizzQuestionCardWidget extends StatelessWidget {
                 Text(
                   '(${question.points} pts)',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Colors.grey.shade600,
                   ),
                 )
@@ -64,19 +64,23 @@ class QuizzQuestionCardWidget extends StatelessWidget {
             Text(
               question.questionText,
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             ...List.generate(question.options.length, (optIndex) {
               return RadioListTile<int>(
                 value: optIndex,
                 groupValue: selectedIndex,
                 contentPadding: EdgeInsets.zero,
+                visualDensity: const VisualDensity(
+                  horizontal: VisualDensity.minimumDensity,
+                  vertical: VisualDensity.minimumDensity,
+                ),
                 title: Text(
                   question.options[optIndex],
-                  style: const TextStyle(fontSize: 14),
+                  style: const TextStyle(fontSize: 13),
                 ),
                 onChanged: (value) {
                   if (value != null) {

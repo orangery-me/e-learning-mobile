@@ -70,7 +70,7 @@ class _HomeViewState extends State<HomeView> {
     }
 
     return Padding(
-        padding: const EdgeInsets.fromLTRB(20, 8, 8, 12),
+        padding: const EdgeInsets.fromLTRB(16, 8, 8, 12),
         child: SingleChildScrollView(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -78,33 +78,33 @@ class _HomeViewState extends State<HomeView> {
           UserHeader(
               name: '${user?.firstName} ${user?.lastName}',
               avatarUrl: 'assets/images/banners/avatar.png'),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // Motivational text
           Text(
             'What do you want to learn today?',
             style: context.textStyles.heading4,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           // search section
           SearchSection(),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           _exploreCategoriesSection(),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // My Learning section
           _myLearningSection(),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // Vertical layout demo
           _verticalCourseSection(),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           const ContinueLearningCard(
             title: 'How to get started',
@@ -112,12 +112,12 @@ class _HomeViewState extends State<HomeView> {
             progress: 0.6,
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // Recently released courses section
           _latestCourse(),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // Category-based courses sections,
           _categoryBasedCourseSection(),
@@ -135,7 +135,7 @@ class _HomeViewState extends State<HomeView> {
         } else {
           isLoading.value = false;
           return Container(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
               // gradient blue
               gradient: LinearGradient(
@@ -195,7 +195,7 @@ class _HomeViewState extends State<HomeView> {
 
               return Column(
                 children: [
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   BlocBuilder<CoursesBloc, CoursesState>(
                     builder: (context, coursesState) {
                       final categoryCourses =
@@ -335,25 +335,25 @@ class _HomeViewState extends State<HomeView> {
 
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: context.palette.scaffoldBackground,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: context.palette.primaryColor.withOpacity(0.1),
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 18)),
+          Text(emoji, style: const TextStyle(fontSize: 16)),
           const SizedBox(width: 8),
           Text(
             displayName,
@@ -399,7 +399,7 @@ class _HomeViewState extends State<HomeView> {
           sectionTitle: 'My Learning',
           subtitle: 'Continue your learning journey',
           enrollments: activeEnrollments,
-          cardHeight: 280,
+          cardHeight: 240,
           isHorizontal: true,
           onSeeAllTap: () {
             // Navigate to My Learning page (tab index 3, after Notification)

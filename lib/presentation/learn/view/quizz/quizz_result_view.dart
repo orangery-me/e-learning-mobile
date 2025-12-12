@@ -97,7 +97,7 @@ class QuizzResultView extends StatelessWidget {
     final isPassed = result.isPassed;
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isPassed
@@ -106,11 +106,11 @@ class QuizzResultView extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: (isPassed ? Colors.green : Colors.orange).withOpacity(0.3),
-            blurRadius: 12,
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
@@ -120,21 +120,21 @@ class QuizzResultView extends StatelessWidget {
           // Icon
           Icon(
             isPassed ? Icons.check_circle : Icons.error,
-            size: 64,
+            size: 48,
             color: Colors.white,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           // Title
           Text(
             isPassed ? 'Congratulations!' : 'Keep Practicing!',
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
 
           // Score Percentage
           Row(
@@ -145,7 +145,7 @@ class QuizzResultView extends StatelessWidget {
               Text(
                 '${percentage.toStringAsFixed(1)}',
                 style: const TextStyle(
-                  fontSize: 56,
+                  fontSize: 48,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
@@ -153,21 +153,21 @@ class QuizzResultView extends StatelessWidget {
               const Text(
                 '%',
                 style: TextStyle(
-                  fontSize: 32,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           // Score Details
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -179,7 +179,7 @@ class QuizzResultView extends StatelessWidget {
                 ),
                 Container(
                   width: 1,
-                  height: 30,
+                  height: 24,
                   color: Colors.white.withOpacity(0.3),
                 ),
                 _buildScoreDetail(
@@ -189,7 +189,7 @@ class QuizzResultView extends StatelessWidget {
                 ),
                 Container(
                   width: 1,
-                  height: 30,
+                  height: 24,
                   color: Colors.white.withOpacity(0.3),
                 ),
                 _buildScoreDetail(
@@ -231,10 +231,10 @@ class QuizzResultView extends StatelessWidget {
 
   Widget _buildQuizInfo(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
@@ -242,19 +242,19 @@ class QuizzResultView extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline, size: 20, color: Colors.grey.shade700),
+              Icon(Icons.info_outline, size: 18, color: Colors.grey.shade700),
               const SizedBox(width: 8),
               Text(
                 'Quiz Information',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey.shade800,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           _buildInfoRow('Quiz', result.quizTitle),
           _buildInfoRow(
             'Time Taken',
@@ -315,7 +315,7 @@ class QuizzResultView extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isCorrect ? Colors.green.shade300 : Colors.red.shade300,
           width: 2,
@@ -333,27 +333,27 @@ class QuizzResultView extends StatelessWidget {
         children: [
           // Header
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: (isCorrect ? Colors.green : Colors.red).shade50,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
               ),
             ),
             child: Row(
               children: [
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: (isCorrect ? Colors.green : Colors.red).shade100,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     'Question $questionNumber',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: (isCorrect ? Colors.green : Colors.red).shade800,
                     ),
@@ -362,24 +362,24 @@ class QuizzResultView extends StatelessWidget {
                 const Spacer(),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: isCorrect ? Colors.green : Colors.red,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         isCorrect ? Icons.check : Icons.close,
-                        size: 16,
+                        size: 14,
                         color: Colors.white,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         isCorrect ? 'Correct' : 'Incorrect',
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -390,15 +390,15 @@ class QuizzResultView extends StatelessWidget {
                 const SizedBox(width: 8),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: Colors.blue.shade100,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     '${answer.pointsEarned.toStringAsFixed(0)}/${answer.maxPoints.toStringAsFixed(0)} pts',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: Colors.blue.shade800,
                     ),
@@ -410,19 +410,19 @@ class QuizzResultView extends StatelessWidget {
 
           // Question Text
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   answer.questionText,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // Options
                 ...answer.options.asMap().entries.map((entry) {
@@ -456,10 +456,11 @@ class QuizzResultView extends StatelessWidget {
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
                       color: bgColor,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: borderColor,
                         width: isUserAnswer || isCorrectAnswer ? 2 : 1,
@@ -468,15 +469,15 @@ class QuizzResultView extends StatelessWidget {
                     child: Row(
                       children: [
                         if (icon != null)
-                          Icon(icon, color: iconColor, size: 20)
+                          Icon(icon, color: iconColor, size: 18)
                         else
-                          const SizedBox(width: 20),
+                          const SizedBox(width: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             option,
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 13,
                               color: isUserAnswer || isCorrectAnswer
                                   ? Colors.black87
                                   : Colors.grey.shade700,
@@ -489,18 +490,18 @@ class QuizzResultView extends StatelessWidget {
                         if (isUserAnswer)
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
+                              horizontal: 6,
+                              vertical: 3,
                             ),
                             decoration: BoxDecoration(
                               color:
                                   isCorrectAnswer ? Colors.green : Colors.red,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
                               'Your Answer',
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 9,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -509,17 +510,17 @@ class QuizzResultView extends StatelessWidget {
                         if (isCorrectAnswer && !isUserAnswer)
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
+                              horizontal: 6,
+                              vertical: 3,
                             ),
                             decoration: BoxDecoration(
                               color: Colors.green,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
                               'Correct Answer',
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 9,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),

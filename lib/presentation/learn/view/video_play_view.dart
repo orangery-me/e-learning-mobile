@@ -81,7 +81,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
 
         if (state.isLoading) {
           return Container(
-            height: 250,
+            height: 220,
             width: double.infinity,
             color: Colors.black,
             child: const Center(child: CircularProgressIndicator()),
@@ -91,7 +91,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
         if (state.videoType == VideoType.youtube &&
             videoBloc.youtubeController != null) {
           return SizedBox(
-            height: 250,
+            height: 220,
             width: double.infinity,
             child: YoutubePlayerBuilder(
               player: YoutubePlayer(
@@ -120,7 +120,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
                 .value
                 .isInitialized) {
           return Container(
-            height: 250,
+            height: 220,
             width: double.infinity,
             color: Colors.black,
             child: Chewie(controller: videoBloc.chewieController!),
@@ -128,7 +128,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
         }
 
         return Container(
-          height: 250,
+          height: 220,
           width: double.infinity,
           color: Colors.black,
           child: const Center(
@@ -149,7 +149,7 @@ class _VideoPlayViewState extends State<VideoPlayView> {
         child: Column(
           children: [
             SizedBox(
-              height: 50,
+              height: 40,
               child: TabBar(tabs: [
                 Tab(text: 'Lectures'),
                 Tab(text: 'More'),

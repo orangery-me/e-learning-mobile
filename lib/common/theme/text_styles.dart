@@ -16,16 +16,18 @@ class Fonts {
     fontFamily: FontFamily.openSans,
   );
 
-  static final TextStyle s10w4 = _defaultTextStyle.copyWith(fontSize: 10.sp).w4;
-  static final TextStyle s10w6 = _defaultTextStyle.copyWith(fontSize: 10.sp).w6;
-  static final TextStyle s12w4 = _defaultTextStyle.copyWith(fontSize: 12.sp).w4;
-  static final TextStyle s14w4 = _defaultTextStyle.copyWith(fontSize: 14.sp).w4;
-  static final TextStyle s14w6 = _defaultTextStyle.copyWith(fontSize: 14.sp).w6;
-  static final TextStyle s16w6 = _defaultTextStyle.copyWith(fontSize: 16.sp).w6;
-  static final TextStyle s18w6 = _defaultTextStyle.copyWith(fontSize: 18.sp).w6;
-  static final TextStyle s22w7 = _defaultTextStyle.copyWith(fontSize: 22.sp).w7;
-  static final TextStyle s24w7 = _defaultTextStyle.copyWith(fontSize: 24.sp).w7;
-  static final TextStyle s32w7 = _defaultTextStyle.copyWith(fontSize: 32.sp).w7;
+  static final TextStyle s10w4 = _defaultTextStyle.copyWith(fontSize: 9.sp).w4;
+  static final TextStyle s10w6 = _defaultTextStyle.copyWith(fontSize: 9.sp).w6;
+  static final TextStyle s12w4 = _defaultTextStyle.copyWith(fontSize: 11.sp).w4;
+  static final TextStyle s14w4 = _defaultTextStyle.copyWith(fontSize: 13.sp).w4;
+  static final TextStyle s14w6 = _defaultTextStyle.copyWith(fontSize: 13.sp).w6;
+  static final TextStyle s16w6 = _defaultTextStyle.copyWith(fontSize: 15.sp).w6;
+  static final TextStyle s18w6 = _defaultTextStyle.copyWith(fontSize: 17.sp).w6;
+  static final TextStyle s22w7 =
+      _defaultTextStyle.copyWith(fontSize: 20.sp).w7; // Reduced significantly
+  static final TextStyle s24w7 = _defaultTextStyle.copyWith(fontSize: 22.sp).w7;
+  static final TextStyle s32w7 =
+      _defaultTextStyle.copyWith(fontSize: 26.sp).w7; // Reduced significantly
 }
 
 @immutable

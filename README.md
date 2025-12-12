@@ -1,3 +1,4 @@
+<!-- "BASE_URL": "https://api-coursevo-dev.id.vn/api" -->
 # Coursevo - E-learning App Project
 
 A new Flutter project.

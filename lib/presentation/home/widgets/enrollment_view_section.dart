@@ -23,7 +23,7 @@ class EnrollmentViewSection extends StatelessWidget {
     this.showSeeAll = true,
     this.onSeeAllTap,
     this.subtitle,
-    this.cardHeight = 240,
+    this.cardHeight = 200,
     this.isHorizontal = true,
   });
 
