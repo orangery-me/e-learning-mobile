@@ -16,19 +16,21 @@ class CodeExerciseRemoteDatasource {
 
   Future<CodeExerciseResponseDto> executeCode(
       CodeExerciseRequestDto request) async {
-    log('Executing code with request DT 123O: ${request.toJson()}');
-    // Determine endpoint based on whether problem description is provided (AI Judge mode)
-    final endpoint = request.problemDescription != null &&
-            request.problemDescription!.isNotEmpty
-        ? 'https://judge-coursevo.onrender.com/api/judge/submit'
-        : 'https://judge-coursevo.onrender.com/api/judge/test';
-
     final response = await _dioHelper.post(
-      endpoint,
+      'https://judge-coursevo.onrender.com/api/judge/test',
       data: request.toJson(),
     );
 
-    log('Response from code execution API: ${response.data}');
+    return CodeExerciseResponseDto.fromJson(response.data);
+  }
+
+  Future<CodeExerciseResponseDto> submitCode(
+      CodeExerciseRequestDto request) async {
+    log('Submitting code with request: ${request.toJson()}');
+    final response = await _dioHelper.post(
+      'https://judge-coursevo.onrender.com/api/judge/submit',
+      data: request.toJson(),
+    );
 
     return CodeExerciseResponseDto.fromJson(response.data);
   }

@@ -19,6 +19,7 @@ class CodeExerciseBloc extends Bloc<CodeExerciseEvent, CodeExerciseState> {
       : super(CodeExerciseState()) {
     on<LoadProblemStatement>(_loadProblem);
     on<ExecuteCodeEvent>((event, emit) => executeCode(event, emit));
+    on<SubmitCodeEvent>((event, emit) => submitCode(event, emit));
     on<ClearResult>((event, emit) =>
         emit(state.copyWith(result: null, errorMessage: null)));
   }
@@ -64,6 +65,26 @@ class CodeExerciseBloc extends Bloc<CodeExerciseEvent, CodeExerciseState> {
       log('Executing code with request: ${request.toJson()}');
       final result = await codeExerciseDatasource.executeCode(request);
       log('Executed code with result: $result');
+      emit(state.copyWith(result: result, isLoading: false));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> submitCode(
+      SubmitCodeEvent event, Emitter<CodeExerciseState> emit) async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      final request = CodeExerciseRequestDto.withAutoExerciseId(
+        languageId: event.languageId,
+        sourceCode: event.sourceCode,
+        stdin: event.stdin,
+        expectedOutput: event.expectedOutput,
+        problemDescription: event.problemDescription,
+      );
+      log('Submitting code with request: ${request.toJson()}');
+      final result = await codeExerciseDatasource.submitCode(request);
+      log('Submitted code with result: ${result.toJson()}');
       emit(state.copyWith(result: result, isLoading: false));
     } catch (e) {
       emit(state.copyWith(isLoading: false, errorMessage: e.toString()));

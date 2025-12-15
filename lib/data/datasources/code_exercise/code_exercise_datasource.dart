@@ -14,6 +14,9 @@ class CodeExerciseDatasource {
   Future<CodeExerciseResponseDto> executeCode(CodeExerciseRequestDto request) =>
       _remote.executeCode(request);
 
+  Future<CodeExerciseResponseDto> submitCode(CodeExerciseRequestDto request) =>
+      _remote.submitCode(request);
+
   Future<CodeProblemStatement> getProblemStatementById(String id) =>
       _remote.getProblemStatementById(id);
 }

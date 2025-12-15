@@ -7,7 +7,7 @@ enum OrderStatus {
   delivered;
 
   factory OrderStatus.fromJson(String? raw) => OrderStatus.values.firstWhere(
-        (e) => e.name == raw,
+        (e) => e.name.toUpperCase() == raw?.toUpperCase(),
         orElse: () => OrderStatus.pending,
       );
 }

@@ -16,6 +16,7 @@ import 'package:e_learning_mobile/presentation/payment/widgets/payment_card.dart
 import 'package:e_learning_mobile/presentation/payment/widgets/qr_payment_dialig_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
 
 class OrderDetailPage extends StatelessWidget {
   final OrderEvent? initialEvent;
@@ -317,17 +318,17 @@ class _OrderSummary extends StatelessWidget {
   String _getStatusText(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending:
-        return 'Pending';
+        return 'PENDING';
       case OrderStatus.paid:
-        return 'Paid';
+        return 'PAID';
       case OrderStatus.failed:
-        return 'Failed';
+        return 'FAILED';
       case OrderStatus.cancelled:
-        return 'Cancelled';
+        return 'CANCELLED';
       case OrderStatus.refunded:
-        return 'Refunded';
+        return 'REFUNDED';
       case OrderStatus.delivered:
-        return 'Delivered';
+        return 'DELIVERED';
     }
   }
 
@@ -399,29 +400,26 @@ class _OrderSummary extends StatelessWidget {
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
-                      Icons.receipt_long,
-                      color: Colors.black,
+                    child: Icon(
+                      IconlyBold.wallet,
+                      color: context.palette.primaryColor,
                       size: 24,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Order #${order.orderNumber}',
+                          '#${order.orderNumber}',
                           style: context.textStyles.heading4.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          FormatUtil.formatNumberAsCurrency(
-                            order.finalAmount,
-                            symbol: '₫',
-                          ),
+                          'Total: ${FormatUtil.formatNumberAsCurrency(order.finalAmount, symbol: '₫')}',
                           style: context.textStyles.heading4,
                         ),
                       ],
@@ -453,7 +451,7 @@ class _OrderSummary extends StatelessWidget {
                           _getStatusText(order.status),
                           style: context.textStyles.metadata1.copyWith(
                             color: _getStatusColor(order.status),
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -462,8 +460,7 @@ class _OrderSummary extends StatelessWidget {
                 ],
               ),
               if (order.createdAt != null) ...[
-                const SizedBox(height: 12),
-                Divider(color: Colors.white.withOpacity(0.2)),
+                Divider(color: Colors.grey[500]),
                 const SizedBox(height: 8),
                 Row(
                   children: [

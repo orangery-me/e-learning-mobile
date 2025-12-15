@@ -16,10 +16,10 @@ class CodeProblemStatement {
   CodeProblemStatement({
     required this.id,
     required this.lectureId,
-    required this.title,
-    required this.problemStatement,
-    required this.timeLimitSeconds,
-    required this.createdAt,
+    this.title,
+    this.problemStatement,
+    this.timeLimitSeconds,
+    this.createdAt,
     required this.testCases,
   });
 

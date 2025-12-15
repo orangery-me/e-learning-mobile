@@ -9,7 +9,7 @@ class ChatDatasource {
 
   Future<ChatBotResponseDto> sendMessage(String query) async {
     final response = await _dioHelper
-        .get('https://f0a25427fba5.ngrok-free.app/ask?query=$query');
+        .get('https://c719b6c51e89.ngrok-free.app/ask?query=$query');
 
     return ChatBotResponseDto.fromJson(response.data as Map<String, dynamic>);
   }

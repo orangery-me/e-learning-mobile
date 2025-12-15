@@ -1,9 +1,9 @@
 enum PaymentStatus {
   pending,
-  paid,
   failed,
   cancelled,
-  refunded;
+  refunded,
+  success;
 
   factory PaymentStatus.fromJson(String? raw) =>
       PaymentStatus.values.firstWhere(

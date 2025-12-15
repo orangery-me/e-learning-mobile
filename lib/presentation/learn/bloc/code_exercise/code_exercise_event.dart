@@ -32,6 +32,22 @@ class ExecuteCodeEvent extends CodeExerciseEvent {
   });
 }
 
+class SubmitCodeEvent extends CodeExerciseEvent {
+  final String sourceCode;
+  final int languageId;
+  final String? stdin;
+  final String? expectedOutput;
+  final String? problemDescription;
+
+  const SubmitCodeEvent({
+    required this.sourceCode,
+    required this.languageId,
+    this.stdin,
+    this.expectedOutput,
+    this.problemDescription,
+  });
+}
+
 class ClearResult extends CodeExerciseEvent {}
 
 // class GetCodeExercise

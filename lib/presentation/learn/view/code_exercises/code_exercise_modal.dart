@@ -97,6 +97,8 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
         _stdinController.clear();
         _expectedController.clear();
       }
+      // Populate problem description for AI judge
+      _problemController.text = problem.problemStatement ?? '';
       _selectedTestCaseIndex = 0;
     });
   }
@@ -467,11 +469,10 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
   }
 
   Widget _runButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: BlocBuilder<CodeExerciseBloc, CodeExerciseState>(
-        builder: (context, state) {
-          return ElevatedButton.icon(
+    return BlocBuilder<CodeExerciseBloc, CodeExerciseState>(
+      builder: (context, state) {
+        return Expanded(
+          child: ElevatedButton.icon(
             onPressed: state.isLoading
                 ? null
                 : () {
@@ -481,8 +482,6 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
                       );
                       return;
                     }
-
-                    // log('problemDescription: ${_selectedMode == RunMode.aiJudge ? _problemController.text.trim() : 'N/A'}');
 
                     context.read<CodeExerciseBloc>().add(ExecuteCodeEvent(
                           sourceCode: _codeController.text.trim(),
@@ -512,9 +511,68 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _submitButton() {
+    return BlocBuilder<CodeExerciseBloc, CodeExerciseState>(
+      builder: (context, state) {
+        return Expanded(
+          child: ElevatedButton.icon(
+            onPressed: state.isLoading
+                ? null
+                : () {
+                    if (_codeController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please enter some code')),
+                      );
+                      return;
+                    }
+
+                    context.read<CodeExerciseBloc>().add(SubmitCodeEvent(
+                          sourceCode: _codeController.text.trim(),
+                          languageId: int.parse(_selectedLanguage),
+                          stdin: _stdinController.text.trim().isEmpty
+                              ? null
+                              : _stdinController.text.trim(),
+                          expectedOutput:
+                              _expectedController.text.trim().isEmpty
+                                  ? null
+                                  : _expectedController.text.trim(),
+                          problemDescription: _problemController.text.trim(),
+                        ));
+                  },
+            icon: state.isLoading
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.send, color: Colors.white),
+            label: Text(state.isLoading ? 'Submitting...' : 'Submit',
+                style: TextStyle(color: context.palette.buttonText)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.purple,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      children: [
+        _runButton(),
+        const SizedBox(width: 12),
+        _submitButton(),
+      ],
     );
   }
 
@@ -664,8 +722,8 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
             ),
             const SizedBox(height: 16),
 
-            // Run button
-            _runButton(),
+            // Run and Submit buttons
+            _buildActionButtons(),
             const SizedBox(height: 16),
 
             // Result box
@@ -1023,8 +1081,8 @@ class _CodeExerciseModalState extends State<CodeExerciseModal>
             ),
             const SizedBox(height: 16),
 
-            // Run button
-            _runButton(),
+            // Run and Submit buttons
+            _buildActionButtons(),
             const SizedBox(height: 16),
 
             // Result box

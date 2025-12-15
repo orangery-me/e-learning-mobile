@@ -37,15 +37,15 @@ class PaymentCard extends StatelessWidget {
       final paymentStatus = PaymentStatus.fromJson(status);
       switch (paymentStatus) {
         case PaymentStatus.pending:
-          return 'Pending';
-        case PaymentStatus.paid:
-          return 'Paid';
+          return 'PENDING';
         case PaymentStatus.failed:
-          return 'Failed';
+          return 'FAILED';
         case PaymentStatus.cancelled:
-          return 'Cancelled';
+          return 'CANCELLED';
         case PaymentStatus.refunded:
-          return 'Refunded';
+          return 'REFUNDED';
+        case PaymentStatus.success:
+          return 'SUCCESS';
       }
     } catch (e) {
       return status;
@@ -59,14 +59,14 @@ class PaymentCard extends StatelessWidget {
       switch (paymentStatus) {
         case PaymentStatus.pending:
           return Colors.orange;
-        case PaymentStatus.paid:
-          return Colors.green;
         case PaymentStatus.failed:
           return Colors.red;
         case PaymentStatus.cancelled:
           return Colors.grey;
         case PaymentStatus.refunded:
           return Colors.blue;
+        case PaymentStatus.success:
+          return Colors.green;
       }
     } catch (e) {
       return Colors.grey;
@@ -226,7 +226,7 @@ class _InfoRow extends StatelessWidget {
                         value,
                         style: this.context.textStyles.body2.copyWith(
                               color: valueColor,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                             ),
                       ),
                     ),
