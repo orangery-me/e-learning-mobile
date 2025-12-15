@@ -54,6 +54,10 @@ import 'package:e_learning_mobile/data/datasources/review/remote/review_remote_d
     as _i827;
 import 'package:e_learning_mobile/data/datasources/review/review_datasource.dart'
     as _i560;
+import 'package:e_learning_mobile/data/datasources/roadmap/remote/roadmap_remote_datasource.dart'
+    as _i646;
+import 'package:e_learning_mobile/data/datasources/roadmap/roadmap_datasource.dart'
+    as _i720;
 import 'package:e_learning_mobile/data/datasources/section/remote/section_datasource.dart'
     as _i629;
 import 'package:e_learning_mobile/data/datasources/section/section_datasource.dart'
@@ -107,6 +111,8 @@ import 'package:e_learning_mobile/presentation/payment/bloc/payment/payment_bloc
     as _i1038;
 import 'package:e_learning_mobile/presentation/payment/bloc/payment_notification/payment_notification_bloc.dart'
     as _i222;
+import 'package:e_learning_mobile/presentation/roadmap/bloc/roadmap_bloc.dart'
+    as _i116;
 import 'package:flutter/cupertino.dart' as _i719;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
@@ -176,6 +182,8 @@ Future<_i174.GetIt> initGetIt(
       () => _i827.ReviewRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i927.CartRemoteDatasource>(
       () => _i927.CartRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
+  gh.lazySingleton<_i646.RoadmapRemoteDatasource>(
+      () => _i646.RoadmapRemoteDatasource(dioHelper: gh<_i896.DioHelper>()));
   gh.lazySingleton<_i84.NoteDatasource>(
       () => _i84.NoteDatasource(remote: gh<_i277.NoteRemoteDatasource>()));
   gh.lazySingleton<_i576.QuizzDatasource>(() => _i576.QuizzDatasource(
@@ -188,6 +196,8 @@ Future<_i174.GetIt> initGetIt(
       remoteDatasource: gh<_i184.VideoEventsRemoteDatasource>()));
   gh.factory<_i914.QuizzBloc>(
       () => _i914.QuizzBloc(datasource: gh<_i576.QuizzDatasource>()));
+  gh.lazySingleton<_i720.RoadmapDatasource>(() => _i720.RoadmapDatasource(
+      remoteDatasource: gh<_i646.RoadmapRemoteDatasource>()));
   gh.lazySingleton<_i24.CartDatasource>(
       () => _i24.CartDatasource(remote: gh<_i927.CartRemoteDatasource>()));
   gh.lazySingleton<_i201.CourseDatasource>(() => _i201.CourseDatasource(
@@ -196,6 +206,10 @@ Future<_i174.GetIt> initGetIt(
       () => _i560.ReviewDatasource(remote: gh<_i827.ReviewRemoteDatasource>()));
   gh.factory<_i148.CoursesBloc>(
       () => _i148.CoursesBloc(datasource: gh<_i201.CourseDatasource>()));
+  gh.factory<_i116.RoadmapBloc>(() => _i116.RoadmapBloc(
+        datasource: gh<_i720.RoadmapDatasource>(),
+        courseDatasource: gh<_i201.CourseDatasource>(),
+      ));
   gh.factory<_i275.ReviewsBloc>(
       () => _i275.ReviewsBloc(datasource: gh<_i560.ReviewDatasource>()));
   gh.lazySingleton<_i637.OrderDatasource>(

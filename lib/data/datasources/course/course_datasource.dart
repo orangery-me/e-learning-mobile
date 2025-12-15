@@ -29,6 +29,11 @@ class CourseDatasource {
     return _remoteDatasource.fetchCourseById(courseId);
   }
 
+  Future<List<CourseResponseDto>> fetchCoursesByIds(
+      List<String> courseIds) async {
+    return _remoteDatasource.fetchCoursesByIds(courseIds);
+  }
+
   Future<List<String>> fetchCategories() async {
     return _remoteDatasource.fetchCategories();
   }

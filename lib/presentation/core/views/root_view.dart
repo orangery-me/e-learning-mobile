@@ -4,6 +4,7 @@ import 'package:e_learning_mobile/presentation/home/bloc/chat/chat_bloc.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/bubble_chat/chat_bubble_floating.dart';
 import 'package:e_learning_mobile/presentation/home/widgets/bubble_chat/chat_popup.dart';
 import 'package:e_learning_mobile/presentation/payment/views/order_view.dart';
+import 'package:e_learning_mobile/presentation/roadmap/views/roadmap_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:e_learning_mobile/presentation/core/bloc/root_bloc.dart';
@@ -49,7 +50,7 @@ class _RootViewState extends State<_RootView> {
                 children: [
                   HomePage(),
                   MyLearningPage(),
-                  NotificationPage(),
+                  RoadmapPage(),
                   OrderPage(),
                   ProfilePage(),
                 ],

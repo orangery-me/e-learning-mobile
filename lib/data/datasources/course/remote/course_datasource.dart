@@ -47,6 +47,28 @@ class CourseRemoteDatasource {
     return CourseResponseDto.fromJson(response.data['data']);
   }
 
+  // get courses by list of ids
+  Future<List<CourseResponseDto>> fetchCoursesByIds(
+      List<String> courseIds) async {
+    try {
+      final response = await _dioHelper.post(
+        Endpoints.coursesListByIds,
+        data: courseIds,
+      );
+
+      if (response.data['status'] == 'success') {
+        return (response.data['data'] as List)
+            .map((course) => CourseResponseDto.fromJson(course))
+            .toList();
+      } else {
+        throw Exception('Failed to fetch courses: ${response.data}');
+      }
+    } catch (e) {
+      log('Error fetching courses by ids: $e');
+      rethrow;
+    }
+  }
+
   // get categories
   Future<List<String>> fetchCategories() async {
     final response = await _dioHelper.get('${Endpoints.courses}/category');

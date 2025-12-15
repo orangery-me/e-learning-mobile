@@ -12,6 +12,7 @@ abstract class Endpoints {
 
   // course api
   static String courses = '$apiUrl/courses';
+  static String coursesListByIds = '$apiUrl/courses/list-ids';
 
   // section api
   static String sections = '$apiUrl/sections';
@@ -48,4 +49,7 @@ abstract class Endpoints {
 
   // quizz-submission
   static String quizzSubmissions = '$apiUrl/quiz-submissions';
+
+  // career plans api
+  static String careerPlans = '$apiUrl/career-plans/me';
 }
